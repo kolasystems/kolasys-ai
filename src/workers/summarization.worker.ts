@@ -1,6 +1,16 @@
 // Kolasys AI — Summarization BullMQ worker
 // Run this process separately: `tsx src/workers/summarization.worker.ts`
 
+import 'dotenv/config'
+import * as Sentry from '@sentry/nextjs'
+
+// Initialise Sentry before importing any other modules.
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 1.0,
+  initialScope: { tags: { worker: 'summarization' } },
+})
+
 import { Worker, type Job } from 'bullmq'
 import { bullmqConnection } from '@/lib/redis'
 import { db } from '@/lib/db'
@@ -13,6 +23,11 @@ import { type SummarizationJobData } from '@/lib/queues'
 import { JobStatus, Priority, RecordingStatus } from '@/generated/prisma/client'
 import { postToSlack } from '@/services/integrations/slack.service'
 import { createNotionPage } from '@/services/integrations/notion.service'
+import { sendEmail } from '@/lib/email'
+import { NotesReadyEmail } from '@/emails/notes-ready'
+import { captureServerEvent } from '@/lib/posthog'
+import { clerkClient } from '@clerk/nextjs/server'
+import React from 'react'
 
 // ─── Priority mapping ────────────────────────────────────────────────────────
 // Claude returns string literals; map to the Prisma enum.
@@ -218,6 +233,10 @@ async function processSummarization(job: Job<SummarizationJobData>) {
     }
   } catch (integrationErr) {
     console.error('[summarization] Integration push error (non-fatal):', integrationErr)
+    Sentry.captureException(integrationErr, {
+      tags: { worker: 'summarization', phase: 'integrations' },
+      extra: { recordingId },
+    })
   }
 
   // ── 8. Mark recording as READY ────────────────────────────────────────────
@@ -241,6 +260,60 @@ async function processSummarization(job: Job<SummarizationJobData>) {
   })
 
   console.log(`[summarization] Completed job ${job.id}. Note: ${note.id}`)
+
+  // ── 10. PostHog: recording_ready event ────────────────────────────────────
+  const wordCount = transcript.text.split(/\s+/).filter(Boolean).length
+  captureServerEvent(recording.userId, 'recording_ready', {
+    recording_id: recordingId,
+    org_id: recording.orgId,
+    word_count: wordCount,
+    section_count: summaryResult.sections.length,
+    action_item_count: rawActionItems.length,
+  })
+
+  // ── 11. Send notes-ready email to the recording creator ───────────────────
+  try {
+    const client = await clerkClient()
+    const clerkUser = await client.users.getUser(recording.userId)
+    const email = clerkUser.emailAddresses.find(
+      (e) => e.id === clerkUser.primaryEmailAddressId
+    )?.emailAddress
+
+    if (email) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.kolasys.ai'
+      const recordingUrl = `${appUrl}/dashboard/recordings/${recordingId}`
+      const firstName = clerkUser.firstName ?? 'there'
+
+      await sendEmail({
+        to: email,
+        subject: `Your notes from "${recording.title}" are ready`,
+        react: React.createElement(NotesReadyEmail, {
+          recipientName: firstName,
+          recordingTitle: recording.title,
+          summary: summaryResult.summary ?? '',
+          sections: summaryResult.sections.map((s) => ({
+            title: s.title,
+            content: s.content,
+          })),
+          actionItems: rawActionItems.map((a) => ({
+            title: a.title,
+            priority: String(toPriority(a.priority)),
+          })),
+          recordingUrl,
+          appUrl,
+        }),
+      })
+
+      console.log(`[summarization] Notes-ready email sent to ${email}`)
+    }
+  } catch (emailErr) {
+    // Email is non-fatal — recording is already marked READY
+    console.error(`[summarization] Failed to send notes-ready email:`, emailErr)
+    Sentry.captureException(emailErr, {
+      tags: { worker: 'summarization', phase: 'email' },
+      extra: { recordingId },
+    })
+  }
 }
 
 // ─── Failure handler ─────────────────────────────────────────────────────────
@@ -255,6 +328,16 @@ async function handleFailure(
     `[summarization] Job ${job.id} failed (attempt ${job.attemptsMade}/${job.opts.attempts ?? 3}):`,
     err.message
   )
+
+  // Report to Sentry
+  Sentry.captureException(err, {
+    tags: { worker: 'summarization' },
+    extra: {
+      jobId: job.id,
+      recordingId: job.data.recordingId,
+      attempt: job.attemptsMade,
+    },
+  })
 
   // Only mark the recording as FAILED on the final attempt so transient
   // errors (rate limits, network blips) get a chance to retry first.
@@ -296,7 +379,10 @@ const worker = new Worker<SummarizationJobData>(
 )
 
 worker.on('failed', handleFailure)
-worker.on('error', (err) => console.error('[summarization] Worker error:', err))
+worker.on('error', (err) => {
+  console.error('[summarization] Worker error:', err)
+  Sentry.captureException(err, { tags: { worker: 'summarization', phase: 'worker_error' } })
+})
 
 console.log('[summarization] Worker started')
 

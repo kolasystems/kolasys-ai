@@ -1,11 +1,28 @@
 // Kolasys AI — Clerk webhook handler
-// Syncs Clerk organization events to the database.
+// Syncs Clerk organization and user events to the database.
 // Requires: npm install svix
 
 import { headers } from 'next/headers'
 import { Webhook } from 'svix'
 import { db } from '@/lib/db'
 import { slugify } from '@/lib/utils'
+import { sendEmail } from '@/lib/email'
+import { WelcomeEmail } from '@/emails/welcome'
+import React from 'react'
+
+// ─── Event types ─────────────────────────────────────────────────────────────
+
+type ClerkUserCreatedEvent = {
+  type: 'user.created'
+  data: {
+    id: string
+    email_addresses: Array<{ id: string; email_address: string }>
+    primary_email_address_id: string
+    first_name: string | null
+    last_name: string | null
+    username: string | null
+  }
+}
 
 type ClerkOrganizationEvent = {
   type: string
@@ -30,6 +47,13 @@ type ClerkOrganizationMembershipEvent = {
   }
 }
 
+type ClerkEvent =
+  | ClerkUserCreatedEvent
+  | ClerkOrganizationEvent
+  | ClerkOrganizationMembershipEvent
+
+// ─── Handler ─────────────────────────────────────────────────────────────────
+
 export async function POST(req: Request) {
   const secret = process.env.CLERK_WEBHOOK_SECRET
   if (!secret) {
@@ -47,20 +71,46 @@ export async function POST(req: Request) {
 
   const body = await req.text()
 
-  let event: ClerkOrganizationEvent | ClerkOrganizationMembershipEvent
+  let event: ClerkEvent
   try {
     const wh = new Webhook(secret)
     event = wh.verify(body, {
       'svix-id': svixId,
       'svix-timestamp': svixTimestamp,
       'svix-signature': svixSignature,
-    }) as typeof event
+    }) as ClerkEvent
   } catch {
     return new Response('Webhook verification failed', { status: 400 })
   }
 
   try {
     switch (event.type) {
+      // ── User events ────────────────────────────────────────────────────────
+
+      case 'user.created': {
+        const d = (event as ClerkUserCreatedEvent).data
+        const primaryEmail = d.email_addresses.find(
+          (e) => e.id === d.primary_email_address_id
+        )?.email_address
+
+        if (primaryEmail) {
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.kolasys.ai'
+          const firstName = d.first_name ?? 'there'
+
+          // Send welcome email (non-fatal — don't let email failure break the webhook)
+          sendEmail({
+            to: primaryEmail,
+            subject: 'Welcome to Kolasys AI',
+            react: React.createElement(WelcomeEmail, { firstName, appUrl }),
+          }).catch((err) =>
+            console.error('[clerk webhook] Failed to send welcome email:', err)
+          )
+        }
+        break
+      }
+
+      // ── Organization events ───────────────────────────────────────────────
+
       case 'organization.created': {
         const d = (event as ClerkOrganizationEvent).data
         const existingOrg = await db.organization.findUnique({

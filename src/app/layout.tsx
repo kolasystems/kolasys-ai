@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 import { TRPCReactProvider } from '@/providers/trpc-provider'
+import { PostHogProvider } from '@/providers/posthog-provider'
 import './globals.css'
 
 const geistSans = Geist({
@@ -30,7 +31,11 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <TRPCReactProvider>{children}</TRPCReactProvider>
+          <TRPCReactProvider>
+            <PostHogProvider>
+              {children}
+            </PostHogProvider>
+          </TRPCReactProvider>
         </body>
       </html>
     </ClerkProvider>

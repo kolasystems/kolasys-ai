@@ -12,6 +12,7 @@ import {
 import { generateRecordingKey, getSignedUploadUrl, deleteFromS3 } from '@/lib/storage'
 import { transcriptionQueue } from '@/lib/queues'
 import { deployBot } from '@/services/meetingbot.service'
+import { captureServerEvent } from '@/lib/posthog'
 
 export const recordingsRouter = router({
   // ── List recordings for the active org ────────────────────────────────────
@@ -85,6 +86,14 @@ export const recordingsRouter = router({
       })
 
       if (!recording) throw new TRPCError({ code: 'NOT_FOUND' })
+
+      // Track note viewed (fires on each fetch — PostHog deduplicates per session)
+      if (recording.status === 'READY' && recording.notes.length > 0) {
+        captureServerEvent(ctx.userId, 'note_viewed', {
+          recording_id: recording.id,
+          has_action_items: recording.notes[0]?.actionItems.length > 0,
+        })
+      }
 
       return recording
     }),
@@ -222,6 +231,15 @@ export const recordingsRouter = router({
         s3Key: recording.s3Key,
       })
 
+      // PostHog: track recording upload (fire-and-forget)
+      captureServerEvent(ctx.userId, 'recording_uploaded', {
+        recording_id: recording.id,
+        source: recording.source,
+        file_size: input.fileSize,
+        mime_type: input.mimeType,
+        org_id: ctx.orgId,
+      })
+
       return { success: true }
     }),
 
@@ -312,11 +330,11 @@ export const recordingsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const item = await ctx.db.actionItem.findFirst({
         where: { id: input.id, orgId: ctx.orgId },
-        select: { id: true },
+        select: { id: true, noteId: true },
       })
       if (!item) throw new TRPCError({ code: 'NOT_FOUND' })
 
-      return ctx.db.actionItem.update({
+      const updated = await ctx.db.actionItem.update({
         where: { id: input.id },
         data: {
           ...(input.status !== undefined && { status: input.status }),
@@ -324,6 +342,16 @@ export const recordingsRouter = router({
         },
         select: { id: true, status: true, priority: true },
       })
+
+      // PostHog: track action item completion (fire-and-forget)
+      if (input.status === ActionItemStatus.COMPLETED) {
+        captureServerEvent(ctx.userId, 'action_item_completed', {
+          action_item_id: input.id,
+          org_id: ctx.orgId,
+        })
+      }
+
+      return updated
     }),
 
   // ── List speaker labels for a recording ───────────────────────────────────
@@ -390,4 +418,19 @@ export const recordingsRouter = router({
         return row
       }
     }),
+
+  // ── TODO: Ask AI query ────────────────────────────────────────────────────
+  // When implemented, add PostHog tracking:
+  //   captureServerEvent(ctx.userId, 'ask_ai_query', {
+  //     has_recording_id: !!input.recordingId,
+  //     query_length: input.query.length,
+  //   })
+
+  // ── TODO: Calendar connected ──────────────────────────────────────────────
+  // When calendar OAuth is implemented:
+  //   captureServerEvent(ctx.userId, 'calendar_connected', { provider: 'google' | 'outlook' })
+
+  // ── TODO: Integration connected ───────────────────────────────────────────
+  // When Slack/Notion settings are implemented:
+  //   captureServerEvent(ctx.userId, 'integration_connected', { type: 'slack' | 'notion' })
 })

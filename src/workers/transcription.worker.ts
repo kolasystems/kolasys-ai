@@ -5,6 +5,17 @@
 // Every Prisma call here must be a single-model point operation:
 //   findFirst / findUnique / create / update / delete — NO batch ops, NO nested writes.
 
+import 'dotenv/config'
+import * as Sentry from '@sentry/nextjs'
+
+// Initialise Sentry before importing any other modules.
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 1.0,
+  // Tag all worker errors so they're easy to filter in Sentry
+  initialScope: { tags: { worker: 'transcription' } },
+})
+
 import { Worker, type Job } from 'bullmq'
 import { bullmqConnection } from '@/lib/redis'
 import { db } from '@/lib/db'
@@ -142,6 +153,10 @@ async function processTranscription(job: Job<TranscriptionJobData>) {
     } catch (diarErr) {
       // Diarization is non-fatal — transcript is already saved without speakers
       console.error(`[transcription] Diarization failed (non-fatal):`, diarErr)
+      Sentry.captureException(diarErr, {
+        tags: { worker: 'transcription', phase: 'diarization' },
+        extra: { recordingId },
+      })
     }
   }
 
@@ -151,6 +166,10 @@ async function processTranscription(job: Job<TranscriptionJobData>) {
   } catch (err) {
     // Log but don't fail the job — transcript is already saved.
     console.error(`[transcription] Failed to delete S3 object ${s3Key}:`, err)
+    Sentry.captureException(err, {
+      tags: { worker: 'transcription', phase: 's3_delete' },
+      extra: { recordingId, s3Key },
+    })
   }
 
   // Update recording duration if available.
@@ -197,6 +216,16 @@ async function handleFailure(job: Job<TranscriptionJobData> | undefined, err: Er
   if (!job) return
   console.error(`[transcription] Job ${job.id} failed:`, err.message)
 
+  // Report to Sentry with full context
+  Sentry.captureException(err, {
+    tags: { worker: 'transcription' },
+    extra: {
+      jobId: job.id,
+      recordingId: job.data.recordingId,
+      attempt: job.attemptsMade,
+    },
+  })
+
   // updateMany uses transactions internally — use findFirst + update instead.
   const failedJob = await db.processingJob.findFirst({
     where: { recordingId: job.data.recordingId, type: 'TRANSCRIPTION', status: 'PROCESSING' },
@@ -229,7 +258,10 @@ const worker = new Worker<TranscriptionJobData>(
 )
 
 worker.on('failed', handleFailure)
-worker.on('error', (err) => console.error('[transcription] Worker error:', err))
+worker.on('error', (err) => {
+  console.error('[transcription] Worker error:', err)
+  Sentry.captureException(err, { tags: { worker: 'transcription', phase: 'worker_error' } })
+})
 
 console.log('[transcription] Worker started')
 
