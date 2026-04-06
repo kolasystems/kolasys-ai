@@ -2,10 +2,11 @@
 
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
-import { router, orgProcedure, protectedProcedure } from '../trpc'
+import { router, orgProcedure } from '../trpc'
 import { RecordingSource, RecordingStatus } from '@/generated/prisma/client'
-import { generateRecordingKey, getSignedUploadUrl } from '@/lib/storage'
+import { generateRecordingKey, getSignedUploadUrl, deleteFromS3 } from '@/lib/storage'
 import { transcriptionQueue } from '@/lib/queues'
+import { deployBot } from '@/services/meetingbot.service'
 
 export const recordingsRouter = router({
   // ── List recordings for the active org ────────────────────────────────────
@@ -40,12 +41,14 @@ export const recordingsRouter = router({
       return { items, nextCursor }
     }),
 
-  // ── Get a single recording (any org member can view their own org's) ───────
-  get: protectedProcedure
+  // ── Get a single recording — org-scoped so users can only access their own ─
+  // FIX P0-1: switched from protectedProcedure to orgProcedure and added orgId
+  // to the query so cross-org data access is impossible.
+  get: orgProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const recording = await ctx.db.recording.findUnique({
-        where: { id: input.id },
+      const recording = await ctx.db.recording.findFirst({
+        where: { id: input.id, orgId: ctx.orgId },
         include: {
           transcript: {
             include: {
@@ -79,7 +82,7 @@ export const recordingsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.recording.create({
+      const recording = await ctx.db.recording.create({
         data: {
           orgId: ctx.orgId,
           userId: ctx.userId,
@@ -90,6 +93,31 @@ export const recordingsRouter = router({
           status: RecordingStatus.PENDING,
         },
       })
+
+      // FIX P0-3: deploy the Recall.ai bot immediately after creating the record.
+      if (input.source === RecordingSource.MEETING_BOT && input.meetingUrl) {
+        try {
+          const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/recall`
+          const botId = await deployBot(input.meetingUrl, recording.id, webhookUrl)
+          await ctx.db.recording.update({
+            where: { id: recording.id },
+            data: { botId, status: RecordingStatus.PROCESSING },
+          })
+          return { ...recording, botId, status: RecordingStatus.PROCESSING }
+        } catch (err) {
+          // Bot deployment failed — clean up and surface the error to the client.
+          await ctx.db.recording.update({
+            where: { id: recording.id },
+            data: { status: RecordingStatus.FAILED },
+          })
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: err instanceof Error ? err.message : 'Failed to deploy meeting bot',
+          })
+        }
+      }
+
+      return recording
     }),
 
   // ── Delete a recording ────────────────────────────────────────────────────
@@ -100,6 +128,19 @@ export const recordingsRouter = router({
         where: { id: input.id, orgId: ctx.orgId },
       })
       if (!recording) throw new TRPCError({ code: 'NOT_FOUND' })
+
+      // FIX P0-5: delete the S3 object before removing the DB row.
+      // Don't fail the deletion if S3 errors — the file may already be gone.
+      if (recording.s3Key) {
+        try {
+          await deleteFromS3(recording.s3Key)
+        } catch (err) {
+          console.error(
+            `[recordings.delete] Failed to delete S3 object ${recording.s3Key}:`,
+            err
+          )
+        }
+      }
 
       await ctx.db.recording.delete({ where: { id: input.id } })
       return { success: true }

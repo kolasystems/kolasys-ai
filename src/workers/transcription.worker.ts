@@ -8,7 +8,7 @@
 import { Worker, type Job } from 'bullmq'
 import { bullmqConnection } from '@/lib/redis'
 import { db } from '@/lib/db'
-import { getSignedDownloadUrl } from '@/lib/storage'
+import { getSignedDownloadUrl, deleteFromS3 } from '@/lib/storage'
 import { transcribeAudio } from '@/services/transcription.service'
 import { summarizationQueue, type TranscriptionJobData } from '@/lib/queues'
 import { JobStatus, RecordingStatus } from '@/generated/prisma/client'
@@ -80,6 +80,14 @@ async function processTranscription(job: Job<TranscriptionJobData>) {
         },
       })
     }
+  }
+
+  // FIX P0-4: delete the S3 audio file — privacy by design, audio is not kept after transcription.
+  try {
+    await deleteFromS3(s3Key)
+  } catch (err) {
+    // Log but don't fail the job — transcript is already saved.
+    console.error(`[transcription] Failed to delete S3 object ${s3Key}:`, err)
   }
 
   // Update recording duration if available.

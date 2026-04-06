@@ -23,8 +23,13 @@ export function BrowserRecorder({ onRecordingComplete, className }: Props) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
 
+  // FIX P0-2: store the finished blob in state so the user explicitly clicks
+  // "Use This Recording" to trigger the upload, rather than firing on Stop.
+  const recordedBlobRef = useRef<{ blob: Blob; mimeType: string } | null>(null)
+
   const startRecording = useCallback(async () => {
     setError(null)
+    recordedBlobRef.current = null
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
       streamRef.current = stream
@@ -43,7 +48,8 @@ export function BrowserRecorder({ onRecordingComplete, className }: Props) {
 
       recorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: mimeType })
-        onRecordingComplete(blob, mimeType)
+        // Store the blob — upload is triggered only when user clicks "Use This Recording".
+        recordedBlobRef.current = { blob, mimeType }
         // Stop all tracks to release the microphone.
         streamRef.current?.getTracks().forEach((t) => t.stop())
       }
@@ -56,7 +62,7 @@ export function BrowserRecorder({ onRecordingComplete, className }: Props) {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not access microphone.')
     }
-  }, [onRecordingComplete])
+  }, [])
 
   const stopRecording = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current)
@@ -69,7 +75,13 @@ export function BrowserRecorder({ onRecordingComplete, className }: Props) {
     setElapsed(0)
     setError(null)
     chunksRef.current = []
+    recordedBlobRef.current = null
   }, [])
+
+  const handleUseRecording = useCallback(() => {
+    if (!recordedBlobRef.current) return
+    onRecordingComplete(recordedBlobRef.current.blob, recordedBlobRef.current.mimeType)
+  }, [onRecordingComplete])
 
   return (
     <div className={cn('flex flex-col items-center gap-4', className)}>
@@ -104,6 +116,12 @@ export function BrowserRecorder({ onRecordingComplete, className }: Props) {
       {state === 'recording' && (
         <p className="font-mono text-lg font-semibold tabular-nums text-red-600">
           {formatDuration(elapsed)}
+        </p>
+      )}
+
+      {state === 'stopped' && (
+        <p className="text-sm text-neutral-500">
+          Recording complete — {formatDuration(elapsed)} captured.
         </p>
       )}
 
@@ -143,6 +161,7 @@ export function BrowserRecorder({ onRecordingComplete, className }: Props) {
             </button>
             <button
               type="button"
+              onClick={handleUseRecording}
               className="flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors"
             >
               <Upload className="h-4 w-4" />

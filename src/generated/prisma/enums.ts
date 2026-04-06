@@ -39,6 +39,8 @@ export type RecordingSource = (typeof RecordingSource)[keyof typeof RecordingSou
 export const RecordingStatus = {
   PENDING: 'PENDING',
   PROCESSING: 'PROCESSING',
+  TRANSCRIBING: 'TRANSCRIBING',
+  SUMMARIZING: 'SUMMARIZING',
   READY: 'READY',
   FAILED: 'FAILED'
 } as const
