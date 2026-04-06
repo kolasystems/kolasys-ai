@@ -77,13 +77,17 @@ enum Priority {
 // ─── Models ───────────────────────────────────────────────────────────────────
 
 model Organization {
-  id         String    @id @default(cuid())
-  name       String
-  slug       String    @unique
-  plan       Plan      @default(FREE)
-  clerkOrgId String?   @unique
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id               String    @id @default(cuid())
+  name             String
+  slug             String    @unique
+  plan             Plan      @default(FREE)
+  clerkOrgId       String?   @unique
+  // Integrations
+  slackWebhookUrl  String?
+  notionApiKey     String?
+  notionDatabaseId String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   members    OrgMember[]
   recordings Recording[]
@@ -92,12 +96,13 @@ model Organization {
 }
 
 model OrgMember {
-  id        String     @id @default(cuid())
-  orgId     String
-  userId    String     // Clerk user ID
-  role      MemberRole @default(MEMBER)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id                 String     @id @default(cuid())
+  orgId              String
+  userId             String     // Clerk user ID
+  role               MemberRole @default(MEMBER)
+  googleRefreshToken String?    // OAuth refresh token for Google Calendar
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
 
   org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
@@ -127,10 +132,11 @@ model Recording {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
-  org        Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  transcript Transcript?
-  notes      Note[]
-  jobs       ProcessingJob[]
+  org          Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  transcript   Transcript?
+  notes        Note[]
+  jobs         ProcessingJob[]
+  speakerLabels SpeakerLabel[]
 
   @@index([orgId, status])
   @@index([orgId, createdAt(sort: Desc)])
@@ -162,6 +168,21 @@ model TranscriptSegment {
   transcript Transcript @relation(fields: [transcriptId], references: [id], onDelete: Cascade)
 
   @@index([transcriptId, startTime])
+}
+
+// Speaker display name mappings — users can rename "SPEAKER_0" to "John Smith"
+model SpeakerLabel {
+  id          String   @id @default(cuid())
+  recordingId String
+  speakerId   String   // "SPEAKER_0", "SPEAKER_1", etc.
+  displayName String   // user-editable label
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  recording Recording @relation(fields: [recordingId], references: [id], onDelete: Cascade)
+
+  @@unique([recordingId, speakerId])
+  @@index([recordingId])
 }
 
 model Note {

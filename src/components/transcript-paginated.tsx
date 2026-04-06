@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { trpc } from '@/lib/trpc'
 import { formatDuration } from '@/lib/utils'
+import { SpeakerLabelEditor } from './speaker-label-editor'
 
 type Segment = {
   id: string
@@ -13,18 +14,44 @@ type Segment = {
   text: string
 }
 
+type SpeakerLabel = {
+  speakerId: string
+  displayName: string
+}
+
 type Props = {
   transcriptId: string
+  recordingId: string
   initialSegments: Segment[]
   initialHasMore: boolean
   fullText: string
+  speakerLabels: SpeakerLabel[]
+}
+
+// Distinct colors for up to 8 speakers
+const SPEAKER_COLORS: Record<number, string> = {
+  0: 'text-brand-600',
+  1: 'text-purple-600',
+  2: 'text-emerald-600',
+  3: 'text-orange-600',
+  4: 'text-pink-600',
+  5: 'text-cyan-600',
+  6: 'text-yellow-600',
+  7: 'text-rose-600',
+}
+
+function speakerColor(speakerId: string): string {
+  const num = parseInt(speakerId.replace(/\D/g, ''), 10) || 0
+  return SPEAKER_COLORS[num % 8] ?? 'text-neutral-600'
 }
 
 export function TranscriptPaginated({
   transcriptId,
+  recordingId,
   initialSegments,
   initialHasMore,
   fullText,
+  speakerLabels,
 }: Props) {
   const [segments, setSegments] = useState<Segment[]>(initialSegments)
   const [cursor, setCursor] = useState<string | undefined>(
@@ -32,6 +59,9 @@ export function TranscriptPaginated({
   )
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [loading, setLoading] = useState(false)
+
+  // Build a display name map from speakerLabels
+  const labelMap = Object.fromEntries(speakerLabels.map((l) => [l.speakerId, l.displayName]))
 
   const utils = trpc.useUtils()
 
@@ -56,22 +86,49 @@ export function TranscriptPaginated({
     return <p className="text-sm leading-relaxed text-neutral-600">{fullText}</p>
   }
 
+  // Detect unique speakers in the loaded segments
+  const uniqueSpeakers = [
+    ...new Set(segments.map((s) => s.speaker).filter((s): s is string => !!s)),
+  ]
+
   return (
     <div>
-      <div className="space-y-4">
-        {segments.map((seg) => (
-          <div key={seg.id} className="flex gap-3">
-            <span className="mt-0.5 w-14 flex-shrink-0 font-mono text-xs text-neutral-400">
-              {formatDuration(seg.startTime)}
+      {/* Speaker legend (if diarized) */}
+      {uniqueSpeakers.length > 0 && (
+        <div className="mb-4 flex flex-wrap gap-3">
+          {uniqueSpeakers.map((sid) => (
+            <span key={sid} className={`flex items-center gap-1.5 text-xs font-medium ${speakerColor(sid)}`}>
+              <span className="inline-block h-2 w-2 rounded-full bg-current opacity-70" />
+              <SpeakerLabelEditor
+                recordingId={recordingId}
+                speakerId={sid}
+                displayName={labelMap[sid] ?? sid}
+                className={speakerColor(sid)}
+              />
             </span>
-            <div className="min-w-0">
-              {seg.speaker && (
-                <p className="mb-0.5 text-xs font-semibold text-brand-600">{seg.speaker}</p>
-              )}
-              <p className="text-sm leading-relaxed text-neutral-700">{seg.text}</p>
+          ))}
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {segments.map((seg) => {
+          const displayName = seg.speaker ? (labelMap[seg.speaker] ?? seg.speaker) : null
+          const color = seg.speaker ? speakerColor(seg.speaker) : null
+
+          return (
+            <div key={seg.id} className="flex gap-3">
+              <span className="mt-0.5 w-14 flex-shrink-0 font-mono text-xs text-neutral-400">
+                {formatDuration(seg.startTime)}
+              </span>
+              <div className="min-w-0">
+                {displayName && (
+                  <p className={`mb-0.5 text-xs font-semibold ${color}`}>{displayName}</p>
+                )}
+                <p className="text-sm leading-relaxed text-neutral-700">{seg.text}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {hasMore && (

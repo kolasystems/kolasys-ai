@@ -67,6 +67,11 @@ export type Transcript = Prisma.TranscriptModel
  */
 export type TranscriptSegment = Prisma.TranscriptSegmentModel
 /**
+ * Model SpeakerLabel
+ * 
+ */
+export type SpeakerLabel = Prisma.SpeakerLabelModel
+/**
  * Model Note
  * 
  */

@@ -11,6 +11,8 @@ import {
 } from '@/services/summarization.service'
 import { type SummarizationJobData } from '@/lib/queues'
 import { JobStatus, Priority, RecordingStatus } from '@/generated/prisma/client'
+import { postToSlack } from '@/services/integrations/slack.service'
+import { createNotionPage } from '@/services/integrations/notion.service'
 
 // ─── Priority mapping ────────────────────────────────────────────────────────
 // Claude returns string literals; map to the Prisma enum.
@@ -168,13 +170,63 @@ async function processSummarization(job: Job<SummarizationJobData>) {
       `${summaryResult.sections.length} sections and ${rawActionItems.length} action items`
   )
 
-  // ── 7. Mark recording as READY ────────────────────────────────────────────
+  // ── 7. Push to Slack / Notion if org has integrations configured ─────────
+  try {
+    const org = await db.organization.findUnique({
+      where: { id: recording.orgId },
+      select: { slackWebhookUrl: true, notionApiKey: true, notionDatabaseId: true },
+    })
+
+    if (org) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? ''
+      const recordingUrl = `${appUrl}/dashboard/recordings/${recordingId}`
+
+      const actionItemSummaries = rawActionItems.map((a) => ({
+        title: a.title,
+        priority: String(toPriority(a.priority)),
+      }))
+
+      const sectionSummaries = summaryResult.sections.map((s) => ({
+        title: s.title,
+        content: s.content,
+      }))
+
+      if (org.slackWebhookUrl) {
+        await postToSlack(org.slackWebhookUrl, {
+          recordingTitle: recording.title,
+          recordingUrl,
+          summary: summaryResult.summary ?? '',
+          sections: sectionSummaries,
+          actionItems: actionItemSummaries,
+        }).catch((err) =>
+          console.error(`[summarization] Slack push failed for ${recordingId}:`, err)
+        )
+      }
+
+      if (org.notionApiKey && org.notionDatabaseId) {
+        await createNotionPage(org.notionApiKey, org.notionDatabaseId, {
+          recordingTitle: recording.title,
+          recordingUrl,
+          summary: summaryResult.summary ?? '',
+          sections: sectionSummaries,
+          actionItems: actionItemSummaries,
+          createdAt: new Date(),
+        }).catch((err) =>
+          console.error(`[summarization] Notion push failed for ${recordingId}:`, err)
+        )
+      }
+    }
+  } catch (integrationErr) {
+    console.error('[summarization] Integration push error (non-fatal):', integrationErr)
+  }
+
+  // ── 8. Mark recording as READY ────────────────────────────────────────────
   await db.recording.update({
     where: { id: recordingId },
     data: { status: RecordingStatus.READY },
   })
 
-  // ── 8. Mark summarization job as COMPLETED ────────────────────────────────
+  // ── 9. Mark summarization job as COMPLETED ────────────────────────────────
   await db.processingJob.update({
     where: { id: `${recordingId}-SUMMARIZATION` },
     data: {

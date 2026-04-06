@@ -30,6 +30,9 @@ export type OrganizationMinAggregateOutputType = {
   slug: string | null
   plan: $Enums.Plan | null
   clerkOrgId: string | null
+  slackWebhookUrl: string | null
+  notionApiKey: string | null
+  notionDatabaseId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -40,6 +43,9 @@ export type OrganizationMaxAggregateOutputType = {
   slug: string | null
   plan: $Enums.Plan | null
   clerkOrgId: string | null
+  slackWebhookUrl: string | null
+  notionApiKey: string | null
+  notionDatabaseId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +56,9 @@ export type OrganizationCountAggregateOutputType = {
   slug: number
   plan: number
   clerkOrgId: number
+  slackWebhookUrl: number
+  notionApiKey: number
+  notionDatabaseId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -62,6 +71,9 @@ export type OrganizationMinAggregateInputType = {
   slug?: true
   plan?: true
   clerkOrgId?: true
+  slackWebhookUrl?: true
+  notionApiKey?: true
+  notionDatabaseId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -72,6 +84,9 @@ export type OrganizationMaxAggregateInputType = {
   slug?: true
   plan?: true
   clerkOrgId?: true
+  slackWebhookUrl?: true
+  notionApiKey?: true
+  notionDatabaseId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,6 +97,9 @@ export type OrganizationCountAggregateInputType = {
   slug?: true
   plan?: true
   clerkOrgId?: true
+  slackWebhookUrl?: true
+  notionApiKey?: true
+  notionDatabaseId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -165,6 +183,9 @@ export type OrganizationGroupByOutputType = {
   slug: string
   plan: $Enums.Plan
   clerkOrgId: string | null
+  slackWebhookUrl: string | null
+  notionApiKey: string | null
+  notionDatabaseId: string | null
   createdAt: Date
   updatedAt: Date
   _count: OrganizationCountAggregateOutputType | null
@@ -196,6 +217,9 @@ export type OrganizationWhereInput = {
   slug?: Prisma.StringFilter<"Organization"> | string
   plan?: Prisma.EnumPlanFilter<"Organization"> | $Enums.Plan
   clerkOrgId?: Prisma.StringNullableFilter<"Organization"> | string | null
+  slackWebhookUrl?: Prisma.StringNullableFilter<"Organization"> | string | null
+  notionApiKey?: Prisma.StringNullableFilter<"Organization"> | string | null
+  notionDatabaseId?: Prisma.StringNullableFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -210,6 +234,9 @@ export type OrganizationOrderByWithRelationInput = {
   slug?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   clerkOrgId?: Prisma.SortOrderInput | Prisma.SortOrder
+  slackWebhookUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  notionApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  notionDatabaseId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   members?: Prisma.OrgMemberOrderByRelationAggregateInput
@@ -227,6 +254,9 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.OrganizationWhereInput | Prisma.OrganizationWhereInput[]
   name?: Prisma.StringFilter<"Organization"> | string
   plan?: Prisma.EnumPlanFilter<"Organization"> | $Enums.Plan
+  slackWebhookUrl?: Prisma.StringNullableFilter<"Organization"> | string | null
+  notionApiKey?: Prisma.StringNullableFilter<"Organization"> | string | null
+  notionDatabaseId?: Prisma.StringNullableFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -241,6 +271,9 @@ export type OrganizationOrderByWithAggregationInput = {
   slug?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   clerkOrgId?: Prisma.SortOrderInput | Prisma.SortOrder
+  slackWebhookUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  notionApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  notionDatabaseId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationCountOrderByAggregateInput
@@ -257,6 +290,9 @@ export type OrganizationScalarWhereWithAggregatesInput = {
   slug?: Prisma.StringWithAggregatesFilter<"Organization"> | string
   plan?: Prisma.EnumPlanWithAggregatesFilter<"Organization"> | $Enums.Plan
   clerkOrgId?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
+  slackWebhookUrl?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
+  notionApiKey?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
+  notionDatabaseId?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
 }
@@ -267,6 +303,9 @@ export type OrganizationCreateInput = {
   slug: string
   plan?: $Enums.Plan
   clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -281,6 +320,9 @@ export type OrganizationUncheckedCreateInput = {
   slug: string
   plan?: $Enums.Plan
   clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -295,6 +337,9 @@ export type OrganizationUpdateInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -309,6 +354,9 @@ export type OrganizationUncheckedUpdateInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -323,6 +371,9 @@ export type OrganizationCreateManyInput = {
   slug: string
   plan?: $Enums.Plan
   clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -333,6 +384,9 @@ export type OrganizationUpdateManyMutationInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -343,6 +397,9 @@ export type OrganizationUncheckedUpdateManyInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -353,6 +410,9 @@ export type OrganizationCountOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   clerkOrgId?: Prisma.SortOrder
+  slackWebhookUrl?: Prisma.SortOrder
+  notionApiKey?: Prisma.SortOrder
+  notionDatabaseId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -363,6 +423,9 @@ export type OrganizationMaxOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   clerkOrgId?: Prisma.SortOrder
+  slackWebhookUrl?: Prisma.SortOrder
+  notionApiKey?: Prisma.SortOrder
+  notionDatabaseId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -373,6 +436,9 @@ export type OrganizationMinOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   clerkOrgId?: Prisma.SortOrder
+  slackWebhookUrl?: Prisma.SortOrder
+  notionApiKey?: Prisma.SortOrder
+  notionDatabaseId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -467,6 +533,9 @@ export type OrganizationCreateWithoutMembersInput = {
   slug: string
   plan?: $Enums.Plan
   clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
@@ -480,6 +549,9 @@ export type OrganizationUncheckedCreateWithoutMembersInput = {
   slug: string
   plan?: $Enums.Plan
   clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
@@ -509,6 +581,9 @@ export type OrganizationUpdateWithoutMembersInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
@@ -522,6 +597,9 @@ export type OrganizationUncheckedUpdateWithoutMembersInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
@@ -535,6 +613,9 @@ export type OrganizationCreateWithoutRecordingsInput = {
   slug: string
   plan?: $Enums.Plan
   clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -548,6 +629,9 @@ export type OrganizationUncheckedCreateWithoutRecordingsInput = {
   slug: string
   plan?: $Enums.Plan
   clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -577,6 +661,9 @@ export type OrganizationUpdateWithoutRecordingsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -590,6 +677,9 @@ export type OrganizationUncheckedUpdateWithoutRecordingsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -603,6 +693,9 @@ export type OrganizationCreateWithoutTemplatesInput = {
   slug: string
   plan?: $Enums.Plan
   clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -616,6 +709,9 @@ export type OrganizationUncheckedCreateWithoutTemplatesInput = {
   slug: string
   plan?: $Enums.Plan
   clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -645,6 +741,9 @@ export type OrganizationUpdateWithoutTemplatesInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -658,6 +757,9 @@ export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -671,6 +773,9 @@ export type OrganizationCreateWithoutApiKeysInput = {
   slug: string
   plan?: $Enums.Plan
   clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -684,6 +789,9 @@ export type OrganizationUncheckedCreateWithoutApiKeysInput = {
   slug: string
   plan?: $Enums.Plan
   clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -713,6 +821,9 @@ export type OrganizationUpdateWithoutApiKeysInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -726,6 +837,9 @@ export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
   clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -797,6 +911,9 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   slug?: boolean
   plan?: boolean
   clerkOrgId?: boolean
+  slackWebhookUrl?: boolean
+  notionApiKey?: boolean
+  notionDatabaseId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
@@ -812,6 +929,9 @@ export type OrganizationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   slug?: boolean
   plan?: boolean
   clerkOrgId?: boolean
+  slackWebhookUrl?: boolean
+  notionApiKey?: boolean
+  notionDatabaseId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -822,6 +942,9 @@ export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   slug?: boolean
   plan?: boolean
   clerkOrgId?: boolean
+  slackWebhookUrl?: boolean
+  notionApiKey?: boolean
+  notionDatabaseId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -832,11 +955,14 @@ export type OrganizationSelectScalar = {
   slug?: boolean
   plan?: boolean
   clerkOrgId?: boolean
+  slackWebhookUrl?: boolean
+  notionApiKey?: boolean
+  notionDatabaseId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
 export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
   recordings?: boolean | Prisma.Organization$recordingsArgs<ExtArgs>
@@ -861,6 +987,9 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     slug: string
     plan: $Enums.Plan
     clerkOrgId: string | null
+    slackWebhookUrl: string | null
+    notionApiKey: string | null
+    notionDatabaseId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["organization"]>
@@ -1295,6 +1424,9 @@ export interface OrganizationFieldRefs {
   readonly slug: Prisma.FieldRef<"Organization", 'String'>
   readonly plan: Prisma.FieldRef<"Organization", 'Plan'>
   readonly clerkOrgId: Prisma.FieldRef<"Organization", 'String'>
+  readonly slackWebhookUrl: Prisma.FieldRef<"Organization", 'String'>
+  readonly notionApiKey: Prisma.FieldRef<"Organization", 'String'>
+  readonly notionDatabaseId: Prisma.FieldRef<"Organization", 'String'>
   readonly createdAt: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Organization", 'DateTime'>
 }

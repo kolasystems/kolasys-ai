@@ -389,6 +389,7 @@ export const ModelName = {
   Recording: 'Recording',
   Transcript: 'Transcript',
   TranscriptSegment: 'TranscriptSegment',
+  SpeakerLabel: 'SpeakerLabel',
   Note: 'Note',
   NoteSection: 'NoteSection',
   ActionItem: 'ActionItem',
@@ -411,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "organization" | "orgMember" | "recording" | "transcript" | "transcriptSegment" | "note" | "noteSection" | "actionItem" | "noteComment" | "noteTemplate" | "processingJob" | "apiKey"
+    modelProps: "organization" | "orgMember" | "recording" | "transcript" | "transcriptSegment" | "speakerLabel" | "note" | "noteSection" | "actionItem" | "noteComment" | "noteTemplate" | "processingJob" | "apiKey"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -782,6 +783,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TranscriptSegmentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TranscriptSegmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    SpeakerLabel: {
+      payload: Prisma.$SpeakerLabelPayload<ExtArgs>
+      fields: Prisma.SpeakerLabelFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SpeakerLabelFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SpeakerLabelPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SpeakerLabelFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SpeakerLabelPayload>
+        }
+        findFirst: {
+          args: Prisma.SpeakerLabelFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SpeakerLabelPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SpeakerLabelFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SpeakerLabelPayload>
+        }
+        findMany: {
+          args: Prisma.SpeakerLabelFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SpeakerLabelPayload>[]
+        }
+        create: {
+          args: Prisma.SpeakerLabelCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SpeakerLabelPayload>
+        }
+        createMany: {
+          args: Prisma.SpeakerLabelCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SpeakerLabelCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SpeakerLabelPayload>[]
+        }
+        delete: {
+          args: Prisma.SpeakerLabelDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SpeakerLabelPayload>
+        }
+        update: {
+          args: Prisma.SpeakerLabelUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SpeakerLabelPayload>
+        }
+        deleteMany: {
+          args: Prisma.SpeakerLabelDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SpeakerLabelUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SpeakerLabelUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SpeakerLabelPayload>[]
+        }
+        upsert: {
+          args: Prisma.SpeakerLabelUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SpeakerLabelPayload>
+        }
+        aggregate: {
+          args: Prisma.SpeakerLabelAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSpeakerLabel>
+        }
+        groupBy: {
+          args: Prisma.SpeakerLabelGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SpeakerLabelGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SpeakerLabelCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SpeakerLabelCountAggregateOutputType> | number
         }
       }
     }
@@ -1348,6 +1423,9 @@ export const OrganizationScalarFieldEnum = {
   slug: 'slug',
   plan: 'plan',
   clerkOrgId: 'clerkOrgId',
+  slackWebhookUrl: 'slackWebhookUrl',
+  notionApiKey: 'notionApiKey',
+  notionDatabaseId: 'notionDatabaseId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1360,6 +1438,7 @@ export const OrgMemberScalarFieldEnum = {
   orgId: 'orgId',
   userId: 'userId',
   role: 'role',
+  googleRefreshToken: 'googleRefreshToken',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1418,6 +1497,18 @@ export const TranscriptSegmentScalarFieldEnum = {
 } as const
 
 export type TranscriptSegmentScalarFieldEnum = (typeof TranscriptSegmentScalarFieldEnum)[keyof typeof TranscriptSegmentScalarFieldEnum]
+
+
+export const SpeakerLabelScalarFieldEnum = {
+  id: 'id',
+  recordingId: 'recordingId',
+  speakerId: 'speakerId',
+  displayName: 'displayName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SpeakerLabelScalarFieldEnum = (typeof SpeakerLabelScalarFieldEnum)[keyof typeof SpeakerLabelScalarFieldEnum]
 
 
 export const NoteScalarFieldEnum = {
@@ -1879,6 +1970,7 @@ export type GlobalOmitConfig = {
   recording?: Prisma.RecordingOmit
   transcript?: Prisma.TranscriptOmit
   transcriptSegment?: Prisma.TranscriptSegmentOmit
+  speakerLabel?: Prisma.SpeakerLabelOmit
   note?: Prisma.NoteOmit
   noteSection?: Prisma.NoteSectionOmit
   actionItem?: Prisma.ActionItemOmit

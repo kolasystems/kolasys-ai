@@ -10,6 +10,8 @@ import { EditableNoteSection } from '@/components/editable-note-section'
 import { EditableActionItem } from '@/components/editable-action-item'
 import { TranscriptPaginated } from '@/components/transcript-paginated'
 import { RecordingStatusPoller } from '@/components/recording-status-poller'
+import { AskAIPanel } from '@/components/ask-ai-panel'
+import { GenerateEmbeddingsButton } from '@/components/generate-embeddings-button'
 import { formatDuration, relativeTime } from '@/lib/utils'
 import { Mic2, Clock, Calendar, User, FileText, CheckSquare } from 'lucide-react'
 
@@ -53,6 +55,10 @@ export default async function RecordingDetailPage({ params }: Props) {
         take: 1,
       },
       jobs: { orderBy: { createdAt: 'desc' }, take: 5 },
+      speakerLabels: {
+        select: { speakerId: true, displayName: true },
+        orderBy: { speakerId: 'asc' },
+      },
     },
   })
 
@@ -64,6 +70,8 @@ export default async function RecordingDetailPage({ params }: Props) {
   const allSegments = recording.transcript?.segments ?? []
   const initialSegments = allSegments.slice(0, 100)
   const initialHasMore = allSegments.length > 100
+
+  const hasDiarization = initialSegments.some((s) => s.speaker)
 
   return (
     <div className="mx-auto max-w-4xl p-8">
@@ -84,8 +92,17 @@ export default async function RecordingDetailPage({ params }: Props) {
           )}
         </div>
 
-        <div className="flex flex-shrink-0 items-center gap-3">
+        <div className="flex flex-shrink-0 items-center gap-2">
           <StatusBadge status={recording.status} />
+          {recording.status === 'READY' && recording.transcript && (
+            <>
+              <GenerateEmbeddingsButton recordingId={recording.id} />
+              <AskAIPanel
+                recordingId={recording.id}
+                recordingTitle={recording.title}
+              />
+            </>
+          )}
           <DeleteRecordingButton recordingId={recording.id} />
         </div>
       </div>
@@ -184,14 +201,21 @@ export default async function RecordingDetailPage({ params }: Props) {
                 · {recording.transcript.language}
               </span>
             )}
+            {hasDiarization && (
+              <span className="ml-1 text-sm font-normal text-neutral-400">
+                · speaker labels
+              </span>
+            )}
           </h2>
 
           <div className="mt-3 max-h-[500px] overflow-y-auto rounded-xl border border-neutral-200 bg-white p-5">
             <TranscriptPaginated
               transcriptId={recording.transcript.id}
+              recordingId={recording.id}
               initialSegments={initialSegments}
               initialHasMore={initialHasMore}
               fullText={recording.transcript.text}
+              speakerLabels={recording.speakerLabels}
             />
           </div>
         </section>

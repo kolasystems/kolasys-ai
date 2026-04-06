@@ -10,6 +10,7 @@ import { bullmqConnection } from '@/lib/redis'
 import { db } from '@/lib/db'
 import { getSignedDownloadUrl, deleteFromS3 } from '@/lib/storage'
 import { transcribeAudio } from '@/services/transcription.service'
+import { diarizeAudio, mapSpeakersToSegments } from '@/services/diarization.service'
 import { summarizationQueue, type TranscriptionJobData } from '@/lib/queues'
 import { JobStatus, RecordingStatus } from '@/generated/prisma/client'
 
@@ -82,7 +83,69 @@ async function processTranscription(job: Job<TranscriptionJobData>) {
     }
   }
 
-  // FIX P0-4: delete the S3 audio file — privacy by design, audio is not kept after transcription.
+  // ── Speaker diarization (optional — requires DEEPGRAM_API_KEY) ───────────
+  // Run BEFORE deleting the audio buffer. Deepgram needs the audio to identify speakers.
+  if (process.env.DEEPGRAM_API_KEY && transcript) {
+    try {
+      console.log(`[transcription] Running Deepgram diarization for ${recordingId}`)
+      const mimeType = result.segments[0] ? 'audio/webm' : 'audio/mpeg'
+      const speakerWords = await diarizeAudio(audioBuffer, mimeType)
+
+      if (speakerWords.length > 0) {
+        // Re-fetch segments with IDs so we can update them
+        const savedSegments = await db.transcriptSegment.findMany({
+          where: { transcriptId: transcript.id },
+          select: { id: true, startTime: true, endTime: true },
+          orderBy: { startTime: 'asc' },
+        })
+
+        const speakerAssignments = mapSpeakersToSegments(savedSegments, speakerWords)
+        const uniqueSpeakers = new Set<number>()
+
+        for (let i = 0; i < savedSegments.length; i++) {
+          const speaker = speakerAssignments[i]
+          if (speaker !== null && speaker !== undefined) {
+            uniqueSpeakers.add(speaker)
+            await db.transcriptSegment.update({
+              where: { id: savedSegments[i].id },
+              data: { speaker: `SPEAKER_${speaker}` },
+            })
+          }
+        }
+
+        // Create SpeakerLabel entries for each detected speaker
+        for (const speakerNum of uniqueSpeakers) {
+          const speakerId = `SPEAKER_${speakerNum}`
+          const existing = await db.speakerLabel.findFirst({
+            where: { recordingId, speakerId },
+            select: { id: true },
+          })
+          if (!existing) {
+            try {
+              await db.speakerLabel.create({
+                data: {
+                  recordingId,
+                  speakerId,
+                  displayName: `Speaker ${speakerNum + 1}`,
+                },
+              })
+            } catch {
+              // Race condition — fine
+            }
+          }
+        }
+
+        console.log(
+          `[transcription] Diarization complete: ${uniqueSpeakers.size} speaker(s) detected`
+        )
+      }
+    } catch (diarErr) {
+      // Diarization is non-fatal — transcript is already saved without speakers
+      console.error(`[transcription] Diarization failed (non-fatal):`, diarErr)
+    }
+  }
+
+  // Delete the S3 audio file — privacy by design, audio is not kept after transcription.
   try {
     await deleteFromS3(s3Key)
   } catch (err) {

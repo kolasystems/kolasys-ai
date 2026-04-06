@@ -344,6 +344,7 @@ export type RecordingWhereInput = {
   transcript?: Prisma.XOR<Prisma.TranscriptNullableScalarRelationFilter, Prisma.TranscriptWhereInput> | null
   notes?: Prisma.NoteListRelationFilter
   jobs?: Prisma.ProcessingJobListRelationFilter
+  speakerLabels?: Prisma.SpeakerLabelListRelationFilter
 }
 
 export type RecordingOrderByWithRelationInput = {
@@ -371,6 +372,7 @@ export type RecordingOrderByWithRelationInput = {
   transcript?: Prisma.TranscriptOrderByWithRelationInput
   notes?: Prisma.NoteOrderByRelationAggregateInput
   jobs?: Prisma.ProcessingJobOrderByRelationAggregateInput
+  speakerLabels?: Prisma.SpeakerLabelOrderByRelationAggregateInput
 }
 
 export type RecordingWhereUniqueInput = Prisma.AtLeast<{
@@ -401,6 +403,7 @@ export type RecordingWhereUniqueInput = Prisma.AtLeast<{
   transcript?: Prisma.XOR<Prisma.TranscriptNullableScalarRelationFilter, Prisma.TranscriptWhereInput> | null
   notes?: Prisma.NoteListRelationFilter
   jobs?: Prisma.ProcessingJobListRelationFilter
+  speakerLabels?: Prisma.SpeakerLabelListRelationFilter
 }, "id">
 
 export type RecordingOrderByWithAggregationInput = {
@@ -481,6 +484,7 @@ export type RecordingCreateInput = {
   transcript?: Prisma.TranscriptCreateNestedOneWithoutRecordingInput
   notes?: Prisma.NoteCreateNestedManyWithoutRecordingInput
   jobs?: Prisma.ProcessingJobCreateNestedManyWithoutRecordingInput
+  speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateInput = {
@@ -507,6 +511,7 @@ export type RecordingUncheckedCreateInput = {
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutRecordingInput
   jobs?: Prisma.ProcessingJobUncheckedCreateNestedManyWithoutRecordingInput
+  speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUpdateInput = {
@@ -533,6 +538,7 @@ export type RecordingUpdateInput = {
   transcript?: Prisma.TranscriptUpdateOneWithoutRecordingNestedInput
   notes?: Prisma.NoteUpdateManyWithoutRecordingNestedInput
   jobs?: Prisma.ProcessingJobUpdateManyWithoutRecordingNestedInput
+  speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateInput = {
@@ -559,6 +565,7 @@ export type RecordingUncheckedUpdateInput = {
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutRecordingNestedInput
   jobs?: Prisma.ProcessingJobUncheckedUpdateManyWithoutRecordingNestedInput
+  speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateManyInput = {
@@ -803,6 +810,20 @@ export type RecordingUpdateOneRequiredWithoutTranscriptNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RecordingUpdateToOneWithWhereWithoutTranscriptInput, Prisma.RecordingUpdateWithoutTranscriptInput>, Prisma.RecordingUncheckedUpdateWithoutTranscriptInput>
 }
 
+export type RecordingCreateNestedOneWithoutSpeakerLabelsInput = {
+  create?: Prisma.XOR<Prisma.RecordingCreateWithoutSpeakerLabelsInput, Prisma.RecordingUncheckedCreateWithoutSpeakerLabelsInput>
+  connectOrCreate?: Prisma.RecordingCreateOrConnectWithoutSpeakerLabelsInput
+  connect?: Prisma.RecordingWhereUniqueInput
+}
+
+export type RecordingUpdateOneRequiredWithoutSpeakerLabelsNestedInput = {
+  create?: Prisma.XOR<Prisma.RecordingCreateWithoutSpeakerLabelsInput, Prisma.RecordingUncheckedCreateWithoutSpeakerLabelsInput>
+  connectOrCreate?: Prisma.RecordingCreateOrConnectWithoutSpeakerLabelsInput
+  upsert?: Prisma.RecordingUpsertWithoutSpeakerLabelsInput
+  connect?: Prisma.RecordingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RecordingUpdateToOneWithWhereWithoutSpeakerLabelsInput, Prisma.RecordingUpdateWithoutSpeakerLabelsInput>, Prisma.RecordingUncheckedUpdateWithoutSpeakerLabelsInput>
+}
+
 export type RecordingCreateNestedOneWithoutNotesInput = {
   create?: Prisma.XOR<Prisma.RecordingCreateWithoutNotesInput, Prisma.RecordingUncheckedCreateWithoutNotesInput>
   connectOrCreate?: Prisma.RecordingCreateOrConnectWithoutNotesInput
@@ -854,6 +875,7 @@ export type RecordingCreateWithoutOrgInput = {
   transcript?: Prisma.TranscriptCreateNestedOneWithoutRecordingInput
   notes?: Prisma.NoteCreateNestedManyWithoutRecordingInput
   jobs?: Prisma.ProcessingJobCreateNestedManyWithoutRecordingInput
+  speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutOrgInput = {
@@ -879,6 +901,7 @@ export type RecordingUncheckedCreateWithoutOrgInput = {
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutRecordingInput
   jobs?: Prisma.ProcessingJobUncheckedCreateNestedManyWithoutRecordingInput
+  speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutOrgInput = {
@@ -956,6 +979,7 @@ export type RecordingCreateWithoutTranscriptInput = {
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
   notes?: Prisma.NoteCreateNestedManyWithoutRecordingInput
   jobs?: Prisma.ProcessingJobCreateNestedManyWithoutRecordingInput
+  speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutTranscriptInput = {
@@ -981,6 +1005,7 @@ export type RecordingUncheckedCreateWithoutTranscriptInput = {
   updatedAt?: Date | string
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutRecordingInput
   jobs?: Prisma.ProcessingJobUncheckedCreateNestedManyWithoutRecordingInput
+  speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutTranscriptInput = {
@@ -1022,6 +1047,7 @@ export type RecordingUpdateWithoutTranscriptInput = {
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
   notes?: Prisma.NoteUpdateManyWithoutRecordingNestedInput
   jobs?: Prisma.ProcessingJobUpdateManyWithoutRecordingNestedInput
+  speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutTranscriptInput = {
@@ -1045,6 +1071,127 @@ export type RecordingUncheckedUpdateWithoutTranscriptInput = {
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notes?: Prisma.NoteUncheckedUpdateManyWithoutRecordingNestedInput
+  jobs?: Prisma.ProcessingJobUncheckedUpdateManyWithoutRecordingNestedInput
+  speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
+}
+
+export type RecordingCreateWithoutSpeakerLabelsInput = {
+  id?: string
+  userId: string
+  title: string
+  description?: string | null
+  source: $Enums.RecordingSource
+  status?: $Enums.RecordingStatus
+  platform?: $Enums.MeetingPlatform | null
+  meetingUrl?: string | null
+  botId?: string | null
+  s3Key?: string | null
+  s3Bucket?: string | null
+  duration?: number | null
+  fileSize?: number | null
+  mimeType?: string | null
+  scheduledAt?: Date | string | null
+  startedAt?: Date | string | null
+  endedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
+  transcript?: Prisma.TranscriptCreateNestedOneWithoutRecordingInput
+  notes?: Prisma.NoteCreateNestedManyWithoutRecordingInput
+  jobs?: Prisma.ProcessingJobCreateNestedManyWithoutRecordingInput
+}
+
+export type RecordingUncheckedCreateWithoutSpeakerLabelsInput = {
+  id?: string
+  orgId: string
+  userId: string
+  title: string
+  description?: string | null
+  source: $Enums.RecordingSource
+  status?: $Enums.RecordingStatus
+  platform?: $Enums.MeetingPlatform | null
+  meetingUrl?: string | null
+  botId?: string | null
+  s3Key?: string | null
+  s3Bucket?: string | null
+  duration?: number | null
+  fileSize?: number | null
+  mimeType?: string | null
+  scheduledAt?: Date | string | null
+  startedAt?: Date | string | null
+  endedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
+  notes?: Prisma.NoteUncheckedCreateNestedManyWithoutRecordingInput
+  jobs?: Prisma.ProcessingJobUncheckedCreateNestedManyWithoutRecordingInput
+}
+
+export type RecordingCreateOrConnectWithoutSpeakerLabelsInput = {
+  where: Prisma.RecordingWhereUniqueInput
+  create: Prisma.XOR<Prisma.RecordingCreateWithoutSpeakerLabelsInput, Prisma.RecordingUncheckedCreateWithoutSpeakerLabelsInput>
+}
+
+export type RecordingUpsertWithoutSpeakerLabelsInput = {
+  update: Prisma.XOR<Prisma.RecordingUpdateWithoutSpeakerLabelsInput, Prisma.RecordingUncheckedUpdateWithoutSpeakerLabelsInput>
+  create: Prisma.XOR<Prisma.RecordingCreateWithoutSpeakerLabelsInput, Prisma.RecordingUncheckedCreateWithoutSpeakerLabelsInput>
+  where?: Prisma.RecordingWhereInput
+}
+
+export type RecordingUpdateToOneWithWhereWithoutSpeakerLabelsInput = {
+  where?: Prisma.RecordingWhereInput
+  data: Prisma.XOR<Prisma.RecordingUpdateWithoutSpeakerLabelsInput, Prisma.RecordingUncheckedUpdateWithoutSpeakerLabelsInput>
+}
+
+export type RecordingUpdateWithoutSpeakerLabelsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumRecordingSourceFieldUpdateOperationsInput | $Enums.RecordingSource
+  status?: Prisma.EnumRecordingStatusFieldUpdateOperationsInput | $Enums.RecordingStatus
+  platform?: Prisma.NullableEnumMeetingPlatformFieldUpdateOperationsInput | $Enums.MeetingPlatform | null
+  meetingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  botId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  s3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  s3Bucket?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
+  transcript?: Prisma.TranscriptUpdateOneWithoutRecordingNestedInput
+  notes?: Prisma.NoteUpdateManyWithoutRecordingNestedInput
+  jobs?: Prisma.ProcessingJobUpdateManyWithoutRecordingNestedInput
+}
+
+export type RecordingUncheckedUpdateWithoutSpeakerLabelsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orgId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumRecordingSourceFieldUpdateOperationsInput | $Enums.RecordingSource
+  status?: Prisma.EnumRecordingStatusFieldUpdateOperationsInput | $Enums.RecordingStatus
+  platform?: Prisma.NullableEnumMeetingPlatformFieldUpdateOperationsInput | $Enums.MeetingPlatform | null
+  meetingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  botId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  s3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  s3Bucket?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutRecordingNestedInput
   jobs?: Prisma.ProcessingJobUncheckedUpdateManyWithoutRecordingNestedInput
 }
@@ -1072,6 +1219,7 @@ export type RecordingCreateWithoutNotesInput = {
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
   transcript?: Prisma.TranscriptCreateNestedOneWithoutRecordingInput
   jobs?: Prisma.ProcessingJobCreateNestedManyWithoutRecordingInput
+  speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutNotesInput = {
@@ -1097,6 +1245,7 @@ export type RecordingUncheckedCreateWithoutNotesInput = {
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
   jobs?: Prisma.ProcessingJobUncheckedCreateNestedManyWithoutRecordingInput
+  speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutNotesInput = {
@@ -1138,6 +1287,7 @@ export type RecordingUpdateWithoutNotesInput = {
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
   transcript?: Prisma.TranscriptUpdateOneWithoutRecordingNestedInput
   jobs?: Prisma.ProcessingJobUpdateManyWithoutRecordingNestedInput
+  speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutNotesInput = {
@@ -1163,6 +1313,7 @@ export type RecordingUncheckedUpdateWithoutNotesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
   jobs?: Prisma.ProcessingJobUncheckedUpdateManyWithoutRecordingNestedInput
+  speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateWithoutJobsInput = {
@@ -1188,6 +1339,7 @@ export type RecordingCreateWithoutJobsInput = {
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
   transcript?: Prisma.TranscriptCreateNestedOneWithoutRecordingInput
   notes?: Prisma.NoteCreateNestedManyWithoutRecordingInput
+  speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutJobsInput = {
@@ -1213,6 +1365,7 @@ export type RecordingUncheckedCreateWithoutJobsInput = {
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutRecordingInput
+  speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutJobsInput = {
@@ -1254,6 +1407,7 @@ export type RecordingUpdateWithoutJobsInput = {
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
   transcript?: Prisma.TranscriptUpdateOneWithoutRecordingNestedInput
   notes?: Prisma.NoteUpdateManyWithoutRecordingNestedInput
+  speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutJobsInput = {
@@ -1279,6 +1433,7 @@ export type RecordingUncheckedUpdateWithoutJobsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutRecordingNestedInput
+  speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateManyOrgInput = {
@@ -1326,6 +1481,7 @@ export type RecordingUpdateWithoutOrgInput = {
   transcript?: Prisma.TranscriptUpdateOneWithoutRecordingNestedInput
   notes?: Prisma.NoteUpdateManyWithoutRecordingNestedInput
   jobs?: Prisma.ProcessingJobUpdateManyWithoutRecordingNestedInput
+  speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutOrgInput = {
@@ -1351,6 +1507,7 @@ export type RecordingUncheckedUpdateWithoutOrgInput = {
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutRecordingNestedInput
   jobs?: Prisma.ProcessingJobUncheckedUpdateManyWithoutRecordingNestedInput
+  speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateManyWithoutOrgInput = {
@@ -1383,11 +1540,13 @@ export type RecordingUncheckedUpdateManyWithoutOrgInput = {
 export type RecordingCountOutputType = {
   notes: number
   jobs: number
+  speakerLabels: number
 }
 
 export type RecordingCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   notes?: boolean | RecordingCountOutputTypeCountNotesArgs
   jobs?: boolean | RecordingCountOutputTypeCountJobsArgs
+  speakerLabels?: boolean | RecordingCountOutputTypeCountSpeakerLabelsArgs
 }
 
 /**
@@ -1412,6 +1571,13 @@ export type RecordingCountOutputTypeCountNotesArgs<ExtArgs extends runtime.Types
  */
 export type RecordingCountOutputTypeCountJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProcessingJobWhereInput
+}
+
+/**
+ * RecordingCountOutputType without action
+ */
+export type RecordingCountOutputTypeCountSpeakerLabelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SpeakerLabelWhereInput
 }
 
 
@@ -1440,6 +1606,7 @@ export type RecordingSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   transcript?: boolean | Prisma.Recording$transcriptArgs<ExtArgs>
   notes?: boolean | Prisma.Recording$notesArgs<ExtArgs>
   jobs?: boolean | Prisma.Recording$jobsArgs<ExtArgs>
+  speakerLabels?: boolean | Prisma.Recording$speakerLabelsArgs<ExtArgs>
   _count?: boolean | Prisma.RecordingCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["recording"]>
 
@@ -1520,6 +1687,7 @@ export type RecordingInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   transcript?: boolean | Prisma.Recording$transcriptArgs<ExtArgs>
   notes?: boolean | Prisma.Recording$notesArgs<ExtArgs>
   jobs?: boolean | Prisma.Recording$jobsArgs<ExtArgs>
+  speakerLabels?: boolean | Prisma.Recording$speakerLabelsArgs<ExtArgs>
   _count?: boolean | Prisma.RecordingCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RecordingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1536,6 +1704,7 @@ export type $RecordingPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     transcript: Prisma.$TranscriptPayload<ExtArgs> | null
     notes: Prisma.$NotePayload<ExtArgs>[]
     jobs: Prisma.$ProcessingJobPayload<ExtArgs>[]
+    speakerLabels: Prisma.$SpeakerLabelPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1956,6 +2125,7 @@ export interface Prisma__RecordingClient<T, Null = never, ExtArgs extends runtim
   transcript<T extends Prisma.Recording$transcriptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Recording$transcriptArgs<ExtArgs>>): Prisma.Prisma__TranscriptClient<runtime.Types.Result.GetResult<Prisma.$TranscriptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   notes<T extends Prisma.Recording$notesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Recording$notesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   jobs<T extends Prisma.Recording$jobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Recording$jobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProcessingJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  speakerLabels<T extends Prisma.Recording$speakerLabelsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Recording$speakerLabelsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SpeakerLabelPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2470,6 +2640,30 @@ export type Recording$jobsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.ProcessingJobScalarFieldEnum | Prisma.ProcessingJobScalarFieldEnum[]
+}
+
+/**
+ * Recording.speakerLabels
+ */
+export type Recording$speakerLabelsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SpeakerLabel
+   */
+  select?: Prisma.SpeakerLabelSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SpeakerLabel
+   */
+  omit?: Prisma.SpeakerLabelOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SpeakerLabelInclude<ExtArgs> | null
+  where?: Prisma.SpeakerLabelWhereInput
+  orderBy?: Prisma.SpeakerLabelOrderByWithRelationInput | Prisma.SpeakerLabelOrderByWithRelationInput[]
+  cursor?: Prisma.SpeakerLabelWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SpeakerLabelScalarFieldEnum | Prisma.SpeakerLabelScalarFieldEnum[]
 }
 
 /**

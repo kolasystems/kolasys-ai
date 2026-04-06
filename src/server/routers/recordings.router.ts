@@ -325,4 +325,69 @@ export const recordingsRouter = router({
         select: { id: true, status: true, priority: true },
       })
     }),
+
+  // ── List speaker labels for a recording ───────────────────────────────────
+  listSpeakerLabels: orgProcedure
+    .input(z.object({ recordingId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const recording = await ctx.db.recording.findFirst({
+        where: { id: input.recordingId, orgId: ctx.orgId },
+        select: { id: true },
+      })
+      if (!recording) throw new TRPCError({ code: 'NOT_FOUND' })
+
+      return ctx.db.speakerLabel.findMany({
+        where: { recordingId: input.recordingId },
+        select: { id: true, speakerId: true, displayName: true },
+        orderBy: { speakerId: 'asc' },
+      })
+    }),
+
+  // ── Update (rename) a speaker label ───────────────────────────────────────
+  updateSpeakerLabel: orgProcedure
+    .input(
+      z.object({
+        recordingId: z.string(),
+        speakerId: z.string(),
+        displayName: z.string().min(1).max(100),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const recording = await ctx.db.recording.findFirst({
+        where: { id: input.recordingId, orgId: ctx.orgId },
+        select: { id: true },
+      })
+      if (!recording) throw new TRPCError({ code: 'NOT_FOUND' })
+
+      // findFirst + update (no upsert — HTTP mode)
+      const existing = await ctx.db.speakerLabel.findFirst({
+        where: { recordingId: input.recordingId, speakerId: input.speakerId },
+        select: { id: true },
+      })
+      if (existing) {
+        return ctx.db.speakerLabel.update({
+          where: { id: existing.id },
+          data: { displayName: input.displayName },
+          select: { id: true, speakerId: true, displayName: true },
+        })
+      }
+      try {
+        return ctx.db.speakerLabel.create({
+          data: {
+            recordingId: input.recordingId,
+            speakerId: input.speakerId,
+            displayName: input.displayName,
+          },
+          select: { id: true, speakerId: true, displayName: true },
+        })
+      } catch {
+        // Race condition — read back
+        const row = await ctx.db.speakerLabel.findFirst({
+          where: { recordingId: input.recordingId, speakerId: input.speakerId },
+          select: { id: true, speakerId: true, displayName: true },
+        })
+        if (!row) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' })
+        return row
+      }
+    }),
 })

@@ -56,6 +56,7 @@ export const ModelName = {
   Recording: 'Recording',
   Transcript: 'Transcript',
   TranscriptSegment: 'TranscriptSegment',
+  SpeakerLabel: 'SpeakerLabel',
   Note: 'Note',
   NoteSection: 'NoteSection',
   ActionItem: 'ActionItem',
@@ -87,6 +88,9 @@ export const OrganizationScalarFieldEnum = {
   slug: 'slug',
   plan: 'plan',
   clerkOrgId: 'clerkOrgId',
+  slackWebhookUrl: 'slackWebhookUrl',
+  notionApiKey: 'notionApiKey',
+  notionDatabaseId: 'notionDatabaseId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -99,6 +103,7 @@ export const OrgMemberScalarFieldEnum = {
   orgId: 'orgId',
   userId: 'userId',
   role: 'role',
+  googleRefreshToken: 'googleRefreshToken',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -157,6 +162,18 @@ export const TranscriptSegmentScalarFieldEnum = {
 } as const
 
 export type TranscriptSegmentScalarFieldEnum = (typeof TranscriptSegmentScalarFieldEnum)[keyof typeof TranscriptSegmentScalarFieldEnum]
+
+
+export const SpeakerLabelScalarFieldEnum = {
+  id: 'id',
+  recordingId: 'recordingId',
+  speakerId: 'speakerId',
+  displayName: 'displayName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SpeakerLabelScalarFieldEnum = (typeof SpeakerLabelScalarFieldEnum)[keyof typeof SpeakerLabelScalarFieldEnum]
 
 
 export const NoteScalarFieldEnum = {

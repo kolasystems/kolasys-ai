@@ -29,6 +29,7 @@ export type OrgMemberMinAggregateOutputType = {
   orgId: string | null
   userId: string | null
   role: $Enums.MemberRole | null
+  googleRefreshToken: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -38,6 +39,7 @@ export type OrgMemberMaxAggregateOutputType = {
   orgId: string | null
   userId: string | null
   role: $Enums.MemberRole | null
+  googleRefreshToken: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -47,6 +49,7 @@ export type OrgMemberCountAggregateOutputType = {
   orgId: number
   userId: number
   role: number
+  googleRefreshToken: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -58,6 +61,7 @@ export type OrgMemberMinAggregateInputType = {
   orgId?: true
   userId?: true
   role?: true
+  googleRefreshToken?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -67,6 +71,7 @@ export type OrgMemberMaxAggregateInputType = {
   orgId?: true
   userId?: true
   role?: true
+  googleRefreshToken?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -76,6 +81,7 @@ export type OrgMemberCountAggregateInputType = {
   orgId?: true
   userId?: true
   role?: true
+  googleRefreshToken?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -158,6 +164,7 @@ export type OrgMemberGroupByOutputType = {
   orgId: string
   userId: string
   role: $Enums.MemberRole
+  googleRefreshToken: string | null
   createdAt: Date
   updatedAt: Date
   _count: OrgMemberCountAggregateOutputType | null
@@ -188,6 +195,7 @@ export type OrgMemberWhereInput = {
   orgId?: Prisma.StringFilter<"OrgMember"> | string
   userId?: Prisma.StringFilter<"OrgMember"> | string
   role?: Prisma.EnumMemberRoleFilter<"OrgMember"> | $Enums.MemberRole
+  googleRefreshToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   org?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -198,6 +206,7 @@ export type OrgMemberOrderByWithRelationInput = {
   orgId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  googleRefreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   org?: Prisma.OrganizationOrderByWithRelationInput
@@ -212,6 +221,7 @@ export type OrgMemberWhereUniqueInput = Prisma.AtLeast<{
   orgId?: Prisma.StringFilter<"OrgMember"> | string
   userId?: Prisma.StringFilter<"OrgMember"> | string
   role?: Prisma.EnumMemberRoleFilter<"OrgMember"> | $Enums.MemberRole
+  googleRefreshToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   org?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -222,6 +232,7 @@ export type OrgMemberOrderByWithAggregationInput = {
   orgId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  googleRefreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrgMemberCountOrderByAggregateInput
@@ -237,6 +248,7 @@ export type OrgMemberScalarWhereWithAggregatesInput = {
   orgId?: Prisma.StringWithAggregatesFilter<"OrgMember"> | string
   userId?: Prisma.StringWithAggregatesFilter<"OrgMember"> | string
   role?: Prisma.EnumMemberRoleWithAggregatesFilter<"OrgMember"> | $Enums.MemberRole
+  googleRefreshToken?: Prisma.StringNullableWithAggregatesFilter<"OrgMember"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OrgMember"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"OrgMember"> | Date | string
 }
@@ -245,6 +257,7 @@ export type OrgMemberCreateInput = {
   id?: string
   userId: string
   role?: $Enums.MemberRole
+  googleRefreshToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutMembersInput
@@ -255,6 +268,7 @@ export type OrgMemberUncheckedCreateInput = {
   orgId: string
   userId: string
   role?: $Enums.MemberRole
+  googleRefreshToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -263,6 +277,7 @@ export type OrgMemberUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutMembersNestedInput
@@ -273,6 +288,7 @@ export type OrgMemberUncheckedUpdateInput = {
   orgId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -282,6 +298,7 @@ export type OrgMemberCreateManyInput = {
   orgId: string
   userId: string
   role?: $Enums.MemberRole
+  googleRefreshToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -290,6 +307,7 @@ export type OrgMemberUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -299,6 +317,7 @@ export type OrgMemberUncheckedUpdateManyInput = {
   orgId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -323,6 +342,7 @@ export type OrgMemberCountOrderByAggregateInput = {
   orgId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  googleRefreshToken?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -332,6 +352,7 @@ export type OrgMemberMaxOrderByAggregateInput = {
   orgId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  googleRefreshToken?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -341,6 +362,7 @@ export type OrgMemberMinOrderByAggregateInput = {
   orgId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   role?: Prisma.SortOrder
+  googleRefreshToken?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -395,6 +417,7 @@ export type OrgMemberCreateWithoutOrgInput = {
   id?: string
   userId: string
   role?: $Enums.MemberRole
+  googleRefreshToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -403,6 +426,7 @@ export type OrgMemberUncheckedCreateWithoutOrgInput = {
   id?: string
   userId: string
   role?: $Enums.MemberRole
+  googleRefreshToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -441,6 +465,7 @@ export type OrgMemberScalarWhereInput = {
   orgId?: Prisma.StringFilter<"OrgMember"> | string
   userId?: Prisma.StringFilter<"OrgMember"> | string
   role?: Prisma.EnumMemberRoleFilter<"OrgMember"> | $Enums.MemberRole
+  googleRefreshToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
 }
@@ -449,6 +474,7 @@ export type OrgMemberCreateManyOrgInput = {
   id?: string
   userId: string
   role?: $Enums.MemberRole
+  googleRefreshToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -457,6 +483,7 @@ export type OrgMemberUpdateWithoutOrgInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -465,6 +492,7 @@ export type OrgMemberUncheckedUpdateWithoutOrgInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -473,6 +501,7 @@ export type OrgMemberUncheckedUpdateManyWithoutOrgInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -484,6 +513,7 @@ export type OrgMemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   orgId?: boolean
   userId?: boolean
   role?: boolean
+  googleRefreshToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -494,6 +524,7 @@ export type OrgMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   orgId?: boolean
   userId?: boolean
   role?: boolean
+  googleRefreshToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -504,6 +535,7 @@ export type OrgMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   orgId?: boolean
   userId?: boolean
   role?: boolean
+  googleRefreshToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -514,11 +546,12 @@ export type OrgMemberSelectScalar = {
   orgId?: boolean
   userId?: boolean
   role?: boolean
+  googleRefreshToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrgMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "userId" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["orgMember"]>
+export type OrgMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "userId" | "role" | "googleRefreshToken" | "createdAt" | "updatedAt", ExtArgs["result"]["orgMember"]>
 export type OrgMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
 }
@@ -539,6 +572,7 @@ export type $OrgMemberPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     orgId: string
     userId: string
     role: $Enums.MemberRole
+    googleRefreshToken: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["orgMember"]>
@@ -969,6 +1003,7 @@ export interface OrgMemberFieldRefs {
   readonly orgId: Prisma.FieldRef<"OrgMember", 'String'>
   readonly userId: Prisma.FieldRef<"OrgMember", 'String'>
   readonly role: Prisma.FieldRef<"OrgMember", 'MemberRole'>
+  readonly googleRefreshToken: Prisma.FieldRef<"OrgMember", 'String'>
   readonly createdAt: Prisma.FieldRef<"OrgMember", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"OrgMember", 'DateTime'>
 }
