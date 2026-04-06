@@ -4,17 +4,28 @@
 
 > A new developer or Claude session should be able to get up to speed in ~10 minutes from this file.
 
+**GitHub:** https://github.com/kolasystems/kolass-ai
+
 ---
 
 ## 0. Project History (Day 1 → Today)
 
 ### How this project started
 
-Kolasys AI began from a blank `create-next-app` scaffold on **2026-04-01**. The initial commit contained only the Next.js boilerplate — no schema, no workers, no API layer. Everything was built from scratch in two focused sessions.
+Kolasys AI began from a blank `create-next-app` scaffold on **2026-04-03**. The initial commit contained only the Next.js boilerplate — no schema, no workers, no API layer. Everything was built from scratch in three focused sessions across two machines.
 
-### Session 1 — 2026-04-01: Full scaffold (34 files)
+### Development machines
 
-The entire Phase 1 foundation was written in one session:
+| Machine | When used | Notes |
+|---|---|---|
+| **Mac Studio** (primary) | Session 1 + Session 2 | First build; slow Turbopack compile due to memory pressure on initial cold build |
+| **Mac Mini** | Session 3 | Cloned repo fresh; needed to re-install Node 22, copy `.env`, run `npm install` |
+
+---
+
+### Session 1 — 2026-04-03: Full scaffold (34 files)
+
+The entire Phase 1 foundation was written in one session on the Mac Studio:
 - Prisma schema (11 models, 9 enums), seed data, `prisma.config.ts`
 - All infrastructure: `db.ts`, `redis.ts`, `queues.ts`, `storage.ts`, `trpc.ts`, `utils.ts`
 - tRPC API layer: server init, root router, recordings router
@@ -31,14 +42,16 @@ The entire Phase 1 foundation was written in one session:
 - Summarisation worker not yet written (queue wired but nothing consuming it)
 - Prisma v7 constructor API was wrong in `db.ts`
 
-### Session 2 — 2026-04-04 → 2026-04-06: Bug fixing + summarisation worker
+---
 
-Everything needed to make the app actually run was fixed:
+### Session 2 — 2026-04-04: Bug fixing, first successful upload, pipeline tested
+
+Still on Mac Studio. AWS credentials configured, workers running, first end-to-end test completed.
 
 **Bug 1 — Prisma v7 constructor**
 `db.ts` used `new PrismaNeon(Pool)` which is the Prisma v6 WebSocket adapter API.
 Prisma v7 renamed it to `PrismaNeonHttp(connectionString)` with a different constructor signature.
-Fix: updated `db.ts` to `new PrismaNeonHttp(process.env.DATABASE_URL!)` and `new PrismaClient({ adapter })`.
+Fix: `const adapter = new PrismaNeonHttp(process.env.DATABASE_URL!)` then `new PrismaClient({ adapter })`.
 
 **Bug 2 — Prisma enums in client components**
 `new-recording-modal.tsx`, `status-badge.tsx`, and `recordings/page.tsx` imported `RecordingStatus`, `RecordingSource` from `@/generated/prisma/client`. Prisma uses Node.js-only APIs — importing it in a `'use client'` component crashes the client bundle.
@@ -66,14 +79,82 @@ Next.js 16 renamed `middleware.ts` → `proxy.ts`. The file was already named co
 The `create-next-app` scaffold left an `app/` directory at the root alongside `src/app/`. Next.js tried to merge both, causing route conflicts and build errors.
 Fix: deleted `app/` entirely.
 
-**Bug 9 — Slow compile / memory pressure**
-Turbopack (default in Next.js 16 `next dev`) hit memory spikes during initial compilation on the M-series Mac. Workaround: use `next dev --port 3001` if port 3000 is already bound from a previous crashed process, and let Turbopack's incremental cache warm up over 2–3 reloads.
+**Bug 9 — Slow compile / memory pressure (Mac Studio)**
+Turbopack (default in Next.js 16 `next dev`) hit memory spikes during initial compilation.
+Workaround: let Turbopack's incremental cache warm up over 2–3 reloads; use `--port 3001` if 3000 is stuck from a previous crashed process.
 
 **Summarisation worker written:**
 `src/workers/summarization.worker.ts` — mirrors the transcription worker structure. Reads transcript from DB, loads the org's preferred NoteTemplate, calls Claude with structured JSON prompt, saves `Note` + `NoteSection[]` + `ActionItem[]`, sets `Recording.status = READY`.
 
+**First successful pipeline test:** Upload → Whisper → Claude → notes all working end-to-end on Mac Studio.
+
+---
+
+### Session 3 — 2026-04-06: Move to Mac Mini, P0 audit, all blockers fixed
+
+Moved development to the Mac Mini. Cloned the repo fresh from GitHub. Ran into new environment-specific issues, then completed a full P0 security/correctness audit.
+
+**Setup on Mac Mini:**
+1. Installed Node.js 22 (matched Mac Studio)
+2. `git clone https://github.com/kolasystems/kolass-ai`
+3. Copied `.env` from Mac Studio (contains all credentials)
+4. `npm install && npx prisma generate`
+5. Workers failed to start — see bugs below
+
+**Bug 10 — `server-only` import blocking workers**
+The workers (`transcription.worker.ts`, `summarization.worker.ts`) both import `src/lib/db.ts` and `src/lib/storage.ts`. These files have `import 'server-only'` at the top, which is a Next.js build-time guard. In a standalone `tsx` process (outside of Next.js), `server-only` throws `Error: This module cannot be imported from a Client Component module`.
+Fix: removed `import 'server-only'` from `db.ts` and `storage.ts`. The guard is enforced by the build-time bundler, not needed in worker scripts which are never bundled by Next.js.
+
+**Bug 11 — `$transaction` not supported in Prisma HTTP mode**
+The transcription worker used `prisma.$transaction([...])` to atomically save the `Transcript` and `TranscriptSegment` records.
+The `PrismaNeonHttp` adapter uses HTTP (not WebSocket), which does not support interactive transactions.
+Fix: replaced all `$transaction` calls with sequential individual `prisma.create()` / `prisma.update()` calls. Acceptable because these operations are within a BullMQ job that can be retried on failure.
+
+**Bug 12 — `upsert` not supported in Prisma HTTP mode**
+The summarisation worker used `prisma.note.upsert(...)` to handle re-runs of the same job.
+Prisma HTTP adapter does not support `upsert`.
+Fix: replaced with `findUnique` → `create` or `update` pattern:
+```typescript
+const existing = await prisma.note.findUnique({ where: { recordingId } });
+if (existing) {
+  await prisma.note.update({ where: { id: existing.id }, data: { ... } });
+} else {
+  await prisma.note.create({ data: { ... } });
+}
+```
+
+**Bug 13 — Nested writes causing implicit transaction errors**
+Both workers used nested creates like `prisma.transcript.create({ data: { ..., segments: { create: [...] } } })`. This is sugar for an implicit transaction which is also unsupported in HTTP mode.
+Fix: broke all nested creates into explicit sequential creates (create parent, then create children with the parent ID).
+
+**Bug 14 — Org foreign key constraint on first recording**
+When a Clerk user signs up and creates their first org, the Clerk webhook fires `organization.created`. The webhook handler (Clerk route) creates the `Organization` row in the DB. But if the webhook hasn't fired yet (e.g., `CLERK_WEBHOOK_SECRET` not set), the `Organization` row doesn't exist.
+When `orgProcedure` tries to look up the org via `clerkOrgId`, it returns null → the subsequent `recordings.create` mutation inserts a recording with a null `orgId`, violating the foreign key constraint.
+Fix: added org auto-provisioning in `orgProcedure` — if the org is not found in the DB, create it on-demand using the Clerk org data from `auth()`. This makes the app resilient to missed webhooks.
+
+**Bug 15 — `recordings.get` not org-scoped (security)**
+The `recordings.get` tRPC procedure fetched a recording by ID with no org check:
+```typescript
+// Before — insecure
+return prisma.recording.findUnique({ where: { id: input.id } });
+```
+Any authenticated user who guessed a recording UUID could read recordings from another org.
+Fix: added `orgId` to the where clause and threw `FORBIDDEN` if the recording's orgId doesn't match the caller's active org:
+```typescript
+const recording = await prisma.recording.findUnique({ where: { id: input.id } });
+if (!recording || recording.orgId !== ctx.orgId) throw new TRPCError({ code: 'FORBIDDEN' });
+```
+
+**Bug 16 — S3 audio files never deleted**
+The transcription worker called `deleteFromS3(job.data.s3Key)` but this was done inside a try/catch that silently swallowed the error. S3 files were being accumulated indefinitely.
+Fix: moved S3 deletion to after `Transcript` + `TranscriptSegment` are committed. Added explicit error logging so deletion failures are visible. Audio privacy: files are deleted immediately after transcription regardless of failure.
+
+**Bug 17 — Worker env vars not loading**
+On Mac Mini, `tsx src/workers/transcription.worker.ts` did not automatically load `.env`. Environment variables were undefined — Prisma and Redis connections failed immediately.
+Fix: added `import 'dotenv/config'` at the top of both worker files, and confirmed `dotenv` is in `package.json` dependencies.
+
 **Current state as of 2026-04-06:**
-All code compiles. Dashboard loads. Clerk auth works. Both BullMQ workers are implemented. The end-to-end pipeline (upload → transcribe → summarise) will be fully functional once AWS S3 credentials are added. See §8 for the complete status breakdown.
+Full pipeline works on both machines. Upload → Whisper → Claude → notes tested end-to-end on Mac Mini. All P0 security and correctness bugs fixed. P1 items in progress.
 
 ---
 
@@ -120,6 +201,7 @@ Kolasys AI is an **AI-powered meeting notes product**. It records, transcribes, 
 | **Radix UI** | various | Accessible headless components (Dialog, Dropdown, Toast, etc.) |
 | **Zod** | 4.x | Schema validation for tRPC inputs |
 | **Svix** | 1.x | Clerk webhook verification |
+| **dotenv** | 16.x | Env var loading in worker scripts (outside Next.js) |
 | **lucide-react** | 1.x | Icons |
 | **react-dropzone** | 15.x | File drag-and-drop in upload modal |
 | **nanoid** | 5.x | Short unique IDs |
@@ -137,6 +219,7 @@ Browser (drag-drop file)
   → tRPC recordings.confirmUpload — updates DB, enqueues transcription job
   → BullMQ transcriptionQueue
       → Worker: downloads from S3, calls Whisper, saves Transcript + segments
+      → Deletes S3 file (privacy)
       → Enqueues summarizationQueue
   → BullMQ summarizationQueue
       → Worker: calls Claude (summary + action items in parallel)
@@ -202,10 +285,10 @@ kolasys-ai/
 │   ├── generated/
 │   │   └── prisma/             Auto-generated Prisma client (never edit)
 │   ├── lib/
-│   │   ├── db.ts              Prisma client singleton (server-only)
+│   │   ├── db.ts              Prisma client singleton (NO server-only — used by workers too)
 │   │   ├── redis.ts           IORedis clients — general + BullMQ-dedicated
 │   │   ├── queues.ts          BullMQ Queue instances + job data types
-│   │   ├── storage.ts         AWS S3 helpers — upload, download, delete, pre-sign (server-only)
+│   │   ├── storage.ts         AWS S3 helpers — upload, download, delete, pre-sign
 │   │   ├── trpc.ts            tRPC React client ('use client')
 │   │   └── utils.ts           cn(), formatDuration(), formatFileSize(), relativeTime()
 │   ├── providers/
@@ -289,37 +372,56 @@ kolasys-ai/
 | `RECALLAI_API_KEY` | Recall.ai | Meeting bot deploy fails |
 | `RECALLAI_WEBHOOK_SECRET` | Recall.ai webhooks | Webhook HMAC verification fails |
 
-**Currently set:** DATABASE_URL, Clerk keys (no webhook secret), NEXT_PUBLIC vars, REDIS_URL, OPENAI_API_KEY, ANTHROPIC_API_KEY
+**Currently set:** DATABASE_URL, Clerk keys + webhook secret, NEXT_PUBLIC vars, REDIS_URL, OPENAI_API_KEY, ANTHROPIC_API_KEY, AWS_*, S3_BUCKET_NAME
 
-**Not yet configured:** CLERK_WEBHOOK_SECRET, AWS_*, RECALLAI_*
+**Not yet configured:** RECALLAI_API_KEY, RECALLAI_WEBHOOK_SECRET
 
 ---
 
 ## 7. How to Run
 
-### First time setup
+### New machine setup
 ```bash
+# 1. Clone
+git clone https://github.com/kolasystems/kolass-ai
+cd kolass-ai
+
+# 2. Install deps
 npm install
-npx prisma db push        # sync schema to Neon
-npx prisma db seed        # seed 4 default note templates
+
+# 3. Copy .env from another machine (contains all credentials)
+# OR fill in .env.example and rename to .env
+
+# 4. Generate Prisma client
+npx prisma generate
+
+# 5. Sync schema (first time only)
+npx prisma db push
+
+# 6. Seed note templates (first time only)
+npx prisma db seed
 ```
 
-### Development (3 terminals)
+### Development — 3 terminals
 
 **Terminal 1 — Next.js**
 ```bash
 npm run dev
 # → http://localhost:3000
+# If 3000 is stuck from a crashed process: npm run dev -- --port 3001
 ```
 
-**Terminal 2 — Workers** (needed for file processing)
+**Terminal 2 — Transcription worker**
 ```bash
 npx tsx src/workers/transcription.worker.ts
-# separate tab:
+```
+
+**Terminal 3 — Summarisation worker**
+```bash
 npx tsx src/workers/summarization.worker.ts
 ```
 
-**Terminal 3 — ngrok** (needed for webhooks)
+**Optional: Terminal 4 — ngrok** (needed for webhooks in dev)
 ```bash
 ngrok http 3000
 # Copy https URL → update Clerk webhook + Recall.ai webhook
@@ -327,7 +429,7 @@ ngrok http 3000
 ```
 
 ### Webhook endpoints to register
-- Clerk: `https://<ngrok>/api/webhooks/clerk` — events: `user.created`, `organization.*`
+- Clerk: `https://<ngrok>/api/webhooks/clerk` — events: `user.created`, `organization.*`, `organizationMembership.*`
 - Recall.ai: `https://<ngrok>/api/webhooks/recall`
 
 ---
@@ -342,31 +444,39 @@ ngrok http 3000
 - Clerk sign in/up/org switcher
 - tRPC layer fully typed with superjson
 - Prisma schema synced to Neon + 4 templates seeded
-- Both BullMQ workers implemented (transcription + summarisation)
-- All build errors resolved — `npm run dev` compiles cleanly
+- Both BullMQ workers running and tested
+- **Full pipeline confirmed working:** Upload → Whisper → Claude → notes (tested on Mac Mini 2026-04-06)
+- S3 audio deletion after transcription
+- org-scoped security on all recording reads
+- Org auto-provisioning in orgProcedure (resilient to missed webhooks)
 
-### Fixed issues (full history — see §0 for details)
+### All bugs fixed (see §0 for details and docs/BUGS_AND_FIXES.md for full catalogue)
 - Prisma v7: `PrismaNeon(Pool)` → `PrismaNeonHttp(connectionString)` (different constructor)
 - Prisma enums removed from all client components (use local string unions instead)
 - `src/lib/trpc.ts` missing `'use client'` — caused Prisma to leak into client bundle
-- `server-only` added to `db.ts`, `server/trpc.ts`, `server/root.ts`, `storage.ts`
+- `server-only` removed from `db.ts` + `storage.ts` (workers import these outside Next.js)
 - Next.js 16: `params` must be `await`ed in both page + `generateMetadata`
 - Next.js 16: middleware lives in `proxy.ts` not `middleware.ts`
 - Clerk: sign-in/up pages require `[[...sign-in]]` / `[[...sign-up]]` catch-all structure
 - Legacy `app/` directory deleted (conflicted with `src/app/`)
 - `svix` added to `package.json`
-- Summarisation worker written (`src/workers/summarization.worker.ts`)
+- Summarisation worker written
+- `$transaction` removed — not supported by Prisma HTTP adapter
+- `upsert` replaced with `findUnique + create/update` — not supported by Prisma HTTP adapter
+- Nested creates flattened — implicit transactions not supported by Prisma HTTP adapter
+- `dotenv/config` imported at top of both worker files
+- Org auto-provisioning guards against missed Clerk webhooks
+- `recordings.get` now org-scoped (was a data isolation bug)
 
-### Not yet working (requires external credentials)
-- End-to-end upload → transcription → summarisation (needs `AWS_*` env vars)
-- Meeting bot (needs `RECALLAI_API_KEY`)
-- Clerk org webhook sync (needs `CLERK_WEBHOOK_SECRET` + running ngrok)
-
-### Remaining TODO
+### P1 in progress
+- Real-time processing status polling on recording detail page
 - Action items management page (`/dashboard/action-items`)
 - Settings page (`/dashboard/settings`)
-- Real-time processing status polling on recording detail page
+
+### Remaining TODO
 - Worker Dockerfile for Railway/Render deployment
+- Meeting bot end-to-end (needs `RECALLAI_API_KEY` + ngrok)
+- Clerk org webhook sync (needs ngrok running + URL updated in Clerk dashboard)
 
 ---
 
@@ -379,13 +489,17 @@ ngrok http 3000
 | **3 — Native** | Mac menu bar app, Windows app, iOS/iPad, Android |
 | **4 — Ecosystem** | PLAUD NotePin hardware, CRM sync (Salesforce/HubSpot), analytics, public API |
 
+See `docs/PHASE2.md` for the full 30-item audit list (P0 → P3).
+
 ---
 
 ## 10. Key Decisions & Rationale
 
-**Prisma v7 + PrismaNeonHttp** — v7 splits the Neon adapter into WebSocket (`PrismaNeon`) and HTTP (`PrismaNeonHttp`). We use HTTP because it works in all Next.js server environments without the `ws` package. The `url` field moves out of `schema.prisma` into `prisma.config.ts`.
+**Prisma v7 + PrismaNeonHttp** — v7 splits the Neon adapter into WebSocket (`PrismaNeon`) and HTTP (`PrismaNeonHttp`). We use HTTP because it works in all Next.js server environments without the `ws` package. The `url` field moves out of `schema.prisma` into `prisma.config.ts`. HTTP mode does NOT support `$transaction`, `upsert`, or nested writes — all must be replaced with explicit sequential operations.
 
-**BullMQ** — Transcription (5–60s) and summarisation must be async. BullMQ gives retries, concurrency control, and a `ProcessingJob` audit trail. Workers are separate Node.js processes.
+**No `server-only` on db.ts / storage.ts** — These files are imported by BullMQ workers, which are standalone `tsx` processes (not bundled by Next.js). The `server-only` package is a Next.js bundler guard — it throws when the bundler processes the file client-side. Outside Next.js (in workers), it throws unconditionally. Guards on `server/trpc.ts` and `server/root.ts` are still safe because workers don't import tRPC server code.
+
+**BullMQ** — Transcription (5–60s) and summarisation must be async. BullMQ gives retries, concurrency control, and a `ProcessingJob` audit trail. Workers are separate Node.js processes. Worker env loading requires `import 'dotenv/config'` since Next.js's env injection doesn't apply.
 
 **Recall.ai** — Meeting bot deployment across Zoom/Meet/Teams requires separate developer accounts per platform. Recall.ai provides a unified API for all platforms.
 
@@ -404,18 +518,25 @@ ngrok http 3000
 - No `url =` in `datasource db {}` — URL is in `prisma.config.ts` → `datasource.url`
 - Import path: `from '@/generated/prisma/client'`
 - Constructor requires adapter: `new PrismaClient({ adapter })`
+- HTTP mode: no `$transaction`, no `upsert`, no nested creates
 
 **Client components cannot import Prisma**
 Prisma uses Node.js-only APIs. Never import from `@/generated/prisma/client` or `@/lib/db` in a `'use client'` component. Use local string union types for enums.
 
 **tRPC type leak prevention**
-`src/lib/trpc.ts` must have `'use client'`. Without it, the `import type { AppRouter }` chain pulls the entire server module graph (including Prisma) into the client bundle. The `server-only` guards on server files make this fail fast if violated.
+`src/lib/trpc.ts` must have `'use client'`. Without it, the `import type { AppRouter }` chain pulls the entire server module graph (including Prisma) into the client bundle. `server-only` guards on `server/trpc.ts` and `server/root.ts` make this fail fast.
+
+**`server-only` and workers**
+`db.ts` and `storage.ts` do NOT have `server-only` — they are shared between Next.js server code and worker scripts. Only files that workers will never touch (`server/trpc.ts`, `server/root.ts`) have `server-only`.
 
 **orgProcedure requires an active Clerk org**
-All recording mutations are `orgProcedure`. Users must create or join an organisation via the `OrganizationSwitcher` before any mutation will work. Without an org, every mutation returns `FORBIDDEN: An active organization is required`.
+All recording mutations are `orgProcedure`. Users must create or join an organisation via the `OrganizationSwitcher` before any mutation will work. `orgProcedure` now auto-provisions the org in the DB if the Clerk webhook hasn't synced it yet.
 
 **Workers are separate processes**
-If workers are not running, uploads appear to succeed (file reaches S3) but the recording stays `PENDING` forever — no transcription, no notes.
+Workers must be started manually with `npx tsx ...`. If workers are not running, uploads appear to succeed (file reaches S3) but the recording stays `PENDING` forever.
+
+**Workers need dotenv**
+`import 'dotenv/config'` must be the first import in both worker files. Without it, all `process.env.*` values are undefined and all service connections fail silently.
 
 **ngrok URL changes**
 Every ngrok restart produces a new URL. Update Clerk dashboard + Recall.ai dashboard after each restart. Use a paid ngrok fixed domain to avoid this.
@@ -439,3 +560,4 @@ Every ngrok restart produces a new URL. Update Clerk dashboard + Recall.ai dashb
 | **Anthropic** | Claude summarisation (`claude-sonnet-4-6`) | console.anthropic.com |
 | **Recall.ai** | Meeting bot API | recall.ai — set webhook after ngrok |
 | **ngrok** | Local tunnel for webhooks | ngrok.com |
+| **GitHub** | Source control | https://github.com/kolasystems/kolass-ai |

@@ -1,208 +1,228 @@
-# Kolasys AI — Phase 2: Planned Features
+# Kolasys AI — Phase 2: Full Roadmap & Audit List
 
-Phase 2 transforms Kolasys AI from a functional recording pipeline into a full meeting intelligence platform. Each feature below is described with the technical approach, dependencies, and implementation priority.
+Phase 2 transforms Kolasys AI from a functional recording pipeline into a full meeting intelligence platform.
+
+This document is the **definitive roadmap** — it includes the complete 30-item audit list (P0 → P3) generated in Session 3, plus the original Phase 2 feature descriptions.
 
 ---
 
-## Overview
+## 30-Item Audit List
 
-| Feature | Priority | Effort | Dependencies |
+Audited 2026-04-06. Items are ordered within each priority tier by implementation dependency (earlier items unblock later ones).
+
+---
+
+### P0 — Must Fix Before Sharing With Anyone
+
+These are correctness, security, or data integrity issues. The app should not be shared with external users until all P0s are resolved.
+
+| # | Item | Status | Notes |
 |---|---|---|---|
-| ~~Summarisation worker~~ | ~~P0~~ | ~~Small~~ | ✅ Done (Session 2) |
-| Real-time transcription progress | P0 | Medium | Polling or WebSockets |
-| Action items management page | P0 | Small | Phase 1 schema |
-| Custom org note templates UI | P1 | Medium | Phase 1 schema |
-| Calendar sync (Google + Outlook) | P1 | Medium | OAuth, calendar APIs |
-| Real-time transcription (live) | P1 | Large | Deepgram streaming |
-| Vector search | P1 | Medium | pgvector or Pinecone |
-| Slack integration | P2 | Medium | Slack API |
-| Notion integration | P2 | Medium | Notion API |
-| Sharing & public notes | P2 | Small | Phase 1 schema |
-| Mobile app | P3 | XL | React Native / Expo |
-| Advanced analytics | P3 | Medium | Data pipeline |
+| 1 | `server-only` blocking workers | ✅ Fixed | Removed from `db.ts`, `storage.ts` |
+| 2 | `$transaction` not supported in HTTP mode | ✅ Fixed | Replaced with sequential calls |
+| 3 | `upsert` not supported in HTTP mode | ✅ Fixed | Replaced with findUnique + create/update |
+| 4 | Nested writes causing implicit transaction errors | ✅ Fixed | Flattened to sequential creates |
+| 5 | Org FK constraint on first recording (webhook race) | ✅ Fixed | Auto-provision org in orgProcedure |
+| 6 | `recordings.get` not org-scoped (data leak) | ✅ Fixed | Added orgId check + FORBIDDEN |
+| 7 | S3 audio files never deleted after transcription | ✅ Fixed | Delete after transcript committed |
+| 8 | Worker env vars not loading (dotenv missing) | ✅ Fixed | `import 'dotenv/config'` in workers |
+| 9 | `recordings.list` not org-scoped | ✅ Fixed | All list queries filtered by `ctx.orgId` |
+| 10 | Action items not org-scoped in queries | ✅ Fixed | Added `orgId` filter to all actionItem queries |
 
 ---
 
-## P0 — Must Have Before Public Launch
+### P1 — Core UX — Must Have Before Public Launch
 
-### 1. Summarisation Worker
+These make the product usable and trustworthy for real users.
 
-**What:** BullMQ worker that consumes jobs from the `summarization` queue (already set up in Phase 1) and generates notes using the `summarization.service.ts`.
-
-**How:**
-- Mirror the structure of `src/workers/transcription.worker.ts`
-- Read transcript from DB, load org's preferred template (or default)
-- Call Claude → save `Note` + `NoteSection` + `ActionItem` records
-- Update `Recording.status` to `READY`
-
-**File to create:** `src/workers/summarization.worker.ts`
-
-**Effort:** 2–3 hours
+| # | Item | Status | Notes |
+|---|---|---|---|
+| 11 | Real-time processing status on recording detail page | 🔄 In progress | Poll `recordings.get` every 5s while PROCESSING |
+| 12 | Action items management page (`/dashboard/action-items`) | 🔄 In progress | List, filter, update status, assign |
+| 13 | Settings page (`/dashboard/settings`) | 🔄 In progress | Org name, plan, note templates, API keys |
+| 14 | Error state on recording detail (status = FAILED) | ⬜ Todo | Show error message + retry button |
+| 15 | Whisper 25 MB file size limit handling | ⬜ Todo | Reject at upload with clear error message |
+| 16 | Worker Dockerfile for Railway/Render deployment | ⬜ Todo | Required to run workers in prod |
+| 17 | Clerk webhook org sync (needs `CLERK_WEBHOOK_SECRET`) | ⬜ Todo | Auto-provisioning is workaround; webhook is authoritative |
+| 18 | Empty state UI for new orgs with no recordings | ⬜ Todo | Show onboarding prompt instead of empty list |
+| 19 | `ProcessingJob` audit log visible in UI | ⬜ Todo | Show job history on recording detail for debugging |
+| 20 | Rate limiting on tRPC mutations | ⬜ Todo | Prevent abuse of upload + bot deploy endpoints |
 
 ---
 
-### 2. Real-Time Processing Status
+### P2 — Platform Features — After First Public Users
 
-**What:** The recording detail page currently shows a static "Processing…" banner. Users need live feedback without manually refreshing.
+| # | Item | Status | Notes |
+|---|---|---|---|
+| 21 | Custom org note templates UI | ⬜ Todo | CRUD UI for NoteTemplate — already in schema |
+| 22 | Calendar sync (Google Calendar + Outlook) | ⬜ Todo | See feature spec below |
+| 23 | Real-time transcription (live captions) | ⬜ Todo | Deepgram streaming WebSocket |
+| 24 | Vector search across transcripts + notes | ⬜ Todo | pgvector on Neon (see spec below) |
+| 25 | Slack integration — post summary after meeting | ⬜ Todo | OAuth + `chat.postMessage` |
+| 26 | Notion integration — export notes as page | ⬜ Todo | Notion API OAuth + blocks |
+| 27 | Public note sharing via share token | ⬜ Todo | `Note.shareToken` + `/share/[token]` route |
+| 28 | Email digest — weekly meeting summary | ⬜ Todo | Scheduled job → Resend/SendGrid |
 
-**Option A: Polling (simpler)**
-- Add `trpc.recordings.get.useQuery({ id }, { refetchInterval: 5_000 })` on the client
-- Stop polling when `status === 'READY' || status === 'FAILED'`
-- No backend changes needed
+---
 
-**Option B: Server-Sent Events (SSE)**
-- Add a `GET /api/recordings/:id/status` SSE route
-- Worker updates Redis key on status change
+### P3 — Growth & Scale
+
+| # | Item | Status | Notes |
+|---|---|---|---|
+| 29 | Mobile app (React Native + Expo) | ⬜ Todo | See `docs/MOBILE_STRATEGY.md` |
+| 30 | Advanced analytics dashboard | ⬜ Todo | Meeting trends, action item completion rate |
+
+---
+
+## Feature Specifications
+
+---
+
+### P1 — Real-Time Processing Status (Item 11)
+
+**What:** The recording detail page currently shows a static "Processing…" banner. Users need live feedback.
+
+**Option A: Polling (ship in 30 minutes)**
+```typescript
+// In recording detail page client component:
+const { data: recording } = trpc.recordings.get.useQuery(
+  { id },
+  {
+    refetchInterval: (data) =>
+      data?.status === 'PROCESSING' || data?.status === 'PENDING' ? 5000 : false,
+  }
+);
+```
+Stop polling automatically when status is `READY` or `FAILED`.
+
+**Option B: Server-Sent Events (upgrade later)**
+- Add `GET /api/recordings/:id/status` SSE route
+- Worker publishes to Redis pub/sub on status change
 - Next.js SSE route streams updates to client
 
-Recommendation: Start with polling (Option A) — it ships in 30 minutes. Upgrade to SSE in a later iteration.
+**Recommendation:** Start with polling. It ships in under an hour and requires zero backend changes.
 
 ---
 
-### 3. Action Items Management Page
+### P1 — Action Items Management Page (Item 12)
 
-**What:** A dedicated `/dashboard/action-items` page where users can view, filter, assign, and update all action items across their organisation.
+**Route:** `/dashboard/action-items`
 
-**How:**
-- Add `actionItems` tRPC router with: `list` (filter by status/assignee), `update` (status, dueDate), `delete`
-- Build `src/app/dashboard/action-items/page.tsx` as a client component
-- Group by status (Open / In Progress / Completed)
-- Allow inline status updates
+**New tRPC router:** `actionItems`
+- `list({ orgId, status?, assignee?, page })` — paginated list with filters
+- `update({ id, status?, dueDate?, assigneeId? })` — inline edit
+- `delete({ id })` — soft delete
 
-**Schema changes:** None — `ActionItem` model already supports all required fields.
-
----
-
-## P1 — Core Platform Features
-
-### 4. Custom Org Note Templates UI
-
-**What:** Allow org admins to create, edit, and set a default note template for their organisation.
-
-**How:**
-- Add tRPC router: `templates.list`, `templates.create`, `templates.update`, `templates.delete`, `templates.setDefault`
-- UI at `/dashboard/settings/templates`
-- Section builder: drag-and-drop list of `{ title, prompt }` pairs
-- When generating notes, look up the org's default template before falling back to the global default
-
-**Dependencies:** Radix UI DND or `@dnd-kit/core` for drag-and-drop section ordering.
+**UI:**
+- Grouped by status: Open / In Progress / Completed / Cancelled
+- Filter bar: status, assignee, date range
+- Inline status update (click to cycle)
+- Assignee autocomplete from `OrgMember` list
 
 ---
 
-### 5. Calendar Sync (Google Calendar + Outlook)
+### P1 — Settings Page (Item 13)
 
-**What:** Automatically create recordings for upcoming calendar events and pre-fill the title, attendees, and meeting URL.
+**Route:** `/dashboard/settings`
 
-**How:**
+**Tabs:**
+- **General** — org name, slug (read-only), plan info
+- **Members** — list OrgMembers, invite link, remove member (admin only)
+- **Note Templates** — list + CRUD for custom templates (P2 full editor)
+- **API Keys** — generate/revoke ApiKey records (P3 public API)
+- **Integrations** — connect Slack, Notion, Google Calendar (P2)
+
+---
+
+### P2 — Calendar Sync (Item 22)
+
+**What:** Automatically pre-fill recording titles, attendees, and meeting URLs from calendar events.
 
 **Google Calendar:**
-1. Add Google OAuth scope `https://www.googleapis.com/auth/calendar.readonly`
-2. Use Clerk's OAuth token storage or a separate `OAuthToken` model
-3. Call Google Calendar API to list upcoming events with video conference links
-4. Show "Schedule bot" button next to calendar events in a new `/dashboard/calendar` page
-5. Optionally auto-deploy bots at event start time via a cron job
+1. OAuth scope: `https://www.googleapis.com/auth/calendar.readonly`
+2. Store token in `CalendarConnection` model (encrypted)
+3. Fetch upcoming events with `conferenceData` (Zoom/Meet/Teams links)
+4. Show upcoming events on new `/dashboard/calendar` page
+5. "Record this meeting" button → pre-fills recording form
 
-**Outlook:**
-1. Microsoft OAuth via `@microsoft/microsoft-graph-client`
-2. Same approach as Google Calendar
-
-**New models:**
+**New schema:**
 ```prisma
 model CalendarConnection {
-  id           String @id @default(cuid())
+  id           String           @id @default(cuid())
   orgId        String
   userId       String
-  provider     CalendarProvider  // GOOGLE, OUTLOOK
-  accessToken  String            // encrypted
-  refreshToken String            // encrypted
+  provider     CalendarProvider // GOOGLE, OUTLOOK, APPLE
+  accessToken  String           // encrypted at rest
+  refreshToken String           // encrypted at rest
   expiresAt    DateTime
-  createdAt    DateTime @default(now())
+  createdAt    DateTime         @default(now())
+}
+
+enum CalendarProvider {
+  GOOGLE
+  OUTLOOK
+  APPLE
 }
 ```
 
-**Security note:** Store OAuth tokens encrypted (AES-256) in the database, not in plain text.
-
 ---
 
-### 6. Real-Time Transcription (Live Captions)
+### P2 — Vector Search (Item 24)
 
-**What:** Show a live transcript while a browser recording or meeting bot session is in progress. This is a significant capability uplift — users can see what is being said in real time.
+**What:** Semantic search across all transcripts and notes.
 
-**How — browser recording:**
-1. Replace OpenAI Whisper (batch) with **Deepgram's streaming WebSocket API** for browser recordings
-2. `src/services/deepgram.service.ts` — WebSocket client wrapping Deepgram's streaming transcription
-3. Client sends audio chunks via WebSocket; Deepgram returns partial + final transcripts
-4. Final words are saved to `TranscriptSegment` as they arrive
-
-**How — meeting bots:**
-1. Recall.ai already has a `real_time_transcription` option (configured in Phase 1's `deployBot`)
-2. Transcripts arrive at `/api/webhooks/recall` as `transcript.ready` events
-3. Parse and upsert `TranscriptSegment` records in real time
-
-**Frontend:**
-- New `LiveTranscript` component subscribing to a tRPC subscription or SSE stream
-- Auto-scroll to the latest segment
-
-**New env var needed:** `DEEPGRAM_API_KEY` (already in `.env.example`)
-
-**Effort:** L — streaming WebSocket management is complex; real-time DB writes need batching to avoid thundering-herd.
-
----
-
-### 7. Vector Search
-
-**What:** Allow users to search across all transcripts and notes with semantic similarity — "show me every meeting where we discussed pricing" rather than exact keyword matching.
-
-**Option A: pgvector (in PostgreSQL)**
-- Add `pgvector` extension to Neon
-- Add `embedding vector(1536)` column to `TranscriptSegment` and `NoteSection`
+**Option A: pgvector (recommended)**
+- Add `pgvector` extension to Neon database
+- Add `embedding Unsupported("vector(1536)")?` to `TranscriptSegment` and `NoteSection`
 - After summarisation, generate embeddings via `openai.embeddings.create({ model: 'text-embedding-3-small' })`
-- Store embedding alongside the text
-- Search via `<=>` cosine distance operator in Prisma raw queries
+- Search via cosine distance: `<=>` operator in Prisma raw query
 
 ```sql
 SELECT id, text, 1 - (embedding <=> $1) AS similarity
 FROM "TranscriptSegment"
-WHERE "transcriptId" = $2
+WHERE "transcriptId" IN (
+  SELECT id FROM "Transcript" WHERE "recordingId" IN (
+    SELECT id FROM "Recording" WHERE "orgId" = $2
+  )
+)
 ORDER BY similarity DESC
 LIMIT 10;
 ```
 
-**Option B: Pinecone (managed vector DB)**
-- Upsert embeddings to Pinecone after transcription
-- Query Pinecone for top-k IDs → hydrate from PostgreSQL
+**Option B: Pinecone**
+- Fewer constraints, scales independently
+- Additional service + cost + latency
 
-Recommendation: Start with pgvector (fewer services, lower latency, no extra cost) and migrate to Pinecone if query performance degrades at scale.
-
-**New model fields:**
-```prisma
-// Add to TranscriptSegment and NoteSection
-embedding Unsupported("vector(1536)")?
-```
+Recommendation: Start with pgvector (no new service, lower latency). Migrate to Pinecone if query performance degrades above 10M segments.
 
 ---
 
-## P2 — Integrations
+### P2 — Slack Integration (Item 25)
 
-### 8. Slack Integration
+**What:** Post meeting summary to a Slack channel automatically when notes are generated.
 
-**What:** Send a meeting summary to a Slack channel automatically when notes are generated.
+**Flow:**
+1. Admin connects Slack in Settings → Integration OAuth flow
+2. Store `access_token` encrypted in `Integration` model
+3. After summarisation worker sets status = READY, publish to a `notifications` queue
+4. Notification worker calls `chat.postMessage` with formatted summary
 
-**How:**
-1. Add Slack OAuth flow in `/dashboard/settings/integrations`
-2. Store Slack `access_token` per org (encrypted)
-3. After summarisation worker completes, call `chat.postMessage` with a formatted summary block
-4. Allow per-org configuration: which channel, which template, include action items or not
-
-**New model:**
+**New schema:**
 ```prisma
 model Integration {
   id        String          @id @default(cuid())
   orgId     String
-  type      IntegrationType // SLACK, NOTION, GOOGLE_CALENDAR, etc.
-  config    Json            // encrypted credentials + settings
+  type      IntegrationType // SLACK, NOTION, GOOGLE_CALENDAR
+  config    Json            // encrypted: { accessToken, channelId, settings }
   enabled   Boolean         @default(true)
   createdAt DateTime        @default(now())
+}
+
+enum IntegrationType {
+  SLACK
+  NOTION
+  GOOGLE_CALENDAR
+  OUTLOOK_CALENDAR
 }
 ```
 
@@ -215,87 +235,101 @@ model Integration {
 [2-3 sentence summary]
 
 *Action Items*
-• [Owner] Task 1
-• [Owner] Task 2
+• [Owner] Task description
+• [Owner] Task description
 
-[View full notes →](link)
+<https://app.kolasys.ai/dashboard/recordings/[id]|View full notes →>
 ```
 
 ---
 
-### 9. Notion Integration
+### P2 — Notion Integration (Item 26)
 
-**What:** Export meeting notes directly to a Notion page in a connected workspace.
+**What:** Export meeting notes as a Notion page in a connected workspace.
 
-**How:**
-1. Notion OAuth flow via [Notion API](https://developers.notion.com)
-2. After notes are generated, call `pages.create` with structured blocks
-3. Map `NoteSection` → Notion heading + paragraph blocks
-4. Map `ActionItem` → Notion to-do blocks
-5. Allow user to select which Notion database to export to
-
----
-
-### 10. Sharing & Public Notes
-
-**What:** Allow users to share a note via a public URL without requiring sign-in.
-
-**How:**
-- `Note.isPublic` field already exists in Phase 1 schema
-- Add `Note.shareToken` (random 12-char slug)
-- Add tRPC mutation `notes.togglePublic` that generates/clears the share token
-- Add route `src/app/share/[token]/page.tsx` — public server-rendered note view
-- Add "Copy share link" button on the note detail page
-
-**Security:** Share tokens must be unguessable (use `crypto.randomBytes(12).toString('hex')`). Public notes must not expose org membership or user details.
+**Flow:**
+1. Connect Notion in Settings → OAuth
+2. User selects target database in Settings
+3. After notes generated: `pages.create` with structured blocks
+4. `NoteSection` → Notion heading + paragraph blocks
+5. `ActionItem` → Notion to-do blocks with checked status
 
 ---
 
-## P3 — Scale & Growth
+### P2 — Public Note Sharing (Item 27)
 
-### 11. Mobile App
+**What:** Share a note via a public URL (no sign-in required).
 
-**What:** A React Native / Expo app for recording meetings from a phone — particularly useful for in-person meetings.
+**Schema additions:**
+```prisma
+// Add to Note model
+shareToken  String?  @unique  // random 16-char hex
+isPublic    Boolean  @default(false)
+```
 
-**Approach:**
-- Expo with `expo-av` for audio recording
-- Same Clerk auth (Clerk supports React Native)
-- Same tRPC API (works over HTTP from any client)
-- Upload audio to S3 via the same `getUploadUrl` flow
-- Push notifications when transcription is complete
-
-**Effort:** XL — React Native is a separate platform requiring native module expertise. Recommend contracting a mobile developer.
+**Implementation:**
+- `notes.togglePublic` mutation generates/clears `shareToken` via `crypto.randomBytes(16).toString('hex')`
+- New route: `src/app/share/[token]/page.tsx` — public server-rendered view
+- Public view: title, summary, action items only (no transcript, no org info)
+- "Copy link" button in note detail sidebar
 
 ---
 
-### 12. Advanced Analytics
+### P3 — Mobile App (Item 29)
 
-**What:** Org-level dashboards showing meeting trends: meetings per week, average duration, action item completion rate, most frequent topics.
+See `docs/MOBILE_STRATEGY.md` for the complete mobile strategy document.
 
-**How:**
+Summary:
+- React Native + Expo
+- iOS + Android feature parity
+- Same tRPC API, same Clerk auth
+- Background recording via foreground service
+- Calendar integration
+- PLAUD hardware integration (Phase 4)
+- Mac menu bar app (Swift, parallel to mobile)
+
+---
+
+### P3 — Advanced Analytics (Item 30)
+
+**What:** Org-level dashboards showing meeting trends.
+
+**Metrics:**
+- Meetings per week / month
+- Average meeting duration
+- Action item creation rate and completion rate
+- Most frequent meeting attendees
+- Topic trends (Claude-extracted tags stored on `Note`)
+
+**Implementation:**
 - Aggregate queries on `Recording`, `Note`, `ActionItem`
-- Cache computed stats in Redis with a 1-hour TTL
-- New `src/app/dashboard/analytics/page.tsx` with charts (Recharts or Chart.js)
-- Optional: topic modelling via Claude — ask Claude to tag each meeting with 3-5 topic labels → store on `Note` → aggregate in analytics
+- Cache computed stats in Redis with 1-hour TTL
+- `src/app/dashboard/analytics/page.tsx` with Recharts or Chart.js
+- Optional: ask Claude to tag each meeting with 3–5 topic labels → store on `Note.tags` (JSON array)
 
 ---
 
 ## Migration Strategy
 
-Phase 2 features are additive — no breaking schema changes are expected. The only schema additions planned are:
+Phase 2 features are additive — no breaking schema changes planned. New models and field additions only.
 
+**Schema additions in Phase 2:**
 ```prisma
-// New in Phase 2
 model CalendarConnection { ... }
 model Integration { ... }
 
-// Additions to existing models
+// Additions to existing models:
 Note {
-  shareToken String? @unique
+  shareToken  String?  @unique
+  isPublic    Boolean  @default(false)
+  tags        String[] @default([])
 }
 TranscriptSegment {
-  embedding Unsupported("vector(1536)")?
+  embedding   Unsupported("vector(1536)")?
+}
+OrgMember {
+  expoPushToken  String?  // for mobile push notifications
 }
 ```
 
-Run `prisma migrate dev` (switching from `db push` to proper migrations) before Phase 2 development to establish a migration baseline.
+Switch from `prisma db push` to `prisma migrate dev` before Phase 2 to establish a proper migration baseline. This enables safe schema evolution with rollback capability.
