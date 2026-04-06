@@ -1,0 +1,281 @@
+// Kolasys AI — Prisma Schema
+// Prisma v7 · PostgreSQL
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum RecordingSource {
+  UPLOAD
+  BROWSER
+  MEETING_BOT
+}
+
+enum RecordingStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum MeetingPlatform {
+  ZOOM
+  GOOGLE_MEET
+  MICROSOFT_TEAMS
+  WEBEX
+  OTHER
+}
+
+enum JobType {
+  TRANSCRIPTION
+  SUMMARIZATION
+  ACTION_ITEMS
+}
+
+enum JobStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum ActionItemStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model Organization {
+  id         String    @id @default(cuid())
+  name       String
+  slug       String    @unique
+  plan       Plan      @default(FREE)
+  clerkOrgId String?   @unique
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  members    OrgMember[]
+  recordings Recording[]
+  apiKeys    ApiKey[]
+  templates  NoteTemplate[]
+}
+
+model OrgMember {
+  id        String     @id @default(cuid())
+  orgId     String
+  userId    String     // Clerk user ID
+  role      MemberRole @default(MEMBER)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, userId])
+  @@index([userId])
+}
+
+model Recording {
+  id          String           @id @default(cuid())
+  orgId       String
+  userId      String           // Clerk user ID of creator
+  title       String
+  description String?
+  source      RecordingSource
+  status      RecordingStatus  @default(PENDING)
+  platform    MeetingPlatform?
+  meetingUrl  String?
+  botId       String?          // Recall.ai bot ID
+  s3Key       String?
+  s3Bucket    String?
+  duration    Int?             // seconds
+  fileSize    Int?             // bytes
+  mimeType    String?
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  endedAt     DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  org        Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  transcript Transcript?
+  notes      Note[]
+  jobs       ProcessingJob[]
+
+  @@index([orgId, status])
+  @@index([orgId, createdAt(sort: Desc)])
+}
+
+model Transcript {
+  id          String   @id @default(cuid())
+  recordingId String   @unique
+  language    String   @default("en")
+  text        String
+  confidence  Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  recording Recording           @relation(fields: [recordingId], references: [id], onDelete: Cascade)
+  segments  TranscriptSegment[]
+}
+
+model TranscriptSegment {
+  id           String   @id @default(cuid())
+  transcriptId String
+  speaker      String?
+  text         String
+  startTime    Float    // seconds
+  endTime      Float    // seconds
+  confidence   Float?
+  createdAt    DateTime @default(now())
+
+  transcript Transcript @relation(fields: [transcriptId], references: [id], onDelete: Cascade)
+
+  @@index([transcriptId, startTime])
+}
+
+model Note {
+  id          String   @id @default(cuid())
+  recordingId String
+  orgId       String
+  userId      String   // Clerk user ID of creator
+  title       String
+  summary     String?
+  templateId  String?
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  recording   Recording     @relation(fields: [recordingId], references: [id], onDelete: Cascade)
+  template    NoteTemplate? @relation(fields: [templateId], references: [id])
+  sections    NoteSection[]
+  actionItems ActionItem[]
+  comments    NoteComment[]
+
+  @@index([recordingId])
+  @@index([orgId, createdAt(sort: Desc)])
+}
+
+model NoteSection {
+  id        String   @id @default(cuid())
+  noteId    String
+  title     String
+  content   String
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([noteId, order])
+}
+
+model ActionItem {
+  id          String           @id @default(cuid())
+  noteId      String
+  orgId       String
+  title       String
+  description String?
+  assignee    String?          // Clerk user ID
+  dueDate     DateTime?
+  status      ActionItemStatus @default(OPEN)
+  priority    Priority         @default(MEDIUM)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
+  @@index([orgId, status])
+}
+
+model NoteComment {
+  id        String   @id @default(cuid())
+  noteId    String
+  userId    String   // Clerk user ID
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
+}
+
+model NoteTemplate {
+  id        String   @id @default(cuid())
+  orgId     String?  // null = global (built-in) template
+  name      String
+  structure Json     // array of { title, prompt } section definitions
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  org   Organization? @relation(fields: [orgId], references: [id])
+  notes Note[]
+
+  @@index([orgId])
+}
+
+model ProcessingJob {
+  id          String    @id @default(cuid())
+  recordingId String
+  type        JobType
+  status      JobStatus @default(QUEUED)
+  payload     Json?
+  result      Json?
+  error       String?
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(3)
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  recording Recording @relation(fields: [recordingId], references: [id], onDelete: Cascade)
+
+  @@index([recordingId])
+  @@index([status, type])
+}
+
+model ApiKey {
+  id        String       @id @default(cuid())
+  orgId     String
+  name      String
+  keyHash   String       @unique
+  lastUsed  DateTime?
+  expiresAt DateTime?
+  createdAt DateTime     @default(now())
+
+  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+}
