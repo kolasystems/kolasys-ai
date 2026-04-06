@@ -63,15 +63,22 @@ export async function POST(req: Request) {
     switch (event.type) {
       case 'organization.created': {
         const d = (event as ClerkOrganizationEvent).data
-        await db.organization.upsert({
+        const existingOrg = await db.organization.findUnique({
           where: { clerkOrgId: d.id },
-          create: {
-            name: d.name,
-            slug: d.slug ?? slugify(d.name),
-            clerkOrgId: d.id,
-          },
-          update: { name: d.name },
+          select: { id: true },
         })
+        if (existingOrg) {
+          await db.organization.update({ where: { clerkOrgId: d.id }, data: { name: d.name } })
+        } else {
+          try {
+            await db.organization.create({
+              data: { name: d.name, slug: d.slug ?? slugify(d.name), clerkOrgId: d.id },
+            })
+          } catch {
+            // Race condition with self-healing orgProcedure — update instead.
+            await db.organization.updateMany({ where: { clerkOrgId: d.id }, data: { name: d.name } })
+          }
+        }
         break
       }
 
@@ -98,11 +105,28 @@ export async function POST(req: Request) {
         })
         if (org) {
           const role = d.role === 'org:admin' ? 'ADMIN' : 'MEMBER'
-          await db.orgMember.upsert({
+          const existingMember = await db.orgMember.findUnique({
             where: { orgId_userId: { orgId: org.id, userId: d.public_user_data.user_id } },
-            create: { orgId: org.id, userId: d.public_user_data.user_id, role },
-            update: { role },
+            select: { id: true },
           })
+          if (existingMember) {
+            await db.orgMember.update({
+              where: { orgId_userId: { orgId: org.id, userId: d.public_user_data.user_id } },
+              data: { role },
+            })
+          } else {
+            try {
+              await db.orgMember.create({
+                data: { orgId: org.id, userId: d.public_user_data.user_id, role },
+              })
+            } catch {
+              // Race condition — already created, update role.
+              await db.orgMember.updateMany({
+                where: { orgId: org.id, userId: d.public_user_data.user_id },
+                data: { role },
+              })
+            }
+          }
         }
         break
       }

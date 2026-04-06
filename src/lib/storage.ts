@@ -1,6 +1,4 @@
 // Kolasys AI — AWS S3 storage helpers
-import 'server-only'
-
 import {
   S3Client,
   PutObjectCommand,

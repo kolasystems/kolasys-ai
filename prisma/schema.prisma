@@ -33,6 +33,8 @@ enum RecordingSource {
 enum RecordingStatus {
   PENDING
   PROCESSING
+  TRANSCRIBING
+  SUMMARIZING
   READY
   FAILED
 }

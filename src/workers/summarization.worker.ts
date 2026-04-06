@@ -34,29 +34,44 @@ async function processSummarization(job: Job<SummarizationJobData>) {
 
   console.log(`[summarization] Starting job ${job.id} for recording ${recordingId}`)
 
-  // ── 1. Upsert a ProcessingJob row so we have an audit trail ───────────────
-  await db.processingJob.upsert({
-    where: {
-      // There may or may not be an existing SUMMARIZATION job row.
-      // Use a deterministic synthetic key: recordingId + type.
-      // Prisma upsert needs a unique field; fall back to create-only pattern.
-      id: `${recordingId}-SUMMARIZATION`,
-    },
-    create: {
-      id: `${recordingId}-SUMMARIZATION`,
-      recordingId,
-      type: 'SUMMARIZATION',
-      status: JobStatus.PROCESSING,
-      startedAt: new Date(),
-      attempts: 1,
-    },
-    update: {
-      status: JobStatus.PROCESSING,
-      startedAt: new Date(),
-      attempts: { increment: 1 },
-      error: null,
-    },
+  // ── 1. Create or update a ProcessingJob row for the audit trail ──────────
+  // HTTP mode: no transactions or upserts — use findFirst → create/update.
+  // findUnique + create/update — no upsert, no batch ops, no atomic increment ops.
+  const existingJob = await db.processingJob.findUnique({
+    where: { id: `${recordingId}-SUMMARIZATION` },
+    select: { id: true, attempts: true },
   })
+  if (existingJob) {
+    await db.processingJob.update({
+      where: { id: `${recordingId}-SUMMARIZATION` },
+      data: { status: JobStatus.PROCESSING, startedAt: new Date(), attempts: existingJob.attempts + 1, error: null },
+    })
+  } else {
+    try {
+      await db.processingJob.create({
+        data: {
+          id: `${recordingId}-SUMMARIZATION`,
+          recordingId,
+          type: 'SUMMARIZATION',
+          status: JobStatus.PROCESSING,
+          startedAt: new Date(),
+          attempts: 1,
+        },
+      })
+    } catch {
+      // Race condition — another retry created it first; re-read and update.
+      const retryJob = await db.processingJob.findUnique({
+        where: { id: `${recordingId}-SUMMARIZATION` },
+        select: { id: true, attempts: true },
+      })
+      if (retryJob) {
+        await db.processingJob.update({
+          where: { id: `${recordingId}-SUMMARIZATION` },
+          data: { status: JobStatus.PROCESSING, startedAt: new Date(), attempts: retryJob.attempts + 1, error: null },
+        })
+      }
+    }
+  }
 
   // ── 2. Fetch transcript ───────────────────────────────────────────────────
   console.log(`[summarization] Fetching transcript ${transcriptId}`)
@@ -109,46 +124,44 @@ async function processSummarization(job: Job<SummarizationJobData>) {
       `${rawActionItems.length} action items`
   )
 
-  // ── 6. Persist Note + NoteSections + ActionItems in one transaction ────────
-  const note = await db.$transaction(async (tx) => {
-    const createdNote = await tx.note.create({
+  // ── 6. Persist Note + NoteSections + ActionItems sequentially ────────────
+  // HTTP mode: no transactions — create note first, then children.
+  const note = await db.note.create({
+    data: {
+      recordingId,
+      orgId: recording.orgId,
+      userId: recording.userId,
+      title: recording.title,
+      summary: summaryResult.summary,
+      templateId: templateId ?? null,
+    },
+  })
+
+  // createMany uses transactions internally — use individual creates instead.
+  for (const s of summaryResult.sections) {
+    await db.noteSection.create({
       data: {
-        recordingId,
-        orgId: recording.orgId,
-        userId: recording.userId,
-        title: recording.title,
-        summary: summaryResult.summary,
-        templateId: templateId ?? null,
+        noteId: note.id,
+        title: s.title,
+        content: s.content,
+        order: s.order,
       },
     })
+  }
 
-    if (summaryResult.sections.length > 0) {
-      await tx.noteSection.createMany({
-        data: summaryResult.sections.map((s) => ({
-          noteId: createdNote.id,
-          title: s.title,
-          content: s.content,
-          order: s.order,
-        })),
-      })
-    }
-
-    if (rawActionItems.length > 0) {
-      await tx.actionItem.createMany({
-        data: rawActionItems.map((item) => ({
-          noteId: createdNote.id,
-          orgId: recording.orgId,
-          title: item.title,
-          description: item.description ?? null,
-          assignee: null, // names from transcript can't be mapped to Clerk IDs here
-          priority: toPriority(item.priority),
-          dueDate: item.dueDate ? new Date(item.dueDate) : null,
-        })),
-      })
-    }
-
-    return createdNote
-  })
+  for (const item of rawActionItems) {
+    await db.actionItem.create({
+      data: {
+        noteId: note.id,
+        orgId: recording.orgId,
+        title: item.title,
+        description: item.description ?? null,
+        assignee: null, // names from transcript can't be mapped to Clerk IDs here
+        priority: toPriority(item.priority),
+        dueDate: item.dueDate ? new Date(item.dueDate) : null,
+      },
+    })
+  }
 
   console.log(
     `[summarization] Saved note ${note.id} with ` +

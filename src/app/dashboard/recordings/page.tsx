@@ -13,10 +13,21 @@ import { formatDuration, relativeTime } from '@/lib/utils'
 export default function RecordingsPage() {
   const [modalOpen, setModalOpen] = useState(false)
 
+  const TERMINAL_STATUSES = ['READY', 'FAILED']
+
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
     trpc.recordings.list.useInfiniteQuery(
       { limit: 20 },
-      { getNextPageParam: (last) => last.nextCursor, retry: false }
+      {
+        getNextPageParam: (last) => last.nextCursor,
+        retry: false,
+        // Poll every 3 s while any recording is still processing.
+        // TanStack Query stops the interval automatically once the function returns false.
+        refetchInterval: (query) => {
+          const items = query.state.data?.pages.flatMap((p) => p.items) ?? []
+          return items.some((r) => !TERMINAL_STATUSES.includes(r.status)) ? 3000 : false
+        },
+      }
     )
 
   const recordings = data?.pages.flatMap((p) => p.items) ?? []

@@ -2,12 +2,15 @@
 
 import { cn } from '@/lib/utils'
 
-type RecordingStatus = 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'
+type RecordingStatus =
+  | 'PENDING'
+  | 'PROCESSING'
+  | 'TRANSCRIBING'
+  | 'SUMMARIZING'
+  | 'READY'
+  | 'FAILED'
 
-const statusConfig: Record<
-  RecordingStatus,
-  { label: string; className: string }
-> = {
+const statusConfig: Record<RecordingStatus, { label: string; className: string }> = {
   PENDING: {
     label: 'Pending',
     className: 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -15,6 +18,14 @@ const statusConfig: Record<
   PROCESSING: {
     label: 'Processing',
     className: 'bg-blue-100 text-blue-800 border-blue-200',
+  },
+  TRANSCRIBING: {
+    label: 'Transcribing',
+    className: 'bg-blue-100 text-blue-800 border-blue-200',
+  },
+  SUMMARIZING: {
+    label: 'Summarizing',
+    className: 'bg-purple-100 text-purple-800 border-purple-200',
   },
   READY: {
     label: 'Ready',
@@ -26,13 +37,19 @@ const statusConfig: Record<
   },
 }
 
+const IN_PROGRESS: ReadonlySet<RecordingStatus> = new Set([
+  'PROCESSING',
+  'TRANSCRIBING',
+  'SUMMARIZING',
+])
+
 type Props = {
   status: RecordingStatus
   className?: string
 }
 
 export function StatusBadge({ status, className }: Props) {
-  const config = statusConfig[status]
+  const config = statusConfig[status] ?? statusConfig.PROCESSING
 
   return (
     <span
@@ -42,8 +59,8 @@ export function StatusBadge({ status, className }: Props) {
         className
       )}
     >
-      {status === 'PROCESSING' && (
-        <span className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-blue-500" />
+      {IN_PROGRESS.has(status) && (
+        <span className="mr-1.5 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current opacity-70" />
       )}
       {config.label}
     </span>
