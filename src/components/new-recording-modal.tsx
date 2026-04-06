@@ -346,6 +346,15 @@ export function NewRecordingModal({ open, onOpenChange }: Props) {
                 <p className="text-xs text-neutral-500">
                   Kolasys AI will join the meeting, record it, and generate notes automatically.
                 </p>
+                {/* Consent notice */}
+                <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5">
+                  <p className="text-xs font-semibold text-amber-800">Recording consent required</p>
+                  <p className="mt-0.5 text-xs text-amber-700">
+                    By sending a bot you confirm that all participants have been informed that
+                    the meeting will be recorded. Depending on your jurisdiction, recording without
+                    consent may be unlawful. You are solely responsible for compliance.
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={handleBotDeploy}

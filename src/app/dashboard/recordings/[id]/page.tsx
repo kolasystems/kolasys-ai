@@ -5,6 +5,11 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import { StatusBadge } from '@/components/status-badge'
+import { DeleteRecordingButton } from '@/components/delete-recording-button'
+import { EditableNoteSection } from '@/components/editable-note-section'
+import { EditableActionItem } from '@/components/editable-action-item'
+import { TranscriptPaginated } from '@/components/transcript-paginated'
+import { RecordingStatusPoller } from '@/components/recording-status-poller'
 import { formatDuration, relativeTime } from '@/lib/utils'
 import { Mic2, Clock, Calendar, User, FileText, CheckSquare } from 'lucide-react'
 
@@ -21,6 +26,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: recording?.title ?? 'Recording' }
 }
 
+// Statuses that indicate active processing (show the progress banner).
+const IN_PROGRESS_STATUSES = new Set(['PENDING', 'PROCESSING', 'TRANSCRIBING', 'SUMMARIZING'])
+
 export default async function RecordingDetailPage({ params }: Props) {
   const { id } = await params
 
@@ -28,8 +36,12 @@ export default async function RecordingDetailPage({ params }: Props) {
     where: { id },
     include: {
       transcript: {
-        include: {
-          segments: { orderBy: { startTime: 'asc' }, take: 200 },
+        select: {
+          id: true,
+          text: true,
+          language: true,
+          // Fetch 101 so we know whether there are more without an extra query.
+          segments: { orderBy: { startTime: 'asc' }, take: 101 },
         },
       },
       notes: {
@@ -48,13 +60,21 @@ export default async function RecordingDetailPage({ params }: Props) {
 
   const latestNote = recording.notes[0]
 
+  // Split the over-fetched segment list to detect "has more".
+  const allSegments = recording.transcript?.segments ?? []
+  const initialSegments = allSegments.slice(0, 100)
+  const initialHasMore = allSegments.length > 100
+
   return (
     <div className="mx-auto max-w-4xl p-8">
+      {/* Invisible poller — refreshes the page every 3 s while not READY/FAILED */}
+      <RecordingStatusPoller status={recording.status} />
+
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-brand-50">
               <Mic2 className="h-5 w-5 text-brand-600" />
             </div>
             <h1 className="truncate text-2xl font-bold text-neutral-900">{recording.title}</h1>
@@ -63,7 +83,11 @@ export default async function RecordingDetailPage({ params }: Props) {
             <p className="mt-2 text-sm text-neutral-500">{recording.description}</p>
           )}
         </div>
-        <StatusBadge status={recording.status} className="mt-1 flex-shrink-0" />
+
+        <div className="flex flex-shrink-0 items-center gap-3">
+          <StatusBadge status={recording.status} />
+          <DeleteRecordingButton recordingId={recording.id} />
+        </div>
       </div>
 
       {/* Meta */}
@@ -84,11 +108,14 @@ export default async function RecordingDetailPage({ params }: Props) {
         </span>
       </div>
 
-      {/* Processing jobs */}
-      {recording.jobs.length > 0 && recording.status === 'PROCESSING' && (
+      {/* Processing banner */}
+      {IN_PROGRESS_STATUSES.has(recording.status) && (
         <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
           <span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-blue-500" />
-          Processing your recording… this may take a few minutes.
+          {recording.status === 'TRANSCRIBING' && 'Transcribing your recording…'}
+          {recording.status === 'SUMMARIZING' && 'Generating meeting notes…'}
+          {(recording.status === 'PROCESSING' || recording.status === 'PENDING') &&
+            'Processing your recording… this may take a few minutes.'}
         </div>
       )}
 
@@ -103,7 +130,7 @@ export default async function RecordingDetailPage({ params }: Props) {
           {latestNote.summary && (
             <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-5">
               <p className="text-sm font-medium text-neutral-700">Summary</p>
-              <p className="mt-2 text-sm text-neutral-600 leading-relaxed">
+              <p className="mt-2 text-sm leading-relaxed text-neutral-600">
                 {latestNote.summary}
               </p>
             </div>
@@ -112,17 +139,12 @@ export default async function RecordingDetailPage({ params }: Props) {
           {latestNote.sections.length > 0 && (
             <div className="mt-3 space-y-3">
               {latestNote.sections.map((section) => (
-                <div
+                <EditableNoteSection
                   key={section.id}
-                  className="rounded-xl border border-neutral-200 bg-white p-5"
-                >
-                  <p className="mb-2 text-sm font-semibold text-neutral-800">{section.title}</p>
-                  <div className="prose prose-sm max-w-none text-neutral-600">
-                    {section.content.split('\n').map((line, i) => (
-                      <p key={i}>{line}</p>
-                    ))}
-                  </div>
-                </div>
+                  sectionId={section.id}
+                  title={section.title}
+                  initialContent={section.content}
+                />
               ))}
             </div>
           )}
@@ -130,34 +152,20 @@ export default async function RecordingDetailPage({ params }: Props) {
           {/* Action items */}
           {latestNote.actionItems.length > 0 && (
             <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-5">
-              <div className="flex items-center gap-2">
+              <div className="mb-3 flex items-center gap-2">
                 <CheckSquare className="h-4 w-4 text-brand-600" />
                 <p className="text-sm font-semibold text-neutral-800">Action Items</p>
               </div>
-              <ul className="mt-3 space-y-2">
+              <ul className="space-y-3">
                 {latestNote.actionItems.map((item) => (
-                  <li
+                  <EditableActionItem
                     key={item.id}
-                    className="flex items-center gap-3 text-sm text-neutral-700"
-                  >
-                    <span
-                      className={`inline-flex h-2 w-2 flex-shrink-0 rounded-full ${
-                        item.priority === 'URGENT'
-                          ? 'bg-red-500'
-                          : item.priority === 'HIGH'
-                          ? 'bg-orange-400'
-                          : item.priority === 'MEDIUM'
-                          ? 'bg-yellow-400'
-                          : 'bg-neutral-300'
-                      }`}
-                    />
-                    {item.title}
-                    {item.dueDate && (
-                      <span className="text-xs text-neutral-400">
-                        due {new Date(item.dueDate).toLocaleDateString()}
-                      </span>
-                    )}
-                  </li>
+                    itemId={item.id}
+                    title={item.title}
+                    initialStatus={item.status as 'OPEN' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'}
+                    initialPriority={item.priority as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'}
+                    dueDate={item.dueDate}
+                  />
                 ))}
               </ul>
             </div>
@@ -171,35 +179,25 @@ export default async function RecordingDetailPage({ params }: Props) {
           <h2 className="flex items-center gap-2 text-lg font-semibold text-neutral-900">
             <Mic2 className="h-5 w-5 text-brand-600" />
             Transcript
+            {recording.transcript.language && (
+              <span className="ml-1 text-sm font-normal text-neutral-400">
+                · {recording.transcript.language}
+              </span>
+            )}
           </h2>
 
           <div className="mt-3 max-h-[500px] overflow-y-auto rounded-xl border border-neutral-200 bg-white p-5">
-            {recording.transcript.segments.length > 0 ? (
-              <div className="space-y-4">
-                {recording.transcript.segments.map((seg) => (
-                  <div key={seg.id} className="flex gap-3">
-                    <span className="mt-0.5 w-14 flex-shrink-0 font-mono text-xs text-neutral-400">
-                      {formatDuration(seg.startTime)}
-                    </span>
-                    <div className="min-w-0">
-                      {seg.speaker && (
-                        <p className="mb-0.5 text-xs font-semibold text-brand-600">{seg.speaker}</p>
-                      )}
-                      <p className="text-sm text-neutral-700 leading-relaxed">{seg.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-neutral-600 leading-relaxed">
-                {recording.transcript.text}
-              </p>
-            )}
+            <TranscriptPaginated
+              transcriptId={recording.transcript.id}
+              initialSegments={initialSegments}
+              initialHasMore={initialHasMore}
+              fullText={recording.transcript.text}
+            />
           </div>
         </section>
       )}
 
-      {/* Empty state while processing */}
+      {/* Empty state while pending */}
       {!recording.transcript && recording.status === 'PENDING' && (
         <div className="mt-8 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-200 py-16 text-center">
           <Mic2 className="mb-3 h-10 w-10 text-neutral-300" />

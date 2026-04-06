@@ -3,13 +3,20 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 import { router, orgProcedure } from '../trpc'
-import { RecordingSource, RecordingStatus } from '@/generated/prisma/client'
+import {
+  RecordingSource,
+  RecordingStatus,
+  ActionItemStatus,
+  Priority,
+} from '@/generated/prisma/client'
 import { generateRecordingKey, getSignedUploadUrl, deleteFromS3 } from '@/lib/storage'
 import { transcriptionQueue } from '@/lib/queues'
 import { deployBot } from '@/services/meetingbot.service'
 
 export const recordingsRouter = router({
   // ── List recordings for the active org ────────────────────────────────────
+  // P1 perf: removed _count.jobs (never shown in UI); transcript include is a
+  // single lightweight index lookup per row.
   list: orgProcedure
     .input(
       z.object({
@@ -27,9 +34,17 @@ export const recordingsRouter = router({
         take: input.limit + 1,
         ...(input.cursor && { cursor: { id: input.cursor }, skip: 1 }),
         orderBy: { createdAt: 'desc' },
-        include: {
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          source: true,
+          duration: true,
+          createdAt: true,
+          updatedAt: true,
+          // hasTranscript: one-to-one; select only id to avoid loading text
           transcript: { select: { id: true } },
-          _count: { select: { notes: true, jobs: true } },
+          _count: { select: { notes: true } },
         },
       })
 
@@ -41,9 +56,7 @@ export const recordingsRouter = router({
       return { items, nextCursor }
     }),
 
-  // ── Get a single recording — org-scoped so users can only access their own ─
-  // FIX P0-1: switched from protectedProcedure to orgProcedure and added orgId
-  // to the query so cross-org data access is impossible.
+  // ── Get a single recording — org-scoped ───────────────────────────────────
   get: orgProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -51,8 +64,12 @@ export const recordingsRouter = router({
         where: { id: input.id, orgId: ctx.orgId },
         include: {
           transcript: {
-            include: {
-              segments: { orderBy: { startTime: 'asc' } },
+            select: {
+              id: true,
+              text: true,
+              language: true,
+              // Fetch 101 so the client knows whether more exist
+              segments: { orderBy: { startTime: 'asc' }, take: 101 },
             },
           },
           notes: {
@@ -61,8 +78,9 @@ export const recordingsRouter = router({
               actionItems: { orderBy: { priority: 'asc' } },
             },
             orderBy: { createdAt: 'desc' },
+            take: 1,
           },
-          jobs: { orderBy: { createdAt: 'desc' } },
+          jobs: { orderBy: { createdAt: 'desc' }, take: 5 },
         },
       })
 
@@ -94,7 +112,6 @@ export const recordingsRouter = router({
         },
       })
 
-      // FIX P0-3: deploy the Recall.ai bot immediately after creating the record.
       if (input.source === RecordingSource.MEETING_BOT && input.meetingUrl) {
         try {
           const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/recall`
@@ -105,7 +122,6 @@ export const recordingsRouter = router({
           })
           return { ...recording, botId, status: RecordingStatus.PROCESSING }
         } catch (err) {
-          // Bot deployment failed — clean up and surface the error to the client.
           await ctx.db.recording.update({
             where: { id: recording.id },
             data: { status: RecordingStatus.FAILED },
@@ -129,8 +145,6 @@ export const recordingsRouter = router({
       })
       if (!recording) throw new TRPCError({ code: 'NOT_FOUND' })
 
-      // FIX P0-5: delete the S3 object before removing the DB row.
-      // Don't fail the deletion if S3 errors — the file may already be gone.
       if (recording.s3Key) {
         try {
           await deleteFromS3(recording.s3Key)
@@ -156,7 +170,6 @@ export const recordingsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // Verify the recording belongs to this org before issuing an upload URL.
       const recording = await ctx.db.recording.findFirst({
         where: { id: input.recordingId, orgId: ctx.orgId },
         select: { id: true },
@@ -166,7 +179,6 @@ export const recordingsRouter = router({
       const key = generateRecordingKey(ctx.orgId, input.recordingId, input.extension)
       const url = await getSignedUploadUrl(key, input.contentType)
 
-      // Persist the S3 key so we know where to find the file later.
       await ctx.db.recording.update({
         where: { id: input.recordingId },
         data: { s3Key: key, s3Bucket: process.env.S3_BUCKET_NAME },
@@ -211,5 +223,106 @@ export const recordingsRouter = router({
       })
 
       return { success: true }
+    }),
+
+  // ── Search recordings by title or transcript text (ILIKE) ─────────────────
+  search: orgProcedure
+    .input(z.object({ query: z.string().min(1).max(200) }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.recording.findMany({
+        where: {
+          orgId: ctx.orgId,
+          OR: [
+            { title: { contains: input.query, mode: 'insensitive' } },
+            { transcript: { text: { contains: input.query, mode: 'insensitive' } } },
+          ],
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          duration: true,
+          createdAt: true,
+          _count: { select: { notes: true } },
+        },
+      })
+    }),
+
+  // ── Paginated transcript segments for "load more" ─────────────────────────
+  listTranscriptSegments: orgProcedure
+    .input(
+      z.object({
+        transcriptId: z.string(),
+        cursor: z.string().optional(),
+        limit: z.number().min(1).max(200).default(100),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      // Verify the transcript belongs to this org before returning segments.
+      const transcript = await ctx.db.transcript.findFirst({
+        where: { id: input.transcriptId, recording: { orgId: ctx.orgId } },
+        select: { id: true },
+      })
+      if (!transcript) throw new TRPCError({ code: 'NOT_FOUND' })
+
+      const segments = await ctx.db.transcriptSegment.findMany({
+        where: { transcriptId: input.transcriptId },
+        orderBy: { startTime: 'asc' },
+        take: input.limit + 1,
+        select: { id: true, startTime: true, endTime: true, speaker: true, text: true },
+        ...(input.cursor && { cursor: { id: input.cursor }, skip: 1 }),
+      })
+
+      let nextCursor: string | undefined
+      if (segments.length > input.limit) {
+        nextCursor = segments.pop()!.id
+      }
+
+      return { segments, nextCursor }
+    }),
+
+  // ── Update a note section's content (inline editing) ─────────────────────
+  updateNoteSection: orgProcedure
+    .input(z.object({ id: z.string(), content: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const section = await ctx.db.noteSection.findFirst({
+        where: { id: input.id, note: { orgId: ctx.orgId } },
+        select: { id: true },
+      })
+      if (!section) throw new TRPCError({ code: 'NOT_FOUND' })
+
+      return ctx.db.noteSection.update({
+        where: { id: input.id },
+        data: { content: input.content },
+        select: { id: true, content: true },
+      })
+    }),
+
+  // ── Update an action item's status and/or priority ─────────────────────────
+  updateActionItem: orgProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        status: z.nativeEnum(ActionItemStatus).optional(),
+        priority: z.nativeEnum(Priority).optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const item = await ctx.db.actionItem.findFirst({
+        where: { id: input.id, orgId: ctx.orgId },
+        select: { id: true },
+      })
+      if (!item) throw new TRPCError({ code: 'NOT_FOUND' })
+
+      return ctx.db.actionItem.update({
+        where: { id: input.id },
+        data: {
+          ...(input.status !== undefined && { status: input.status }),
+          ...(input.priority !== undefined && { priority: input.priority }),
+        },
+        select: { id: true, status: true, priority: true },
+      })
     }),
 })
