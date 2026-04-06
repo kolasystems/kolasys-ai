@@ -6,6 +6,77 @@
 
 ---
 
+## 0. Project History (Day 1 → Today)
+
+### How this project started
+
+Kolasys AI began from a blank `create-next-app` scaffold on **2026-04-01**. The initial commit contained only the Next.js boilerplate — no schema, no workers, no API layer. Everything was built from scratch in two focused sessions.
+
+### Session 1 — 2026-04-01: Full scaffold (34 files)
+
+The entire Phase 1 foundation was written in one session:
+- Prisma schema (11 models, 9 enums), seed data, `prisma.config.ts`
+- All infrastructure: `db.ts`, `redis.ts`, `queues.ts`, `storage.ts`, `trpc.ts`, `utils.ts`
+- tRPC API layer: server init, root router, recordings router
+- Services: transcription (Whisper), summarisation (Claude), meeting bot (Recall.ai)
+- Transcription BullMQ worker
+- All UI pages: dashboard, recordings list, recording detail, auth pages
+- Components: new-recording-modal, browser-recorder, status-badge
+- Webhooks: Clerk org sync, Recall.ai bot events
+- All 7 docs files
+
+**Immediate blockers discovered after writing:**
+- Legacy `app/` directory conflicted with `src/app/` — routing broken
+- `svix` package missing from `package.json`
+- Summarisation worker not yet written (queue wired but nothing consuming it)
+- Prisma v7 constructor API was wrong in `db.ts`
+
+### Session 2 — 2026-04-04 → 2026-04-06: Bug fixing + summarisation worker
+
+Everything needed to make the app actually run was fixed:
+
+**Bug 1 — Prisma v7 constructor**
+`db.ts` used `new PrismaNeon(Pool)` which is the Prisma v6 WebSocket adapter API.
+Prisma v7 renamed it to `PrismaNeonHttp(connectionString)` with a different constructor signature.
+Fix: updated `db.ts` to `new PrismaNeonHttp(process.env.DATABASE_URL!)` and `new PrismaClient({ adapter })`.
+
+**Bug 2 — Prisma enums in client components**
+`new-recording-modal.tsx`, `status-badge.tsx`, and `recordings/page.tsx` imported `RecordingStatus`, `RecordingSource` from `@/generated/prisma/client`. Prisma uses Node.js-only APIs — importing it in a `'use client'` component crashes the client bundle.
+Fix: replaced all Prisma enum imports in client files with local string union types (`type RecordingStatus = 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'`).
+
+**Bug 3 — tRPC type leak (missing 'use client')**
+`src/lib/trpc.ts` was missing the `'use client'` directive. Without it, the `import type { AppRouter }` chain pulled the entire server module graph — including Prisma — into the client bundle, causing a build failure.
+Fix: added `'use client'` at the top of `src/lib/trpc.ts`.
+
+**Bug 4 — Missing server-only guards**
+`db.ts`, `server/trpc.ts`, `server/root.ts`, and `storage.ts` could theoretically be imported from client code. Adding `import 'server-only'` makes Next.js fail fast with a clear error if any of these are ever accidentally imported client-side.
+
+**Bug 5 — Next.js 16 async params**
+`app/dashboard/recordings/[id]/page.tsx` used `params.id` directly. In Next.js 16, `params` is a `Promise<{ id: string }>` — you must `await params` before accessing fields. Also applies to `generateMetadata`.
+Fix: `const { id } = await params` in both the page and its metadata function.
+
+**Bug 6 — Clerk catch-all route structure**
+Sign-in and sign-up pages were at `app/sign-in/page.tsx`. Clerk requires the catch-all folder structure `[[...sign-in]]/page.tsx` to handle all Clerk-internal sub-routes (e.g. `/sign-in/factor-one`).
+Fix: moved pages to `src/app/sign-in/[[...sign-in]]/page.tsx` and `src/app/sign-up/[[...sign-up]]/page.tsx`.
+
+**Bug 7 — Next.js 16 middleware path**
+Next.js 16 renamed `middleware.ts` → `proxy.ts`. The file was already named correctly but the Clerk import path needed updating to match the v7 API (`clerkMiddleware` from `@clerk/nextjs/server`).
+
+**Bug 8 — Legacy app/ directory**
+The `create-next-app` scaffold left an `app/` directory at the root alongside `src/app/`. Next.js tried to merge both, causing route conflicts and build errors.
+Fix: deleted `app/` entirely.
+
+**Bug 9 — Slow compile / memory pressure**
+Turbopack (default in Next.js 16 `next dev`) hit memory spikes during initial compilation on the M-series Mac. Workaround: use `next dev --port 3001` if port 3000 is already bound from a previous crashed process, and let Turbopack's incremental cache warm up over 2–3 reloads.
+
+**Summarisation worker written:**
+`src/workers/summarization.worker.ts` — mirrors the transcription worker structure. Reads transcript from DB, loads the org's preferred NoteTemplate, calls Claude with structured JSON prompt, saves `Note` + `NoteSection[]` + `ActionItem[]`, sets `Recording.status = READY`.
+
+**Current state as of 2026-04-06:**
+All code compiles. Dashboard loads. Clerk auth works. Both BullMQ workers are implemented. The end-to-end pipeline (upload → transcribe → summarise) will be fully functional once AWS S3 credentials are added. See §8 for the complete status breakdown.
+
+---
+
 ## 1. What Is Kolasys AI?
 
 Kolasys AI is an **AI-powered meeting notes product**. It records, transcribes, summarises, and extracts action items from meetings — automatically, with no manual effort.
@@ -261,7 +332,7 @@ ngrok http 3000
 
 ---
 
-## 8. Current Status (April 2026)
+## 8. Current Status (2026-04-06)
 
 ### Working
 - Dashboard loads, stat cards, recent recordings
@@ -270,23 +341,32 @@ ngrok http 3000
 - New Recording modal — upload / browser record / bot deploy tabs
 - Clerk sign in/up/org switcher
 - tRPC layer fully typed with superjson
-- Prisma schema synced + 4 templates seeded
-- Both BullMQ workers implemented
+- Prisma schema synced to Neon + 4 templates seeded
+- Both BullMQ workers implemented (transcription + summarisation)
+- All build errors resolved — `npm run dev` compiles cleanly
 
-### Fixed issues (historical)
+### Fixed issues (full history — see §0 for details)
 - Prisma v7: `PrismaNeon(Pool)` → `PrismaNeonHttp(connectionString)` (different constructor)
-- Prisma enums removed from client components (use local string unions instead)
+- Prisma enums removed from all client components (use local string unions instead)
 - `src/lib/trpc.ts` missing `'use client'` — caused Prisma to leak into client bundle
 - `server-only` added to `db.ts`, `server/trpc.ts`, `server/root.ts`, `storage.ts`
-- Next.js 16: `params` must be `await`ed; middleware is `proxy.ts` not `middleware.ts`
-- Clerk: sign-in/up pages require `[[...sign-in]]` catch-all folder structure
+- Next.js 16: `params` must be `await`ed in both page + `generateMetadata`
+- Next.js 16: middleware lives in `proxy.ts` not `middleware.ts`
+- Clerk: sign-in/up pages require `[[...sign-in]]` / `[[...sign-up]]` catch-all structure
+- Legacy `app/` directory deleted (conflicted with `src/app/`)
+- `svix` added to `package.json`
+- Summarisation worker written (`src/workers/summarization.worker.ts`)
 
-### TODO
-- End-to-end upload → transcription → summarisation (needs AWS credentials)
-- Meeting bot (needs RECALLAI_API_KEY)
-- Clerk webhook sync (needs CLERK_WEBHOOK_SECRET + ngrok)
-- Action items page (`/dashboard/action-items`)
+### Not yet working (requires external credentials)
+- End-to-end upload → transcription → summarisation (needs `AWS_*` env vars)
+- Meeting bot (needs `RECALLAI_API_KEY`)
+- Clerk org webhook sync (needs `CLERK_WEBHOOK_SECRET` + running ngrok)
+
+### Remaining TODO
+- Action items management page (`/dashboard/action-items`)
 - Settings page (`/dashboard/settings`)
+- Real-time processing status polling on recording detail page
+- Worker Dockerfile for Railway/Render deployment
 
 ---
 

@@ -199,24 +199,20 @@ npx prisma db push         # Push schema to your database
 npx prisma db seed         # Seed built-in note templates
 ```
 
-### 4. Remove the legacy app/ directory
-
-The project uses `src/app/`. Delete the old scaffold:
-
-```bash
-rm -rf app/
-```
-
-### 5. Run the dev server
+### 4. Run the dev server
 
 ```bash
 npm run dev
 ```
 
-### 6. Run the transcription worker (separate terminal)
+### 5. Run the workers (two separate terminals)
 
 ```bash
+# Terminal 2 — transcription worker
 npx tsx src/workers/transcription.worker.ts
+
+# Terminal 3 — summarisation worker
+npx tsx src/workers/summarization.worker.ts
 ```
 
 Open [http://localhost:3000](http://localhost:3000) — you will be redirected to sign in via Clerk.

@@ -121,6 +121,115 @@ Running record of all build sessions: what was built, decisions made, open quest
 
 ---
 
+---
+
+## Session 2 — 2026-04-04 to 2026-04-06
+
+### What was built / fixed
+
+This session focused entirely on making the Session 1 scaffold actually run. Nine separate bugs were diagnosed and fixed, and the missing summarisation worker was written.
+
+#### Bug fixes
+
+**1. Prisma v7 constructor (`src/lib/db.ts`)**
+- **Symptom:** `TypeError: PrismaNeon is not a constructor` on startup.
+- **Root cause:** Session 1 used `new PrismaNeon(Pool)` — the Prisma v6 WebSocket adapter API. Prisma v7 changed the adapter to `PrismaNeonHttp` with a different constructor signature.
+- **Fix:** `const adapter = new PrismaNeonHttp(process.env.DATABASE_URL!)` then `new PrismaClient({ adapter })`.
+
+**2. Prisma enums in client components**
+- **Symptom:** Build error — `'use client'` components importing from `@/generated/prisma/client`.
+- **Root cause:** Prisma client uses Node.js-only APIs. Importing it client-side crashes the bundle.
+- **Affected files:** `new-recording-modal.tsx`, `status-badge.tsx`, `recordings/page.tsx`
+- **Fix:** Replaced all Prisma enum imports with local string union types.
+
+**3. Missing `'use client'` in `src/lib/trpc.ts`**
+- **Symptom:** Build error — Prisma leaking into the client bundle.
+- **Root cause:** Without `'use client'`, `import type { AppRouter }` pulled the entire server module graph into the client bundle. The `server-only` guards then triggered a hard error.
+- **Fix:** Added `'use client'` at the top of `src/lib/trpc.ts`.
+
+**4. Missing `server-only` guards**
+- **Files affected:** `db.ts`, `server/trpc.ts`, `server/root.ts`, `storage.ts`
+- **Fix:** Added `import 'server-only'` to all server-only files so violations are caught at build time.
+
+**5. Next.js 16 async `params`**
+- **Symptom:** TypeScript error on `params.id` in recording detail page and `generateMetadata`.
+- **Root cause:** Next.js 16 made `params` and `searchParams` `Promise<{}>` — they must be `await`ed.
+- **Fix:** `const { id } = await params` in both page component and `generateMetadata`.
+
+**6. Clerk catch-all folder structure**
+- **Symptom:** Clerk auth sub-routes (e.g. `/sign-in/factor-one`) returned 404.
+- **Root cause:** Pages were at `sign-in/page.tsx` instead of the required `sign-in/[[...sign-in]]/page.tsx`.
+- **Fix:** Moved both sign-in and sign-up pages into the catch-all folder structure.
+
+**7. Legacy `app/` directory**
+- **Symptom:** Route conflicts and confusing 404s on `/dashboard`.
+- **Root cause:** `create-next-app` left an `app/` directory at the repo root. Next.js tried to merge it with `src/app/`.
+- **Fix:** Deleted `app/` entirely.
+
+**8. Missing `svix` package**
+- **Symptom:** `Cannot find module 'svix'` in Clerk webhook handler.
+- **Fix:** `npm install svix` + added to `package.json` dependencies.
+
+**9. Port conflicts & slow Turbopack compile**
+- **Symptom:** `Error: listen EADDRINUSE :::3000` when restarting dev server after a crash. First compile took 45–90 seconds.
+- **Workaround:** `npm run dev -- --port 3001` when 3000 is stuck. Turbopack cache warms up after 2–3 reloads — subsequent hot reloads are fast.
+
+#### New file: `src/workers/summarization.worker.ts`
+The Phase 2 P0 item — the summarisation BullMQ worker — was written in this session. It:
+- Listens to the `summarization` queue
+- Reads the transcript from the database
+- Loads the org's preferred `NoteTemplate` (falls back to the Standard global template)
+- Calls `summarization.service.ts` → Anthropic Claude with structured JSON prompt
+- Saves `Note` + `NoteSection[]` + `ActionItem[]`
+- Updates `Recording.status = READY`
+- Updates the `ProcessingJob` audit record
+
+---
+
+### Key decisions made
+
+| Decision | Rationale |
+|---|---|
+| `PrismaNeonHttp` over `PrismaNeon` | HTTP transport works in all Next.js environments without the `ws` package; simpler for serverless |
+| String union types for enums in client | Client components cannot import from Prisma; string unions are equivalent at runtime and don't require any imports |
+| `'use client'` on `trpc.ts` | Prevents the entire server module graph (Prisma + all routers) from being pulled into the client bundle |
+| `server-only` on all server files | Provides a build-time guarantee that server-only code never reaches the client; fails fast with a clear error |
+
+---
+
+### Current state at end of session
+
+- `npm run dev` compiles cleanly with no errors
+- Dashboard loads and displays correctly
+- Clerk auth (sign in / sign up / org switcher) all work
+- Both BullMQ workers written and ready to run
+- All tRPC queries return data from Neon
+- End-to-end pipeline blocked only by AWS S3 credentials not yet configured
+
+---
+
+### Open questions / TODOs
+
+- [ ] Configure AWS S3 credentials + test end-to-end upload → transcription → summarisation
+- [ ] Set up `CLERK_WEBHOOK_SECRET` + ngrok for org sync webhook
+- [ ] Configure `RECALLAI_API_KEY` + test meeting bot
+- [ ] Add real-time processing status polling to recording detail page
+- [ ] Build action items page (`/dashboard/action-items`)
+- [ ] Build settings page (`/dashboard/settings`)
+- [ ] Write worker Dockerfile for Railway/Render deployment
+
+---
+
+### Next session priorities
+
+1. Get AWS credentials → test file upload end-to-end
+2. Verify Whisper transcription runs in worker
+3. Verify Claude summarisation runs and saves note to DB
+4. Add status polling to recording detail page
+5. Build action items management page
+
+---
+
 *Add new sessions below this line as development continues.*
 
 ---

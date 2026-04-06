@@ -321,14 +321,14 @@ A typical meeting summary uses ~2K–5K tokens, costing under $0.05.
 ## 8. Local Development Checklist
 
 ```
-[ ] npm install && npm install svix
+[ ] npm install
 [ ] cp .env.example .env.local  →  fill in all values
 [ ] npx prisma generate
 [ ] npx prisma db push
 [ ] npx prisma db seed
-[ ] rm -rf app/                 →  remove legacy scaffold directory
-[ ] npm run dev                 →  Next.js on :3000
-[ ] npx tsx src/workers/transcription.worker.ts  →  separate terminal
+[ ] npm run dev                             →  Terminal 1: Next.js on :3000
+[ ] npx tsx src/workers/transcription.worker.ts   →  Terminal 2
+[ ] npx tsx src/workers/summarization.worker.ts   →  Terminal 3
 [ ] ngrok http 3000             →  expose for Clerk + Recall.ai webhooks (optional for local)
 ```
 

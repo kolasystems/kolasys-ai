@@ -8,7 +8,7 @@ Phase 2 transforms Kolasys AI from a functional recording pipeline into a full m
 
 | Feature | Priority | Effort | Dependencies |
 |---|---|---|---|
-| Summarisation worker | P0 | Small | Phase 1 queue infra |
+| ~~Summarisation worker~~ | ~~P0~~ | ~~Small~~ | ✅ Done (Session 2) |
 | Real-time transcription progress | P0 | Medium | Polling or WebSockets |
 | Action items management page | P0 | Small | Phase 1 schema |
 | Custom org note templates UI | P1 | Medium | Phase 1 schema |
