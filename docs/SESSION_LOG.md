@@ -1,38 +1,36 @@
 # Kolasys AI — Session Log
 
-Running record of all build sessions: what was built, decisions made, open questions, and next steps.
+Running record of all build sessions: what was built, decisions made, and current state.
 
 ---
 
 ## Session 1 — 2026-04-03
 
-**Machine:** Mac Studio
-**Goal:** Take the blank `create-next-app` scaffold to a complete, deployable Phase 1 foundation.
+**Machine:** Mac Studio  
+**Goal:** Take the blank `create-next-app` scaffold to a complete Phase 1 foundation.
 
 ### What was built
 
-**Full Phase 1 project scaffold** — 34 files created or replaced.
-
-#### Files created / replaced
+**Full Phase 1 project scaffold — 34 files created or replaced.**
 
 **Schema & config (4 files)**
-- `prisma/schema.prisma` — complete data model: 11 models, 9 enums, Prisma v7 `prisma-client` provider, output to `src/generated/prisma`
-- `.env.example` — 19 environment variable placeholders across 6 service categories
+- `prisma/schema.prisma` — 11 models, 9 enums, Prisma v7 `prisma-client` provider, output to `src/generated/prisma`
+- `.env.example` — 19 environment variable placeholders
 - `next.config.ts` — S3 image patterns, `serverExternalPackages` for ioredis/bullmq
-- `tsconfig.json` — updated `@/*` path alias from `./*` to `./src/*`
+- `tsconfig.json` — `@/*` path alias mapped to `./src/*`
 
 **Infrastructure libraries (6 files)**
-- `src/lib/db.ts` — Prisma singleton
+- `src/lib/db.ts` — Prisma singleton (wrong constructor — fixed Session 2)
 - `src/lib/redis.ts` — two IORedis clients (general + BullMQ-dedicated)
-- `src/lib/storage.ts` — S3 upload, download, presigned URLs, delete helpers
+- `src/lib/storage.ts` — S3 upload, download, presigned URLs, delete
 - `src/lib/queues.ts` — BullMQ queue definitions (transcription, summarization)
-- `src/lib/trpc.ts` — `createTRPCReact<AppRouter>`
+- `src/lib/trpc.ts` — `createTRPCReact<AppRouter>()` (missing `'use client'` — fixed Session 2)
 - `src/lib/utils.ts` — `cn`, `formatDuration`, `formatFileSize`, `slugify`, `relativeTime`
 
 **tRPC API layer (4 files)**
-- `src/providers/trpc-provider.tsx` — React Query + tRPC provider tree (client component)
-- `src/server/trpc.ts` — tRPC initialisation, context factory, procedure tiers
-- `src/server/root.ts` — combined `appRouter` and `AppRouter` type export
+- `src/providers/trpc-provider.tsx` — React Query + tRPC provider (client component)
+- `src/server/trpc.ts` — tRPC init, context factory, procedure tiers
+- `src/server/root.ts` — combined `appRouter` and `AppRouter` type
 - `src/server/routers/recordings.router.ts` — recordings CRUD + upload flow
 
 **Services (3 files)**
@@ -40,235 +38,229 @@ Running record of all build sessions: what was built, decisions made, open quest
 - `src/services/summarization.service.ts` — Anthropic Claude structured JSON output
 - `src/services/meetingbot.service.ts` — Recall.ai REST client
 
-**Worker (1 file)**
-- `src/workers/transcription.worker.ts` — BullMQ worker: download → transcribe → persist → enqueue
+**Workers (1 file)**
+- `src/workers/transcription.worker.ts` — BullMQ: download → transcribe → persist → enqueue
+- *(summarization.worker.ts not yet written — queue wired but nothing consuming it)*
 
 **Components (3 files)**
 - `src/components/status-badge.tsx` — enum-mapped coloured badge
 - `src/components/browser-recorder.tsx` — MediaRecorder API component
 - `src/components/new-recording-modal.tsx` — 3-tab modal (upload / record / bot)
 
-**App pages & routes (9 files)**
+**App pages (9 files)**
 - `src/app/layout.tsx` — root layout with ClerkProvider + TRPCReactProvider
-- `src/app/page.tsx` — root redirect (→ dashboard or sign-in)
-- `src/app/globals.css` — Tailwind v4 with `@theme {}` brand palette
+- `src/app/page.tsx` — root redirect
+- `src/app/globals.css` — Tailwind v4 with `@theme {}`
 - `src/app/dashboard/layout.tsx` — sidebar + org switcher
-- `src/app/dashboard/page.tsx` — overview stats + recent recordings
+- `src/app/dashboard/page.tsx` — overview stats
 - `src/app/dashboard/recordings/page.tsx` — infinite scroll list
-- `src/app/dashboard/recordings/[id]/page.tsx` — recording detail with transcript + notes
-- `src/app/api/trpc/[trpc]/route.ts` — tRPC fetchRequestHandler
+- `src/app/dashboard/recordings/[id]/page.tsx` — recording detail
+- `src/app/api/trpc/[trpc]/route.ts` — tRPC handler
 - `src/app/api/webhooks/clerk/route.ts` — Clerk org/membership sync
-- `src/app/api/webhooks/recall/route.ts` — Recall.ai bot status events
+- `src/app/api/webhooks/recall/route.ts` — Recall.ai bot events
 
-**Auth proxy (1 file)**
-- `src/proxy.ts` — Clerk middleware (Next.js 16 renamed from `middleware.ts`)
-
-**Seed (1 file)**
-- `prisma/seed.ts` — 4 built-in note templates (Standard, One-on-One, Product Review, Sales Call)
-
-**Documentation (7 files)**
-- `docs/README.md` — project overview, architecture diagram, repo layout, getting started
-- `docs/SETUP.md` — service-by-service setup guide (Clerk, Neon, S3, Redis, Recall.ai, OpenAI, Anthropic)
-- `docs/ARCHITECTURE.md` — full system architecture deep-dive
-- `docs/COMPLIANCE.md` — recording consent laws, GDPR/CCPA/HIPAA, data retention
-- `docs/PHASE1.md` — file-by-file description of everything built
-- `docs/PHASE2.md` — planned features: real-time transcription, calendar sync, vector search, integrations
-- `docs/SESSION_LOG.md` — this file
+**Auth proxy + seed + docs (9 files)**
+- `src/proxy.ts` — Clerk middleware
+- `prisma/seed.ts` — 4 built-in note templates
+- `docs/` — README, SETUP, ARCHITECTURE, COMPLIANCE, PHASE1, PHASE2, SESSION_LOG
 
 **Total: 34 files created or modified**
-
----
 
 ### Key decisions made
 
 | Decision | Rationale |
 |---|---|
-| `src/` directory structure | Standard for larger Next.js apps; keeps config files at root clean |
-| Prisma v7 `prisma-client` provider | Already in project's package.json; required for Prisma v7 |
-| Output to `src/generated/prisma` | Consistent with `src/` structure; avoids touching legacy `app/` |
-| Direct-to-S3 upload via presigned URLs | Vercel 4.5 MB body limit; S3 pre-signed URLs handle large files without routing through Next.js |
-| BullMQ + separate worker process | AI processing can exceed Vercel's function timeout; worker runs on Railway/Render |
-| Two Redis connections | BullMQ requires `maxRetriesPerRequest: null`; sharing one connection would break general usage |
-| `fetchRequestHandler` for tRPC | Required for Next.js 16 App Router route handlers (not the legacy `nextjs/adapter`) |
+| `src/` directory structure | Standard for larger Next.js apps; keeps config at root clean |
+| Direct-to-S3 upload via presigned URLs | Vercel 4.5 MB body limit — presigned URLs bypass the server entirely |
+| BullMQ + separate worker process | AI processing exceeds Vercel function timeout; workers run on Railway |
+| Two Redis connections | BullMQ requires `maxRetriesPerRequest: null`; sharing one client would break general use |
+| `fetchRequestHandler` for tRPC | Required for Next.js 16 App Router (not legacy `nextjs/adapter`) |
 | `await params` everywhere | Next.js 16 breaking change: `params` and `searchParams` are Promises |
-| `src/proxy.ts` (not `middleware.ts`) | Next.js 16 renamed middleware files to `proxy.ts` |
-| Tailwind v4 CSS config (no `tailwind.config.js`) | v4 uses `@theme {}` in CSS; no JS config file needed |
-| `superjson` transformer | Enables Date, undefined, BigInt serialisation through tRPC without manual conversion |
-| Anthropic `claude-sonnet-4-6` | Best balance of quality/cost/speed for structured JSON output generation |
-| HMAC-SHA256 for Recall.ai webhooks | Built-in `crypto` module, no extra dependency; `timingSafeEqual` prevents timing attacks |
-| `svix` for Clerk webhooks | Clerk's official library; handles header parsing and HMAC verification |
+| Tailwind v4 CSS config | v4 uses `@theme {}` in CSS — no `tailwind.config.js` needed |
+| `superjson` transformer | Handles Date, BigInt, undefined through tRPC automatically |
+| `claude-sonnet-4-6` | Best balance of quality/cost/speed for structured JSON output |
+| `timingSafeEqual` for Recall.ai webhooks | Prevents timing attacks; uses built-in `crypto` module |
+| `svix` for Clerk webhooks | Clerk's official library; handles header parsing + HMAC |
 
----
+### Open questions at end of session
 
-### Open questions / TODOs at end of session
-
-- [ ] **Summarisation worker** — not yet written. The queue is wired but nothing consumes summarisation jobs.
-- [ ] **Old `app/` directory** — must be manually deleted (`rm -rf app/`) to avoid routing conflict with `src/app/`.
-- [ ] **`npm install svix`** — Clerk webhook handler imports `svix` which is not in `package.json` yet.
-- [ ] **Transcription worker: audio > 25 MB** — Whisper's 25 MB limit will fail silently for long meetings. Needs chunking logic.
-- [ ] **Worker deployment** — no Dockerfile or Railway/Render config yet for the transcription worker process.
+- [ ] Summarisation worker not written
+- [ ] Root `app/` directory must be deleted (conflicts with `src/app/`)
+- [ ] `svix` missing from `package.json`
+- [ ] Prisma constructor API wrong in `db.ts`
+- [ ] `'use client'` missing from `trpc.ts`
 
 ---
 
 ## Session 2 — 2026-04-04
 
-**Machine:** Mac Studio
-**Goal:** Fix all blockers from Session 1, get end-to-end pipeline working.
+**Machine:** Mac Studio  
+**Goal:** Fix all Session 1 blockers, get end-to-end pipeline working.
 
-### What was fixed
+### Setup
 
-This session focused entirely on making the Session 1 scaffold actually run. Nine separate bugs were diagnosed and fixed, and the missing summarisation worker was written. AWS credentials were configured and the first successful end-to-end test was completed.
+Configured AWS credentials in `.env`. Created S3 bucket `kolasys-ai-recordings` in `us-east-1`.
 
-**Bug 1 — Prisma v7 constructor (`src/lib/db.ts`)**
-- Symptom: `TypeError: PrismaNeon is not a constructor` on startup.
-- Root cause: Session 1 used `new PrismaNeon(Pool)` — the v6 API. v7 uses `PrismaNeonHttp(connectionString)`.
-- Fix: `const adapter = new PrismaNeonHttp(process.env.DATABASE_URL!)` then `new PrismaClient({ adapter })`.
+### Bugs fixed
 
-**Bug 2 — Prisma enums in client components**
-- Symptom: Build error on client components importing from `@/generated/prisma/client`.
-- Root cause: Prisma client uses Node.js-only APIs; importing it client-side crashes the bundle.
-- Affected: `new-recording-modal.tsx`, `status-badge.tsx`, `recordings/page.tsx`
-- Fix: replaced all Prisma enum imports with local string union types.
+| # | Bug | Root cause | Fix |
+|---|---|---|---|
+| 1 | Prisma v7 constructor | Used v6 `PrismaNeon(Pool)` API | `PrismaNeonHttp(process.env.DATABASE_URL!)` |
+| 2 | Prisma enums in client components | Prisma uses Node.js APIs — crashes client bundle | Replace with local string union types |
+| 3 | Missing `'use client'` in `trpc.ts` | `import type { AppRouter }` pulled Prisma into client bundle | Added `'use client'` as first line |
+| 4 | Missing `server-only` guards | Server files could be accidentally imported client-side | Added to `server/trpc.ts`, `server/root.ts`, `db.ts`, `storage.ts` (db.ts/storage.ts reverted in Session 3) |
+| 5 | Next.js 16 async `params` | `params` is now `Promise<{}>` | `const { id } = await params` in page + `generateMetadata` |
+| 6 | Clerk catch-all routes | Clerk sub-routes need `[[...sign-in]]` folder structure | Moved to `[[...sign-in]]/page.tsx` and `[[...sign-up]]/page.tsx` |
+| 7 | Next.js 16 middleware | Needed Clerk v7 import path | Updated to `@clerk/nextjs/server` |
+| 8 | Legacy `app/` directory | Scaffold left root `app/` conflicting with `src/app/` | `rm -rf app/` |
+| 9 | Missing `svix` | Clerk webhook handler imported svix but it wasn't installed | `npm install svix` |
+| 9b | Port conflict + slow compile | Crashed process left port 3000 bound | `--port 3001` workaround; Turbopack warms up after 2–3 reloads |
 
-**Bug 3 — Missing `'use client'` in `src/lib/trpc.ts`**
-- Symptom: Build error — Prisma leaking into client bundle.
-- Root cause: Without `'use client'`, `import type { AppRouter }` pulled the entire server module graph into the client bundle.
-- Fix: Added `'use client'` at the top of `src/lib/trpc.ts`.
+### New: summarization.worker.ts
 
-**Bug 4 — Missing `server-only` guards**
-- Affected: `db.ts`, `server/trpc.ts`, `server/root.ts`, `storage.ts`
-- Fix: Added `import 'server-only'` to all server-only files.
-- Note: `server-only` on `db.ts` and `storage.ts` was later removed in Session 3 when workers failed.
-
-**Bug 5 — Next.js 16 async `params`**
-- Symptom: TypeScript error on `params.id` in recording detail page and `generateMetadata`.
-- Fix: `const { id } = await params` in both page component and `generateMetadata`.
-
-**Bug 6 — Clerk catch-all folder structure**
-- Symptom: Clerk auth sub-routes returned 404.
-- Fix: Moved pages to `sign-in/[[...sign-in]]/page.tsx` and `sign-up/[[...sign-up]]/page.tsx`.
-
-**Bug 7 — Legacy `app/` directory**
-- Symptom: Route conflicts and 404s on `/dashboard`.
-- Fix: Deleted `app/` entirely.
-
-**Bug 8 — Missing `svix` package**
-- Fix: `npm install svix`.
-
-**Bug 9 — Port conflict & slow Turbopack compile**
-- Symptom: `EADDRINUSE :::3000` when restarting. First compile 45–90 seconds.
-- Workaround: `npm run dev -- --port 3001`. Turbopack warms up over 2–3 reloads.
-
-### New file: `src/workers/summarization.worker.ts`
-Written and tested. Reads transcript → calls Claude → saves Note + NoteSection[] + ActionItem[] → sets status = READY.
+Written and tested. Flow: fetch transcript → load NoteTemplate → call Claude → save Note + NoteSection[] + ActionItem[] → status = READY.
 
 ### Milestone: First successful end-to-end test
-Upload → Whisper transcription → Claude summarisation → notes saved to DB. Confirmed working on Mac Studio.
 
----
+Upload → S3 → Whisper → Claude → notes saved. All working on Mac Studio 2026-04-04.
 
-### Current state at end of session
+### Open questions at end of session
 
-- `npm run dev` compiles cleanly
-- Dashboard loads, Clerk auth works
-- Both BullMQ workers running
-- Full pipeline tested end-to-end (upload → notes)
-- AWS S3 credentials configured
-
----
-
-### Open questions / TODOs at end of session
-
-- [ ] Configure `CLERK_WEBHOOK_SECRET` + ngrok for org sync webhook
+- [ ] Configure `CLERK_WEBHOOK_SECRET` + ngrok for org sync
 - [ ] Configure `RECALLAI_API_KEY` + test meeting bot
-- [ ] Add real-time processing status polling to recording detail page
-- [ ] Build action items page (`/dashboard/action-items`)
-- [ ] Build settings page (`/dashboard/settings`)
-- [ ] Write worker Dockerfile for Railway/Render deployment
+- [ ] Real-time processing status polling (P1)
+- [ ] Action items page (P1)
+- [ ] Settings page (P1)
+- [ ] Worker Dockerfile for Railway/Render (P1)
 
 ---
 
 ## Session 3 — 2026-04-06
 
-**Machine:** Mac Mini (new machine — first time cloning the repo here)
-**Goal:** Get running on Mac Mini, investigate worker failures, complete P0 audit.
+**Machine:** Mac Mini (first time using this machine — fresh clone)  
+**Goal:** Get running on Mac Mini, fix all P0/P1 issues, build Phase 2, deploy to Vercel.
 
-### Setup on Mac Mini
+### Mac Mini setup
 
-1. Installed Node.js 22 (matched Mac Studio version)
-2. `git clone https://github.com/kolasystems/kolass-ai`
-3. Copied `.env` from Mac Studio (all credentials)
+1. Installed Node.js 22
+2. `git clone https://github.com/kolasystems/kolasys-ai`
+3. Copied `.env` from Mac Studio
 4. `npm install && npx prisma generate`
-5. Started workers — both failed immediately
+5. Started workers — both crashed immediately → see Bug 10
 
-### Bug fixes
+### Bugs fixed
 
-**Bug 10 — `server-only` import blocking workers**
-- Symptom: Workers crash on startup with `Error: This module cannot be imported from a Client Component module`.
-- Root cause: `db.ts` and `storage.ts` had `import 'server-only'`. This guard throws unconditionally when outside the Next.js bundler (i.e., in `tsx` worker processes).
-- Fix: Removed `import 'server-only'` from `db.ts` and `storage.ts`. Kept it on `server/trpc.ts` and `server/root.ts` (workers never import these).
-
-**Bug 11 — `$transaction` not supported in Prisma HTTP mode**
-- Symptom: Worker crashes with `Error: Transaction API not supported with HTTP adapter`.
-- Root cause: `PrismaNeonHttp` uses HTTP, which does not support interactive transactions.
-- Fix: Replaced all `prisma.$transaction([...])` with sequential individual Prisma calls.
-
-**Bug 12 — `upsert` not supported in Prisma HTTP mode**
-- Symptom: Summarisation worker crashes on the `prisma.note.upsert(...)` call.
-- Root cause: `upsert` is not supported by the HTTP adapter.
-- Fix: Replaced with `findUnique` → then `create` or `update` depending on whether record exists.
-
-**Bug 13 — Nested writes causing implicit transaction errors**
-- Symptom: `prisma.transcript.create({ data: { ..., segments: { create: [...] } } })` crashed.
-- Root cause: Nested creates are sugar for implicit transactions — also unsupported in HTTP mode.
-- Fix: Broke into explicit sequential creates (parent first, then children with parent ID).
-
-**Bug 14 — Org foreign key constraint on first recording**
-- Symptom: First recording upload fails with Prisma foreign key constraint error on `orgId`.
-- Root cause: The Clerk org sync webhook hadn't fired (no `CLERK_WEBHOOK_SECRET` set locally), so the `Organization` row didn't exist in the DB when `orgProcedure` tried to look it up.
-- Fix: Added org auto-provisioning in `orgProcedure` — if org not found in DB, create it on-demand from Clerk's `auth()` context. App is now resilient to missed webhooks.
-
-**Bug 15 — `recordings.get` not org-scoped (security issue)**
-- Symptom/discovery: During P0 audit, found that `recordings.get` fetched by ID with no orgId check.
-- Impact: Any authenticated user who knew or guessed a recording UUID could read another org's recording.
-- Fix: Added `recording.orgId !== ctx.orgId` check and throws `FORBIDDEN` if mismatch.
-
-**Bug 16 — S3 audio files never deleted**
-- Symptom/discovery: During P0 audit, found S3 deletion was inside a `try/catch` that swallowed errors.
-- Impact: Audio files were accumulating in S3 indefinitely. Privacy violation risk.
-- Fix: Moved deletion to after transcript is committed to DB. Added explicit error logging.
-
-**Bug 17 — Worker env vars not loading**
-- Symptom: On Mac Mini (clean environment), all `process.env.*` values were undefined in workers.
-- Root cause: Next.js automatically injects `.env` during `next dev`. Workers run outside Next.js — they don't get this injection.
-- Fix: Added `import 'dotenv/config'` as the very first line of both worker files.
-
-### Milestone: Full pipeline working on Mac Mini
-
-After all fixes, tested upload → Whisper → Claude → notes end-to-end on Mac Mini. All working.
+| # | Bug | Root cause | Fix |
+|---|---|---|---|
+| 10 | `server-only` blocking workers | `db.ts` + `storage.ts` had `server-only`; throws outside Next.js bundler | Removed `server-only` from those two files |
+| 11 | `$transaction` unsupported in HTTP mode | PrismaNeonHttp is stateless — can't hold transaction state | Sequential individual Prisma calls |
+| 12 | `upsert` unsupported in HTTP mode | Not supported by HTTP adapter | `findUnique` → `create` or `update` |
+| 13 | Nested writes (implicit transactions) | `{ segments: { create: [...] } }` = implicit transaction | Explicit parent create then `Promise.all(segments.map(...))` |
+| 14 | Org FK constraint on first recording | Clerk webhook not configured locally; org row missing from DB | `orgProcedure` auto-provisions org from Clerk `auth()` context |
+| 15 | `recordings.get` not org-scoped | Any authenticated user could read any recording by UUID | `recording.orgId !== ctx.orgId` check + `FORBIDDEN` error |
+| 16 | S3 files never deleted | Deletion was in silent `try/catch` | Moved after transcript commit; errors logged explicitly |
+| 17 | Worker env vars not loading | `process.env` empty in standalone `tsx` — Next.js injection doesn't apply | `import 'dotenv/config'` as first line in both workers |
 
 ### P0 audit completed
 
-Ran a full audit of all P0 issues. All critical bugs fixed. See `docs/BUGS_AND_FIXES.md` for the complete catalogue.
+Full security and correctness audit. All 10 P0 items confirmed fixed. See `docs/PHASE2.md` for the audit list.
 
----
+### Phase 1 — fully resolved
+
+All P0 bugs fixed. Pipeline confirmed working on Mac Mini.
+
+### P1 features built
+
+- `recording-status-poller.tsx` — polls `recordings.get` every 5s while PROCESSING
+- `editable-note-section.tsx` — inline editor with `trpc.recordings.updateNoteSection`
+- `editable-action-item.tsx` — inline status/priority editor
+- `/dashboard/action-items` — list, filter by status, update inline
+- `/dashboard/settings` — org name, note templates, integrations tab
+- `delete-recording-button.tsx` — confirmation dialog + S3 + DB cleanup
+- `transcript-paginated.tsx` — paginated transcript viewer
+
+### Phase 2 features built
+
+**Speaker diarization**
+- `src/services/diarization.service.ts` — Deepgram `diarize=true` API
+- Maps Deepgram word timestamps to TranscriptSegment records by overlap voting
+- `SpeakerLabel` model added to schema
+- `speaker-label-editor.tsx` — rename speaker IDs to real names
+- Transcript viewer shows speaker names when available
+- Non-fatal: diarization failure doesn't prevent transcript from saving
+
+**Ask AI / vector search**
+- `src/services/embeddings.service.ts` — `text-embedding-3-small`, 500-char chunks, 100-char overlap
+- `src/lib/db-vector.ts` — pgvector helpers for cosine similarity search
+- `src/app/api/ai/ask/route.ts` — vector search → context assembly → Claude answer
+- `ask-ai-panel.tsx` + `use-ai-chat.ts` — streaming Q&A UI in recording detail
+
+**Calendar sync**
+- `src/app/api/auth/google/route.ts` + `callback/route.ts` — Google OAuth
+- `OrgMember.googleRefreshToken` field stores refresh token
+- `calendar-meetings-list.tsx` — upcoming meetings with conference links
+- `/dashboard/calendar` page
+- "Record this meeting" button pre-fills recording modal
+
+**Slack integration**
+- `src/services/integrations/slack.service.ts`
+- Posts formatted Slack blocks after notes generated: header, summary, action items, link
+- `Organization.slackWebhookUrl` field in schema
+- Settings UI: paste incoming webhook URL, enable/disable
+
+**Notion integration**
+- `src/services/integrations/notion.service.ts`
+- Creates Notion page: callout summary, heading_2 sections, to-do action items, link back
+- `Organization.notionApiKey` + `Organization.notionDatabaseId` fields
+- Settings UI: connect Notion workspace
+
+**Sentry**
+- `sentry.server.config.ts`, `sentry.client.config.ts`, `sentry.edge.config.ts`
+- Workers init Sentry before all other imports
+- `next.config.ts` wrapped with `withSentryConfig`
+- 20% trace sampling in prod, 100% dev
+- Session replay: 10% sessions, 100% on error
+- Tags: `worker`, `jobId`, `recordingId`, `attempt`
+
+**PostHog**
+- `src/lib/posthog.ts` — server-side, serverless mode (flushAt=1)
+- `posthog-provider.tsx` — client-side pageview tracking
+- Events: `recording_uploaded`, `note_viewed`, `action_item_completed`, `recording_ready`
+
+**Resend + email templates**
+- `src/lib/email.ts` — Resend client
+- `src/emails/notes-ready.tsx` — meeting summary with sections + action items
+- `src/emails/weekly-digest.tsx` — weekly meeting recap
+- `src/emails/welcome.tsx` — new user onboarding
+- Summarization worker sends notes-ready email on completion
+
+### Deployed to production
+
+1. `git push` to GitHub (`kolasystems/kolasys-ai`)
+2. Vercel: import project → set all 26 env vars → deploy
+3. Custom domain `app.kolasys.ai` added in Vercel
+4. Cloudflare DNS: CNAME `app` → Vercel deployment URL
+5. SSL provisioned automatically by Vercel
+
+**Live: https://app.kolasys.ai**
 
 ### Current state at end of session
 
-- Full pipeline working on both Mac Studio and Mac Mini
-- All P0 bugs fixed
-- All P0 security issues fixed
-- P1 work (status polling, action items page, settings page) in progress
+- All P0 + P1 bugs fixed
+- Phase 1 + Phase 2 complete
+- Deployed to https://app.kolasys.ai
+- Workers NOT yet deployed (blocking: production pipeline needs Railway/Fly.io)
+- Recall.ai not yet tested end-to-end (needs `RECALLAI_API_KEY`)
+- Clerk webhook needs production URL update in Clerk dashboard
 
-### Open questions / TODOs
+### Next priorities
 
-- [ ] Add real-time processing status polling to recording detail page (P1)
-- [ ] Build action items page (`/dashboard/action-items`) (P1)
-- [ ] Build settings page (`/dashboard/settings`) (P1)
-- [ ] Configure `RECALLAI_API_KEY` + test meeting bot
-- [ ] Set up `CLERK_WEBHOOK_SECRET` with ngrok — org auto-provisioning is a workaround, not a replacement
-- [ ] Write worker Dockerfile for Railway/Render deployment
-- [ ] Consider a `concurrently` or `pm2` setup to start all 3 processes from one command
+- [ ] Deploy workers to Railway or Fly.io (P0 for production pipeline)
+- [ ] Update Clerk webhook URL to `https://app.kolasys.ai/api/webhooks/clerk`
+- [ ] Update Recall.ai webhook URL to `https://app.kolasys.ai/api/webhooks/recall`
+- [ ] Test meeting bot end-to-end after `RECALLAI_API_KEY` configured
+- [ ] Test weekly digest cron (Vercel cron configured)
+- [ ] iOS app development (Phase 3)
 
 ---
 
@@ -289,6 +281,11 @@ Ran a full audit of all P0 issues. All critical bugs fixed. See `docs/BUGS_AND_F
 
 | Decision | Rationale |
 |---|---|
+
+### Bugs fixed
+
+| # | Bug | Root cause | Fix |
+|---|---|---|---|
 
 ### Open questions / TODOs at end of session
 

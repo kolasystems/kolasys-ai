@@ -31,8 +31,8 @@ const adapter = new PrismaNeon(pool);
 ```
 Prisma v7 renamed and redesigned the Neon HTTP adapter:
 - Class renamed: `PrismaNeon` → `PrismaNeonHttp`
-- Constructor signature changed: takes a connection string directly, not a Pool instance
-- HTTP adapter replaces the WebSocket adapter entirely for serverless use
+- Constructor changed: takes a connection string directly, not a Pool
+- HTTP adapter replaces the WebSocket adapter for serverless use
 
 **Fix:**
 ```typescript
@@ -40,6 +40,18 @@ Prisma v7 renamed and redesigned the Neon HTTP adapter:
 import { PrismaNeonHttp } from '@prisma/adapter-neon';
 const adapter = new PrismaNeonHttp(process.env.DATABASE_URL!);
 export const db = new PrismaClient({ adapter });
+```
+
+**Also note:** The database URL no longer goes in `schema.prisma` datasource block — it goes in `prisma.config.ts`:
+```typescript
+// prisma.config.ts
+import { defineConfig } from 'prisma/config';
+export default defineConfig({
+  schema: 'prisma/schema.prisma',
+  datasource: {
+    url: process.env.DATABASE_URL!,
+  },
+});
 ```
 
 ---
@@ -57,7 +69,7 @@ Error: You're importing a component that needs "server-only" ...
 Or variations of Prisma Node.js API errors in the browser bundle.
 
 **Root cause:**
-Prisma generates a client that uses Node.js-only APIs (`fs`, `path`, native bindings). These files imported enum values directly:
+Prisma generates a client that uses Node.js-only APIs. These files imported enum values directly:
 ```typescript
 // WRONG — Prisma in client component
 import { RecordingStatus, RecordingSource } from '@/generated/prisma/client';
@@ -68,10 +80,9 @@ When Next.js bundled the client component, it pulled in the Prisma client and al
 Define enum-equivalent string union types locally in client files:
 ```typescript
 // CORRECT — local string union type, no Prisma import
-type RecordingStatus = 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED';
+type RecordingStatus = 'PENDING' | 'PROCESSING' | 'TRANSCRIBING' | 'SUMMARIZING' | 'READY' | 'FAILED';
 type RecordingSource = 'UPLOAD' | 'BROWSER' | 'MEETING_BOT';
 ```
-These are structurally equivalent to Prisma enums at runtime. They require no imports and never reach the client bundle.
 
 **Rule:** Never import from `@/generated/prisma/client` or `@/lib/db` in any `'use client'` file.
 
@@ -90,7 +101,7 @@ Error: This module cannot be imported from a Server Component module
 Or Prisma leaking into the client bundle.
 
 **Root cause:**
-`src/lib/trpc.ts` creates the React tRPC client with `createTRPCReact<AppRouter>()`. The `AppRouter` type import, while just a type, still traverses the module graph at build time. Without `'use client'`, Next.js treated `trpc.ts` as a server module — but the `import type { AppRouter }` pulled in `server/root.ts` → `server/routers/recordings.router.ts` → `db.ts` into the server bundle. With `server-only` guards on those files, this caused a build error when they were also referenced from the client path.
+`src/lib/trpc.ts` creates the React tRPC client with `createTRPCReact<AppRouter>()`. Without `'use client'`, Next.js treated `trpc.ts` as a server module — and the `import type { AppRouter }` traversal pulled in `server/root.ts` → `server/routers/recordings.router.ts` → `db.ts` into the client bundle, causing build errors.
 
 **Fix:**
 ```typescript
@@ -108,17 +119,15 @@ export const trpc = createTRPCReact<AppRouter>();
 **Files:** `src/server/trpc.ts`, `src/server/root.ts`  
 **Session discovered:** 1 | **Session fixed:** 2
 
-**Symptom:** No immediate error, but server secrets could leak into the client bundle if files are accidentally imported on the wrong side.
-
-**Root cause:** Server-only files (tRPC init, router definitions) had no guard to prevent accidental client-side import.
+**Symptom:** No immediate error. Server secrets could leak into the client bundle if files are accidentally imported on the client side.
 
 **Fix:**
 ```typescript
 import 'server-only';  // first import in each server-only file
 ```
-This causes Next.js to throw a clear build error if these files are ever imported from a client component, catching the mistake at build time rather than at runtime.
+Makes Next.js throw a clear build error if these files are ever imported from a client component.
 
-**Important note:** `db.ts` and `storage.ts` initially also got `server-only` — this was later reverted in Session 3 (see Bug 10).
+**Important:** `db.ts` and `storage.ts` also got `server-only` in Session 2 — this was reverted in Session 3 (see Bug 10). Only add `server-only` to files that workers will never import.
 
 ---
 
@@ -142,13 +151,11 @@ Next.js 16 changed `params` and `searchParams` from synchronous objects to `Prom
 // In page component:
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;  // ← must await
-  ...
 }
 
-// In generateMetadata:
+// In generateMetadata — also must await:
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;  // ← must await here too
-  ...
+  const { id } = await params;
 }
 ```
 
@@ -156,14 +163,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 ### Bug 6 — Clerk catch-all route structure
 
-**Severity:** P0 — auth sub-routes 404  
+**Severity:** P0 — auth sub-routes return 404  
 **Files:** `src/app/sign-in/page.tsx`, `src/app/sign-up/page.tsx`  
 **Session discovered:** 1 | **Session fixed:** 2
 
 **Symptom:** Clicking "Sign In" works, but Clerk's internal flows (email verification, MFA, SSO callbacks) return 404.
 
 **Root cause:**
-Clerk renders multiple views at sub-paths (e.g., `/sign-in/factor-one`, `/sign-in/sso-callback`). A simple `page.tsx` file only handles the exact path. Clerk requires a catch-all route to handle all its sub-paths.
+Clerk renders multiple views at sub-paths (`/sign-in/factor-one`, `/sign-in/sso-callback`). A simple `page.tsx` only handles the exact path.
 
 **Fix:**
 ```
@@ -184,16 +191,14 @@ The `[[...slug]]` syntax is Next.js's optional catch-all — it matches both the
 **File:** `src/proxy.ts`  
 **Session discovered:** 1 | **Session fixed:** 2
 
-**Symptom:** Routes that should require auth are publicly accessible; auth redirects don't work.
-
 **Root cause:**
-Next.js 16 renamed the middleware entry point from `middleware.ts` to `proxy.ts`. The file was already correctly named `src/proxy.ts`, but the Clerk import needed updating.
+Next.js 16 renamed the middleware entry point from `middleware.ts` to `proxy.ts`. The file was correctly named but the Clerk import path needed updating for v7.
 
 **Fix:**
 ```typescript
 // src/proxy.ts
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-// (not from '@clerk/nextjs' — must include /server for v7)
+// (/server suffix is required in Clerk v7 — not '@clerk/nextjs')
 ```
 
 ---
@@ -204,16 +209,16 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 **Directory:** `app/` at repo root  
 **Session discovered:** 1 | **Session fixed:** 2
 
-**Symptom:** Dashboard routes return 404 or serve the wrong page. Confusing routing behaviour.
+**Symptom:** Dashboard routes return 404 or serve the wrong page.
 
 **Root cause:**
-`create-next-app` generated an `app/` directory at the repository root alongside the intentional `src/app/`. Next.js tried to merge both as valid App Router directories, creating route conflicts.
+`create-next-app` generated an `app/` directory at the repository root alongside the intentional `src/app/`. Next.js tried to merge both, creating route conflicts.
 
 **Fix:**
 ```bash
 rm -rf app/
 ```
-All routes live in `src/app/` only. Nothing in root `app/` should ever be recreated.
+All routes live in `src/app/` only. The root `app/` must never be recreated.
 
 ---
 
@@ -228,9 +233,6 @@ All routes live in `src/app/` only. Nothing in root `app/` should ever be recrea
 Error: Cannot find module 'svix'
 ```
 
-**Root cause:**
-The Clerk webhook handler used `import { Webhook } from 'svix'` but `svix` was never added to `package.json`.
-
 **Fix:**
 ```bash
 npm install svix
@@ -243,21 +245,17 @@ npm install svix
 **Severity:** P2 — developer experience  
 **Session discovered:** 1 | **Session fixed:** N/A (workaround)
 
-**Symptom:**
+**Symptoms:**
 - First compile takes 45–90 seconds on Mac Studio
 - `Error: listen EADDRINUSE :::3000` when restarting after a crash
-
-**Root cause:**
-- Turbopack cold builds on M-series Macs under memory pressure are slow on first compilation
-- Crashed `next dev` processes leave port 3000 bound
 
 **Workaround:**
 ```bash
 # Port conflict
 npm run dev -- --port 3001
 
-# Slow compile: wait — Turbopack's incremental cache warms up after 2-3 reloads
-# Subsequent hot reloads are fast (< 2 seconds)
+# Slow compile: wait — Turbopack incremental cache warms up after 2–3 reloads
+# Subsequent hot reloads are < 2 seconds
 ```
 
 ---
@@ -280,14 +278,14 @@ It is only meant to be used from a Server Component.
 Both workers crash immediately on startup.
 
 **Root cause:**
-`db.ts` and `storage.ts` had `import 'server-only'` added in Session 2 (Bug 4 fix). The `server-only` package works by throwing an error when it detects it's not running inside the Next.js bundler context. BullMQ workers run as standalone `tsx` processes — they're not inside the Next.js bundler at all. So `server-only` throws unconditionally in worker scripts.
+`db.ts` and `storage.ts` had `import 'server-only'` added in Session 2 (Bug 4 fix). The `server-only` package throws an error when it detects it's not inside the Next.js bundler context. BullMQ workers run as standalone `tsx` processes — they're entirely outside the Next.js bundler, so `server-only` throws unconditionally.
 
 **Fix:**
 Remove `import 'server-only'` from `db.ts` and `storage.ts`. These files are shared between Next.js server code and worker scripts.
 
 Files that workers never import (`server/trpc.ts`, `server/root.ts`) keep their `server-only` guards.
 
-**Rule going forward:** Only add `server-only` to files that workers will never need to import.
+**Rule:** Only add `server-only` to files that workers will never import.
 
 ---
 
@@ -301,13 +299,11 @@ Files that workers never import (`server/trpc.ts`, `server/root.ts`) keep their 
 ```
 Error: Transaction API not supported with HTTP adapter
 ```
-Worker crashes mid-job after Whisper transcription completes.
 
 **Root cause:**
-The transcription worker used `prisma.$transaction([...])` to atomically write the `Transcript` and all `TranscriptSegment` records in one operation. The `PrismaNeonHttp` adapter communicates over HTTP — HTTP connections are stateless and cannot hold the server-side transaction state required by interactive transactions.
+The transcription worker used `prisma.$transaction([...])` to atomically write `Transcript` and `TranscriptSegment` records. `PrismaNeonHttp` communicates over HTTP — HTTP connections are stateless and cannot hold the server-side transaction state required by interactive transactions.
 
 **Fix:**
-Replace `$transaction` with sequential individual operations:
 ```typescript
 // WRONG
 await prisma.$transaction([
@@ -319,7 +315,8 @@ await prisma.$transaction([
 await prisma.transcript.create({ data: transcriptData });
 await prisma.processingJob.update({ where: { id: jobId }, data: { status: 'COMPLETED' } });
 ```
-Acceptable trade-off: operations are within a BullMQ job that retries on failure, providing equivalent durability guarantees at the job level.
+
+Acceptable trade-off: operations are within a BullMQ job that retries on failure.
 
 ---
 
@@ -333,13 +330,11 @@ Acceptable trade-off: operations are within a BullMQ job that retries on failure
 ```
 Error: Upsert not supported with HTTP adapter
 ```
-Summarisation worker crashes when trying to save the `Note` record.
 
 **Root cause:**
-`prisma.note.upsert(...)` was used to handle idempotent job re-runs. Upsert requires a read-modify-write that cannot be expressed as a single HTTP request, so the HTTP adapter doesn't support it.
+`upsert` requires a read-modify-write that cannot be expressed as a single HTTP request.
 
 **Fix:**
-Replace with explicit `findUnique` + conditional `create` or `update`:
 ```typescript
 // WRONG
 await prisma.note.upsert({
@@ -371,15 +366,13 @@ Error: Nested operations require transactions which are not supported with HTTP 
 ```
 
 **Root cause:**
-Prisma's nested write syntax (creating related records in one call) is syntactic sugar for an implicit transaction:
+Prisma's nested write syntax is sugar for an implicit transaction:
 ```typescript
 // WRONG — implicit transaction
 await prisma.transcript.create({
   data: {
     ...transcriptData,
-    segments: {
-      create: segments,  // ← implicit transaction under the hood
-    },
+    segments: { create: segments },  // ← implicit transaction
   },
 });
 ```
@@ -397,7 +390,7 @@ await Promise.all(
   )
 );
 ```
-Note: `Promise.all` is safe here because each segment create is independent — no ordering requirement.
+`Promise.all` is safe here because each segment create is independent.
 
 ---
 
@@ -411,17 +404,15 @@ Note: `Promise.all` is safe here because each segment create is independent — 
 ```
 Error: Foreign key constraint failed on field: orgId
 ```
-First upload after account creation fails.
 
 **Root cause:**
-When a user creates their first Clerk org, a `organization.created` webhook fires to `/api/webhooks/clerk`. This webhook creates the `Organization` row in the DB. However, if the webhook hasn't fired (e.g., dev environment without `CLERK_WEBHOOK_SECRET` configured, or network delay), the org row doesn't exist when the user tries to create a recording. `orgProcedure` looked up the org by `clerkOrgId` and returned null. The mutation then tried to insert a recording with a null `orgId`, violating the DB constraint.
+When a user creates their first Clerk org, a `organization.created` webhook fires to sync the org to the DB. If the webhook hasn't fired (no `CLERK_WEBHOOK_SECRET` configured, network delay, etc.), the `Organization` row doesn't exist. `orgProcedure` looked up the org by `clerkOrgId` and returned null. The mutation then tried to insert a recording with a null `orgId`, violating the DB constraint.
 
 **Fix:**
 Added auto-provisioning to `orgProcedure`:
 ```typescript
 let org = await db.organization.findUnique({ where: { clerkOrgId: orgId } });
 if (!org) {
-  // Org not synced yet — provision it on-demand
   const clerkOrg = await clerkClient.organizations.getOrganization({ organizationId: orgId });
   org = await db.organization.create({
     data: {
@@ -453,7 +444,7 @@ const recording = await db.recording.findUnique({
 });
 return recording;
 ```
-Any authenticated user who knew (or guessed) a recording's UUID could read it, regardless of which org they belonged to.
+Any authenticated user who knew (or guessed) a recording's UUID could read it regardless of org.
 
 **Fix:**
 ```typescript
@@ -466,47 +457,42 @@ const recording = await db.recording.findUnique({
 if (!recording || recording.orgId !== ctx.orgId) {
   throw new TRPCError({ code: 'FORBIDDEN', message: 'Recording not found' });
 }
-
-return recording;
 ```
-The error message intentionally doesn't distinguish "not found" from "forbidden" to avoid leaking information about record existence.
+The error message intentionally doesn't distinguish "not found" from "forbidden" to avoid leaking record existence.
 
 ---
 
-### Bug 16 — S3 audio files never deleted (privacy issue)
+### Bug 16 — S3 audio files never deleted (privacy)
 
-**Severity:** P0 (privacy) — audio files accumulate in S3  
+**Severity:** P0 (privacy) — audio accumulates in S3 indefinitely  
 **File:** `src/workers/transcription.worker.ts`  
 **Session discovered:** 3 | **Session fixed:** 3
 
-**Symptom:** No immediate runtime error — discovered during P0 audit. S3 bucket grows indefinitely.
-
 **Root cause:**
 ```typescript
-// WRONG — deletion swallowed silently
+// WRONG — deletion silently swallowed
 try {
   await deleteFromS3(job.data.s3Key);
 } catch {
-  // silent — deletion failure goes unnoticed
+  // silent
 }
 ```
-The Kolasys privacy policy states audio files are deleted after transcription. This was not being enforced.
+Privacy policy states audio files are deleted after transcription. This was not being enforced.
 
 **Fix:**
 ```typescript
-// CORRECT — deletion after transcript committed, with error logging
+// CORRECT — deletion after transcript committed, errors logged
 await prisma.transcript.create({ data: transcriptData });
-// ...save segments...
+// ... save segments ...
 
-// Delete S3 file now that transcript is safely in DB
 try {
   await deleteFromS3(job.data.s3Key);
 } catch (err) {
-  // Log but don't fail the job — transcript is saved, deletion can be retried
   console.error(`[transcription] Failed to delete S3 file ${job.data.s3Key}:`, err);
+  Sentry.captureException(err, { tags: { phase: 's3_delete', jobId: job.id } });
 }
 ```
-S3 deletion happens after the transcript is committed to the DB. Failure is logged visibly so it can be investigated. A scheduled S3 lifecycle rule (delete objects older than 1 day) should be added as an additional safety net.
+Deletion happens after the transcript is committed. Failure is logged (and Sentry-tracked) but doesn't fail the job — transcript is saved regardless.
 
 ---
 
@@ -517,27 +503,24 @@ S3 deletion happens after the transcript is committed to the DB. Failure is logg
 **Session discovered:** 3 | **Session fixed:** 3
 
 **Symptom:**
-Workers start but immediately fail with connection errors:
 ```
 Error: DATABASE_URL is not defined
 Error: REDIS_URL is not defined
 ```
 
 **Root cause:**
-Next.js automatically reads `.env` and `.env.local` files and injects them into `process.env` at build/runtime. BullMQ workers run via `npx tsx src/workers/...` — a plain Node.js process outside of Next.js. In this context, `process.env` only contains system environment variables, not anything from `.env` files.
+Next.js automatically reads `.env` files and injects them into `process.env`. BullMQ workers run via `npx tsx src/workers/...` — plain Node.js processes outside of Next.js. `process.env` only contains system environment variables, not anything from `.env` files.
 
-This didn't surface on Mac Studio because environment variables had been manually exported in the shell session. On Mac Mini (clean environment), nothing was exported.
+On Mac Studio, env vars had been manually exported in the shell session. On Mac Mini (clean environment), nothing was exported — so the issue was invisible until the new machine.
 
 **Fix:**
-Add `import 'dotenv/config'` as the first import in both worker files:
 ```typescript
 import 'dotenv/config';  // ← must be first line — loads .env before anything else
 import { Worker } from 'bullmq';
 // ...rest of imports
 ```
-`dotenv` is already in `package.json` (used by Prisma's seed script). No new dependency needed.
 
-**Rule:** Any standalone Node.js script that reads `process.env` must load dotenv explicitly. Next.js projects can't rely on the framework's env injection being available outside the framework.
+**Rule:** Any standalone Node.js script that reads `process.env` must explicitly load dotenv. Never rely on Next.js env injection being available outside Next.js.
 
 ---
 
@@ -545,13 +528,13 @@ import { Worker } from 'bullmq';
 
 | # | Bug | Severity | Session Fixed | File(s) |
 |---|---|---|---|---|
-| 1 | Prisma v7 constructor API (`PrismaNeon` → `PrismaNeonHttp`) | P0 | 2 | `db.ts` |
-| 2 | Prisma enums imported in client components | P0 | 2 | 3 component files |
+| 1 | Prisma v7 constructor: `PrismaNeon` → `PrismaNeonHttp` | P0 | 2 | `db.ts` |
+| 2 | Prisma enums in client components | P0 | 2 | 3 component files |
 | 3 | Missing `'use client'` in `trpc.ts` | P0 | 2 | `lib/trpc.ts` |
 | 4 | Missing `server-only` on server files | P1 | 2 | `server/trpc.ts`, `server/root.ts` |
 | 5 | Next.js 16 async `params` | P0 | 2 | `recordings/[id]/page.tsx` |
-| 6 | Clerk catch-all route structure | P0 | 2 | sign-in, sign-up pages |
-| 7 | Next.js 16 middleware renamed to `proxy.ts` | P0 | 2 | `proxy.ts` |
+| 6 | Clerk catch-all route structure missing | P0 | 2 | sign-in, sign-up pages |
+| 7 | Next.js 16 middleware path + Clerk v7 import | P0 | 2 | `proxy.ts` |
 | 8 | Legacy `app/` directory from scaffold | P0 | 2 | `app/` (deleted) |
 | 9 | Missing `svix` package | P0 | 2 | `package.json` |
 | 9b | Port conflict + slow Turbopack compile | P2 | N/A (workaround) | N/A |
@@ -561,5 +544,5 @@ import { Worker } from 'bullmq';
 | 13 | Nested writes (implicit transactions) | P0 | 3 | both workers |
 | 14 | Org FK constraint on first recording | P0 | 3 | `server/trpc.ts` |
 | 15 | `recordings.get` not org-scoped | P0 (security) | 3 | recordings router |
-| 16 | S3 files never deleted | P0 (privacy) | 3 | transcription worker |
+| 16 | S3 audio files never deleted | P0 (privacy) | 3 | transcription worker |
 | 17 | Worker env vars not loading | P0 | 3 | both workers |
