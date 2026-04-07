@@ -95,7 +95,12 @@ export const recordingsRouter = router({
         })
       }
 
-      return recording
+      // Expose note as a top-level singular field so both web and mobile clients
+      // can access recording.note directly without indexing into the notes array.
+      return {
+        ...recording,
+        note: recording.notes[0] ?? null,
+      }
     }),
 
   // ── Create a new recording record ─────────────────────────────────────────
