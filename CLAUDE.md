@@ -12,9 +12,11 @@
 
 ## 0. Project History (Day 1 → Today)
 
+**Last updated: 2026-04-07**
+
 ### How this project started
 
-Kolasys AI began from a blank `create-next-app` scaffold on **2026-04-03**. Everything was built from scratch in three focused sessions across two machines (Mac Studio + Mac Mini).
+Kolasys AI began from a blank `create-next-app` scaffold on **2026-04-03**. Everything was built from scratch in five focused sessions across two machines (Mac Studio + Mac Mini).
 
 See `docs/FULL_PROJECT_HISTORY.md` for the complete timeline and `docs/SESSION_LOG.md` for per-session narrative.
 
@@ -25,6 +27,8 @@ See `docs/FULL_PROJECT_HISTORY.md` for the complete timeline and `docs/SESSION_L
 | 1 | 2026-04-03 | Mac Studio | Full Phase 1 scaffold — 34 files, schema, workers, API, UI |
 | 2 | 2026-04-04 | Mac Studio | Bug fixes, summarisation worker, first end-to-end pipeline test |
 | 3 | 2026-04-06 | Mac Mini | All P0/P1 bugs fixed, Phase 2 features built, Sentry+PostHog+Resend added, deployed to Vercel |
+| 4 | 2026-04-06 | Mac Mini | iOS mobile app: Expo SDK 54, all screens built, JSI crash fixed, notes/actions working |
+| 5 | 2026-04-07 | Mac Mini | Mobile Phase 2: Home Feed/Tasks/Calendar, topic outline, audio player UI, export sheet |
 
 ---
 
@@ -420,13 +424,30 @@ ngrok http 3000
 
 ---
 
-## 8. Current Status (2026-04-06)
+## 8. Current Status (2026-04-07)
 
 ### Deployed
 - **Production URL:** https://app.kolasys.ai
 - **Host:** Vercel (Next.js app)
 - **DNS:** Cloudflare — `app.kolasys.ai` CNAME → Vercel deployment URL
-- **Workers:** Not yet deployed to production (Railway/Fly.io — see docs/DEPLOYMENT.md)
+- **Workers:** Running on Railway (transcription + summarization workers deployed)
+
+### Mobile App
+- **Repo:** https://github.com/kolasystems/kolasys-ai-mobile
+- **Platform:** React Native / Expo SDK 54
+- **Status:** iOS development build working (Simulator + real device)
+- **See:** `~/Desktop/kolasys-ai-mobile/CLAUDE.md` for mobile-specific Claude guidance
+- **See:** `~/Desktop/kolasys-ai-mobile/PROGRESS.md` for full feature checklist
+
+### Competitor Research (2026-04-07)
+Analyzed Fireflies.ai and PLAUD (AI voice recorder hardware) to inform roadmap:
+- **Fireflies:** "Soundbites" (shareable audio clips), AskFred AI chatbot, CRM integrations, team channels, transcript thread comments
+- **PLAUD:** Hardware AI pin (always-on recording), mind map export, summary cards as shareable images, offline transcription
+
+Key differentiation opportunities:
+- AI chat over transcript (AskFred equivalent) — high priority
+- Shareable summary image cards
+- CRM integration (log meeting to Salesforce/HubSpot deal)
 
 ### Phase 1 — Complete
 - Dashboard: stat cards, recent recordings

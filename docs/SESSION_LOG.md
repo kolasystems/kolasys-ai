@@ -268,6 +268,96 @@ All P0 bugs fixed. Pipeline confirmed working on Mac Mini.
 
 ---
 
+## Session 4 — 2026-04-06
+
+**Machine:** Mac Mini  
+**Goal:** Build iOS mobile app Phase 1 — all core screens, authentication, recording, and viewing notes.
+
+### What was built
+
+- **`src/screens/HomeScreen.tsx`** — greeting, 3 stat cards, recent recordings, pull-to-refresh
+- **`src/screens/RecordScreen.tsx`** — expo-av recording, permission handling, upload via tRPC, waveform animation
+- **`src/screens/RecordingsScreen.tsx`** — searchable list, RecordingCard, navigate to detail
+- **`src/screens/RecordingDetailScreen.tsx`** — Notes/Transcript/Actions tabs, polling while processing, share notes as Markdown
+- **`src/screens/SettingsScreen.tsx`** — profile card, links, sign out
+- **`src/navigation/AppNavigator.tsx`** — bottom tabs + Recordings native stack
+- **`src/components/`** — StatusBadge, RecordingCard, ActionItemRow, TranscriptSegment
+- **`src/lib/trpc.tsx`** — tRPC React client, TRPCProvider, shared Recording/Note/ActionItem types
+
+### Bugs fixed
+
+| # | Bug | Root cause | Fix |
+|---|---|---|---|
+| 1 | JSI crash "expected dynamic type 'boolean'" | Native packages (safe-area-context 5.7, screens 4.24, gesture-handler 2.31) newer than SDK 54 expects | Downgraded to SDK 54 exact versions via `npx expo install --check` |
+| 2 | Missing worklets | reanimated v4 requires `react-native-worklets` | `npx expo install react-native-worklets` |
+| 3 | npm peer conflict | `@clerk/clerk-expo` pulls `react-dom`, conflicts with React 19.1 | Always use `--legacy-peer-deps` |
+| 4 | Notes tab blank | Server returns `notes[]` array not `note` singular | Normalize: `rawData.note ?? rawData.notes?.[0] ?? null`; also patched server `recordings.get` to return `note` field |
+| 5 | Infinite loading loop | `getToken` recreated each render → in `useCallback` deps → load re-ran forever | Store `getToken` in `useRef`; only `id` in deps |
+| 6 | tRPC superjson silently dropping data | tRPC React hooks + superjson transformer discarded nested data | Replaced with direct HTTP fetch + manual response parsing |
+| 7 | Microphone error on simulator | Simulator has no mic | `Constants.isDevice` check; contextual error message |
+
+### State at end of session
+
+- iOS app running in simulator (`npx expo run:ios`)
+- All screens built and functional
+- Notes, transcript, action items loading from production API
+- Committed and pushed to `github.com/kolasystems/kolasys-ai-mobile`
+
+---
+
+## Session 5 — 2026-04-07
+
+**Machine:** Mac Mini  
+**Goal:** Mobile Phase 2 — Home Feed/Tasks/Calendar, topic outline, audio player UI, export sheet. Competitor research (Fireflies + PLAUD).
+
+### Competitor research
+
+Analyzed Fireflies.ai and PLAUD screenshots:
+- **Fireflies:** Soundbites (shareable audio clips), AskFred AI chatbot Q&A on recordings, CRM integrations (Salesforce/HubSpot auto-log), Channels (team recording feed), transcript thread comments
+- **PLAUD:** Hardware AI recorder pin, mind map export, shareable summary image cards, offline on-device transcription, multilingual auto-detect
+
+### What was built
+
+**`src/lib/api.ts`** (new) — extracted shared `trpcGet`/`trpcPost` helpers
+
+**`src/screens/HomeScreen.tsx`** (complete rewrite) — 3 internal tabs:
+- **My Feed** — recordings grouped by this week / last week / older; status badge + notes-ready indicator
+- **Tasks** — recordings with notes as collapsible sections; expand → lazy-load action items via `trpcGet`; checkbox toggle with API mutation
+- **Calendar** — expo-calendar device events for today + 7 days; platform icon detection (Zoom/Meet/Teams); per-meeting bot-record toggle with Alert
+
+**`src/screens/RecordingDetailScreen.tsx`** additions:
+- Static 50-bar waveform visualization above transcript (seeded heights, not random)
+- Disabled audio player UI (Play/Pause, −15s, +15s) — tapping shows "audio deleted after transcription" alert
+- Topic outline — auto-detects sections from transcript (90s time gap or every 12 segments); shows timestamp + first-sentence title; tap to jump to page
+- Export action sheet (bottom Modal): Share link (copy to clipboard), Copy Notes (Markdown), Copy Transcript, Export Notes TXT, Export Transcript TXT, Export Notes PDF (expo-print)
+
+### Bugs fixed
+
+| # | Bug | Root cause | Fix |
+|---|---|---|---|
+| 1 | `FileSystem.cacheDirectory` not found | expo-file-system v19 moved legacy API | Import from `expo-file-system/legacy` |
+| 2 | `useRef()` TS error | React 19 `useRef` requires initial value | `useRef(undefined)` |
+| 3 | Export sheet busy state mismatch | Comparing `busy === action.icon` but storing label in busy | Added `id` field to each action, compare `busy === action.id` |
+
+### State at end of session
+
+- iOS app running with all new features
+- Competitor research documented in web repo CLAUDE.md and docs
+- Committed and pushed to `github.com/kolasystems/kolasys-ai-mobile`
+
+### Feature roadmap additions from competitor research
+
+| Feature | Priority | Based on |
+|---|---|---|
+| Ask AI / chatbot on recording | P0 | Fireflies AskFred |
+| Smart search across note content | P1 | Fireflies |
+| Shareable summary image card | P1 | PLAUD |
+| CRM integration (Salesforce/HubSpot) | P2 | Fireflies |
+| Transcript segment comments | P2 | Fireflies |
+| Mind map export | P3 | PLAUD |
+
+---
+
 <!-- Template for new sessions:
 
 ## Session N — YYYY-MM-DD

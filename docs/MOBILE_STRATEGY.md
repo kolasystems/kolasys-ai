@@ -24,7 +24,9 @@ Phase 4 — Ecosystem
   └── CRM sync, analytics
 ```
 
-Mobile development begins after Phase 2 is deployed and the product has real users. The goal is to bring recording capability to places the web app can't reach (in-person meetings, mobile devices, hardware recorders).
+**Status as of 2026-04-07: Phase 3 (Native mobile apps) is underway.** iOS app is built and running. See `github.com/kolasystems/kolasys-ai-mobile` and `~/Desktop/kolasys-ai-mobile/PROGRESS.md`.
+
+Mobile development began immediately after Phase 2 deployed. The goal is to bring recording capability to places the web app can't reach (in-person meetings, mobile devices, hardware recorders).
 
 ---
 
