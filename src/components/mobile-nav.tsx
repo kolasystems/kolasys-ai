@@ -1,6 +1,7 @@
 'use client'
 
-// Kolasys AI — Mobile navigation (hamburger + slide-out drawer)
+// Kolasys AI — Mobile / tablet navigation bar with hamburger + slide-out drawer
+// Visible below lg (1024px). Hidden at lg+ via lg:hidden.
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -33,14 +34,17 @@ export function MobileNav() {
 
   return (
     <>
-      {/* Mobile top bar — only visible on < md */}
-      <div className="flex items-center justify-between border-b border-neutral-200 bg-white px-4 py-3 md:hidden">
+      {/*
+        Top bar: flex row with hamburger, brand, and user avatar.
+        Hidden at lg+ (desktop uses the persistent sidebar instead).
+      */}
+      <div className="flex flex-shrink-0 items-center justify-between border-b border-neutral-200 bg-white px-4 py-3 lg:hidden">
         <div className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="rounded-md p-1.5 text-neutral-600 hover:bg-neutral-100 transition-colors"
-            aria-label="Open navigation"
+            className="rounded-md p-2 text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
+            aria-label="Open navigation menu"
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -54,19 +58,19 @@ export function MobileNav() {
         />
       </div>
 
-      {/* Drawer backdrop + panel */}
+      {/* Drawer overlay — rendered into a portal via fixed positioning */}
       {open && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-50 flex">
+          {/* Dark backdrop — tap to close */}
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/50"
             onClick={() => setOpen(false)}
             aria-hidden
           />
 
-          {/* Panel */}
-          <div className="relative flex w-72 flex-col bg-white shadow-2xl">
-            {/* Header */}
+          {/* Sidebar panel */}
+          <div className="relative flex w-72 max-w-[85vw] flex-col bg-white shadow-2xl">
+            {/* Panel header */}
             <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-4">
               <div className="flex items-center gap-2">
                 <Mic2 className="h-5 w-5 text-brand-600" />
@@ -75,8 +79,8 @@ export function MobileNav() {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 transition-colors"
-                aria-label="Close navigation"
+                className="rounded-md p-2 text-neutral-500 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
+                aria-label="Close navigation menu"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -111,17 +115,14 @@ export function MobileNav() {
                     href={href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                      'flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                       active
                         ? 'bg-brand-50 text-brand-700'
-                        : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900',
+                        : 'text-neutral-700 hover:bg-neutral-100 active:bg-neutral-200',
                     )}
                   >
                     <Icon
-                      className={cn(
-                        'h-4 w-4',
-                        active ? 'text-brand-600' : 'text-neutral-400',
-                      )}
+                      className={cn('h-4 w-4 flex-shrink-0', active ? 'text-brand-600' : 'text-neutral-400')}
                     />
                     {label}
                   </Link>

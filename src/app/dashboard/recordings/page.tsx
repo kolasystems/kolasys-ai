@@ -187,15 +187,21 @@ function RecordingRow({ r }: { r: RowRecording }) {
     <li>
       <Link
         href={`/dashboard/recordings/${r.id}`}
-        className="flex min-h-[64px] items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm transition-shadow hover:shadow-md sm:gap-4 sm:px-5"
+        className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm transition-shadow hover:shadow-md sm:gap-4 sm:px-5"
       >
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-brand-50 sm:h-10 sm:w-10">
-          <Mic2 className="h-4 w-4 text-brand-500 sm:h-5 sm:w-5" />
+        {/* Icon */}
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-brand-50">
+          <Mic2 className="h-4 w-4 text-brand-500" />
         </div>
 
+        {/* Title + meta — takes remaining width, allows wrapping */}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-neutral-900">{r.title}</p>
-          <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-neutral-500 sm:gap-3">
+          {/* Title: wraps on mobile so it's never truncated */}
+          <p className="text-sm font-semibold leading-snug text-neutral-900 sm:truncate">{r.title}</p>
+
+          {/* Second line: meta + status badge */}
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500">
+            <StatusBadge status={r.status as Parameters<typeof StatusBadge>[0]['status']} />
             {r.duration !== null && (
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
@@ -211,8 +217,6 @@ function RecordingRow({ r }: { r: RowRecording }) {
             <span>{relativeTime(r.createdAt)}</span>
           </div>
         </div>
-
-        <StatusBadge status={r.status as Parameters<typeof StatusBadge>[0]['status']} />
       </Link>
     </li>
   )

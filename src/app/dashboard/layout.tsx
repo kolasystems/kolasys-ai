@@ -34,20 +34,16 @@ export default async function DashboardLayout({
         </div>
         <CreateOrganization
           afterCreateOrganizationUrl="/dashboard"
-          appearance={{
-            elements: {
-              rootBox: 'shadow-lg rounded-2xl overflow-hidden',
-            },
-          }}
+          appearance={{ elements: { rootBox: 'shadow-lg rounded-2xl overflow-hidden' } }}
         />
       </div>
     )
   }
 
   return (
-    <div className="flex h-dvh flex-col bg-neutral-50 md:flex-row">
-      {/* ── Desktop sidebar (hidden on mobile) ─────────────────────────── */}
-      <aside className="hidden w-60 flex-shrink-0 flex-col border-r border-neutral-200 bg-white md:flex">
+    <div className="flex h-screen overflow-hidden bg-neutral-50">
+      {/* ── Desktop sidebar — only visible at lg (1024px+) ───────────────── */}
+      <aside className="hidden lg:flex w-60 flex-shrink-0 flex-col border-r border-neutral-200 bg-white">
         {/* Brand */}
         <div className="flex h-16 items-center gap-2.5 border-b border-neutral-200 px-5">
           <Mic2 className="h-5 w-5 text-brand-600" />
@@ -71,7 +67,7 @@ export default async function DashboardLayout({
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 space-y-0.5 p-3">
+        <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
           <NavLink href="/dashboard" icon={<LayoutDashboard className="h-4 w-4" />}>
             Overview
           </NavLink>
@@ -97,17 +93,24 @@ export default async function DashboardLayout({
 
         {/* User */}
         <div className="border-t border-neutral-200 p-4">
-          <UserButton
-            appearance={{ elements: { userButtonAvatarBox: 'h-8 w-8' } }}
-          />
+          <UserButton appearance={{ elements: { userButtonAvatarBox: 'h-8 w-8' } }} />
         </div>
       </aside>
 
-      {/* ── Mobile header + slide-out drawer (hidden on md+) ────────────── */}
-      <MobileNav />
+      {/* ── Right-hand column: top bar + page content ────────────────────── */}
+      {/*
+        This wrapper takes FULL WIDTH on mobile (sidebar is display:none above).
+        On lg+ it takes the remaining width next to the sidebar.
+      */}
+      <div className="flex flex-1 min-w-0 flex-col overflow-hidden">
+        {/* Mobile / tablet top bar with hamburger (hidden at lg+) */}
+        <MobileNav />
 
-      {/* ── Main content ────────────────────────────────────────────────── */}
-      <main className="flex-1 overflow-y-auto">{children}</main>
+        {/* Scrollable page content */}
+        <main className="flex-1 overflow-y-auto">
+          {children}
+        </main>
+      </div>
     </div>
   )
 }
