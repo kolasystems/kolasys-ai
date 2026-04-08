@@ -28,7 +28,7 @@ export default function AskAIPage() {
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-white px-8 py-5">
+      <div className="border-b border-neutral-200 bg-white px-4 py-4 sm:px-8 sm:py-5">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50">
             <Sparkles className="h-5 w-5 text-brand-600" />
@@ -43,7 +43,7 @@ export default function AskAIPage() {
       </div>
 
       {/* Message area */}
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-8 sm:py-6">
         {messages.length === 0 ? (
           <EmptyState onSuggest={(q) => setInput(q)} />
         ) : (
@@ -73,7 +73,7 @@ export default function AskAIPage() {
       </div>
 
       {/* Input area */}
-      <div className="border-t border-neutral-200 bg-white px-8 py-4">
+      <div className="border-t border-neutral-200 bg-white px-4 py-3 sm:px-8 sm:py-4">
         <div className="mx-auto max-w-3xl">
           <form onSubmit={handleSubmit}>
             <div className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3 shadow-sm focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-500/20 transition-shadow">

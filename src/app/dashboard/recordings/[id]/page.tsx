@@ -28,7 +28,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: recording?.title ?? 'Recording' }
 }
 
-// Statuses that indicate active processing (show the progress banner).
 const IN_PROGRESS_STATUSES = new Set(['PENDING', 'PROCESSING', 'TRANSCRIBING', 'SUMMARIZING'])
 
 export default async function RecordingDetailPage({ params }: Props) {
@@ -42,7 +41,6 @@ export default async function RecordingDetailPage({ params }: Props) {
           id: true,
           text: true,
           language: true,
-          // Fetch 101 so we know whether there are more without an extra query.
           segments: { orderBy: { startTime: 'asc' }, take: 101 },
         },
       },
@@ -66,7 +64,6 @@ export default async function RecordingDetailPage({ params }: Props) {
 
   const latestNote = recording.notes[0]
 
-  // Split the over-fetched segment list to detect "has more".
   const allSegments = recording.transcript?.segments ?? []
   const initialSegments = allSegments.slice(0, 100)
   const initialHasMore = allSegments.length > 100
@@ -74,33 +71,30 @@ export default async function RecordingDetailPage({ params }: Props) {
   const hasDiarization = initialSegments.some((s) => s.speaker)
 
   return (
-    <div className="mx-auto max-w-4xl p-8">
-      {/* Invisible poller — refreshes the page every 3 s while not READY/FAILED */}
+    <div className="mx-auto max-w-4xl p-4 pb-12 sm:p-8">
+      {/* Invisible poller */}
       <RecordingStatusPoller status={recording.status} />
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-brand-50">
-              <Mic2 className="h-5 w-5 text-brand-600" />
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-brand-50 sm:h-10 sm:w-10">
+              <Mic2 className="h-4 w-4 text-brand-600 sm:h-5 sm:w-5" />
             </div>
-            <h1 className="truncate text-2xl font-bold text-neutral-900">{recording.title}</h1>
+            <h1 className="text-xl font-bold text-neutral-900 sm:text-2xl">{recording.title}</h1>
           </div>
           {recording.description && (
             <p className="mt-2 text-sm text-neutral-500">{recording.description}</p>
           )}
         </div>
 
-        <div className="flex flex-shrink-0 items-center gap-2">
+        <div className="flex flex-shrink-0 flex-wrap items-center gap-2">
           <StatusBadge status={recording.status} />
           {recording.status === 'READY' && recording.transcript && (
             <>
               <GenerateEmbeddingsButton recordingId={recording.id} />
-              <AskAIPanel
-                recordingId={recording.id}
-                recordingTitle={recording.title}
-              />
+              <AskAIPanel recordingId={recording.id} recordingTitle={recording.title} />
             </>
           )}
           <DeleteRecordingButton recordingId={recording.id} />
@@ -108,7 +102,7 @@ export default async function RecordingDetailPage({ params }: Props) {
       </div>
 
       {/* Meta */}
-      <div className="mt-4 flex flex-wrap gap-4 text-sm text-neutral-500">
+      <div className="mt-3 flex flex-wrap gap-3 text-sm text-neutral-500 sm:mt-4 sm:gap-4">
         <span className="flex items-center gap-1.5">
           <Calendar className="h-4 w-4" />
           {relativeTime(recording.createdAt)}
@@ -127,7 +121,7 @@ export default async function RecordingDetailPage({ params }: Props) {
 
       {/* Processing banner */}
       {IN_PROGRESS_STATUSES.has(recording.status) && (
-        <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+        <div className="mt-5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 sm:mt-6">
           <span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-blue-500" />
           {recording.status === 'TRANSCRIBING' && 'Transcribing your recording…'}
           {recording.status === 'SUMMARIZING' && 'Generating meeting notes…'}
@@ -138,14 +132,14 @@ export default async function RecordingDetailPage({ params }: Props) {
 
       {/* Notes */}
       {latestNote && (
-        <section className="mt-8">
+        <section className="mt-7 sm:mt-8">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-brand-600" />
             <h2 className="text-lg font-semibold text-neutral-900">Meeting Notes</h2>
           </div>
 
           {latestNote.summary && (
-            <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-5">
+            <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-4 sm:p-5">
               <p className="text-sm font-medium text-neutral-700">Summary</p>
               <p className="mt-2 text-sm leading-relaxed text-neutral-600">
                 {latestNote.summary}
@@ -166,9 +160,8 @@ export default async function RecordingDetailPage({ params }: Props) {
             </div>
           )}
 
-          {/* Action items */}
           {latestNote.actionItems.length > 0 && (
-            <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-5">
+            <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-4 sm:p-5">
               <div className="mb-3 flex items-center gap-2">
                 <CheckSquare className="h-4 w-4 text-brand-600" />
                 <p className="text-sm font-semibold text-neutral-800">Action Items</p>
@@ -192,7 +185,7 @@ export default async function RecordingDetailPage({ params }: Props) {
 
       {/* Transcript */}
       {recording.transcript && (
-        <section className="mt-8">
+        <section className="mt-7 sm:mt-8">
           <h2 className="flex items-center gap-2 text-lg font-semibold text-neutral-900">
             <Mic2 className="h-5 w-5 text-brand-600" />
             Transcript
@@ -208,7 +201,7 @@ export default async function RecordingDetailPage({ params }: Props) {
             )}
           </h2>
 
-          <div className="mt-3 max-h-[500px] overflow-y-auto rounded-xl border border-neutral-200 bg-white p-5">
+          <div className="mt-3 overflow-y-auto rounded-xl border border-neutral-200 bg-white p-4 sm:p-5" style={{ maxHeight: 'min(600px, 70dvh)' }}>
             <TranscriptPaginated
               transcriptId={recording.transcript.id}
               recordingId={recording.id}
@@ -216,6 +209,7 @@ export default async function RecordingDetailPage({ params }: Props) {
               initialHasMore={initialHasMore}
               fullText={recording.transcript.text}
               speakerLabels={recording.speakerLabels}
+              duration={recording.duration}
             />
           </div>
         </section>

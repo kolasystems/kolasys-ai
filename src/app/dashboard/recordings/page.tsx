@@ -17,13 +17,11 @@ export default function RecordingsPage() {
   const [rawQuery, setRawQuery] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Debounce search input by 300 ms.
   useEffect(() => {
     const t = setTimeout(() => setSearchQuery(rawQuery.trim()), 300)
     return () => clearTimeout(t)
   }, [rawQuery])
 
-  // ── Infinite list (shown when not searching) ─────────────────────────────
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
     trpc.recordings.list.useInfiniteQuery(
       { limit: 20 },
@@ -34,13 +32,12 @@ export default function RecordingsPage() {
           const items = query.state.data?.pages.flatMap((p) => p.items) ?? []
           return items.some((r) => !TERMINAL.includes(r.status)) ? 3000 : false
         },
-      }
+      },
     )
 
-  // ── Search query (shown when query is non-empty) ───────────────────────────
   const { data: searchData, isFetching: searchFetching } = trpc.recordings.search.useQuery(
     { query: searchQuery },
-    { enabled: searchQuery.length > 0 }
+    { enabled: searchQuery.length > 0 },
   )
 
   const recordings = data?.pages.flatMap((p) => p.items) ?? []
@@ -49,7 +46,7 @@ export default function RecordingsPage() {
 
   if (error?.data?.code === 'FORBIDDEN') {
     return (
-      <div className="flex flex-col items-center justify-center p-16 text-center">
+      <div className="flex flex-col items-center justify-center p-10 text-center sm:p-16">
         <Mic2 className="mb-3 h-10 w-10 text-neutral-300" />
         <p className="text-sm font-semibold text-neutral-700">No workspace selected</p>
         <p className="mt-1 text-xs text-neutral-500">
@@ -60,19 +57,19 @@ export default function RecordingsPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Recordings</h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h1 className="text-xl font-bold text-neutral-900 sm:text-2xl">Recordings</h1>
+          <p className="mt-0.5 text-sm text-neutral-500">
             All your meeting recordings in one place.
           </p>
         </div>
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+          className="flex min-h-[44px] items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
         >
           <Plus className="h-4 w-4" />
           New Recording
@@ -80,7 +77,7 @@ export default function RecordingsPage() {
       </div>
 
       {/* Search bar */}
-      <div className="relative mt-5">
+      <div className="relative mt-4 sm:mt-5">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
         <input
           type="text"
@@ -93,7 +90,7 @@ export default function RecordingsPage() {
           <button
             type="button"
             onClick={() => { setRawQuery(''); setSearchQuery('') }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-neutral-600"
           >
             <X className="h-4 w-4" />
           </button>
@@ -103,7 +100,6 @@ export default function RecordingsPage() {
       {/* List / Search results */}
       <div className="mt-4">
         {isSearching ? (
-          // ── Search results ──────────────────────────────────────────────
           searchFetching ? (
             <ul className="space-y-2">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -129,47 +125,44 @@ export default function RecordingsPage() {
               </ul>
             </>
           )
+        ) : isLoading ? (
+          <ul className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <li key={i} className="h-16 animate-pulse rounded-xl border border-neutral-200 bg-neutral-100" />
+            ))}
+          </ul>
+        ) : recordings.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-200 py-16 text-center">
+            <Mic2 className="mb-3 h-10 w-10 text-neutral-300" />
+            <p className="text-sm font-medium text-neutral-500">No recordings yet</p>
+            <button
+              type="button"
+              onClick={() => setModalOpen(true)}
+              className="mt-4 inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+            >
+              <Plus className="h-4 w-4" />
+              New Recording
+            </button>
+          </div>
         ) : (
-          // ── Infinite list ───────────────────────────────────────────────
-          isLoading ? (
+          <>
             <ul className="space-y-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <li key={i} className="h-16 animate-pulse rounded-xl border border-neutral-200 bg-neutral-100" />
+              {recordings.map((r) => (
+                <RecordingRow key={r.id} r={r} />
               ))}
             </ul>
-          ) : recordings.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-200 py-16 text-center">
-              <Mic2 className="mb-3 h-10 w-10 text-neutral-300" />
-              <p className="text-sm font-medium text-neutral-500">No recordings yet</p>
+
+            {hasNextPage && (
               <button
                 type="button"
-                onClick={() => setModalOpen(true)}
-                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                className="mt-4 min-h-[44px] w-full rounded-lg border border-neutral-200 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 disabled:opacity-50"
               >
-                <Plus className="h-4 w-4" />
-                New Recording
+                {isFetchingNextPage ? 'Loading…' : 'Load more'}
               </button>
-            </div>
-          ) : (
-            <>
-              <ul className="space-y-2">
-                {recordings.map((r) => (
-                  <RecordingRow key={r.id} r={r} />
-                ))}
-              </ul>
-
-              {hasNextPage && (
-                <button
-                  type="button"
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                  className="mt-4 w-full rounded-lg border border-neutral-200 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 disabled:opacity-50"
-                >
-                  {isFetchingNextPage ? 'Loading…' : 'Load more'}
-                </button>
-              )}
-            </>
-          )
+            )}
+          </>
         )}
       </div>
 
@@ -194,15 +187,15 @@ function RecordingRow({ r }: { r: RowRecording }) {
     <li>
       <Link
         href={`/dashboard/recordings/${r.id}`}
-        className="flex items-center gap-4 rounded-xl border border-neutral-200 bg-white px-5 py-4 shadow-sm transition-shadow hover:shadow-md"
+        className="flex min-h-[64px] items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm transition-shadow hover:shadow-md sm:gap-4 sm:px-5"
       >
-        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-brand-50">
-          <Mic2 className="h-5 w-5 text-brand-500" />
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-brand-50 sm:h-10 sm:w-10">
+          <Mic2 className="h-4 w-4 text-brand-500 sm:h-5 sm:w-5" />
         </div>
 
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-neutral-900">{r.title}</p>
-          <div className="mt-0.5 flex items-center gap-3 text-xs text-neutral-500">
+          <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-neutral-500 sm:gap-3">
             {r.duration !== null && (
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />

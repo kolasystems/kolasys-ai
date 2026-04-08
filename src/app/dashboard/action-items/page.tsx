@@ -49,7 +49,7 @@ export default async function ActionItemsPage() {
   const completed = actionItems.filter((i) => i.status === 'COMPLETED')
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900">Action Items</h1>
