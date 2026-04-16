@@ -15,6 +15,7 @@ import {
   Settings,
   Sparkles,
   Calendar,
+  Wand2,
 } from 'lucide-react'
 import { UserButton, OrganizationSwitcher } from '@clerk/nextjs'
 import { cn } from '@/lib/utils'
@@ -26,6 +27,7 @@ const NAV_LINKS = [
   { href: '/dashboard/search', label: 'Ask AI', icon: Sparkles },
   { href: '/dashboard/calendar', label: 'Calendar', icon: Calendar },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
+  { href: '/dashboard/settings/templates', label: 'Templates', icon: Wand2 },
 ]
 
 export function MobileNav() {

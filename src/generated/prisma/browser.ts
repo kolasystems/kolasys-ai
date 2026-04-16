@@ -82,3 +82,8 @@ export type ProcessingJob = Prisma.ProcessingJobModel
  * 
  */
 export type ApiKey = Prisma.ApiKeyModel
+/**
+ * Model TranscriptEmbedding
+ * 
+ */
+export type TranscriptEmbedding = Prisma.TranscriptEmbeddingModel

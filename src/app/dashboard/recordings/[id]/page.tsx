@@ -12,6 +12,9 @@ import { TranscriptPaginated } from '@/components/transcript-paginated'
 import { RecordingStatusPoller } from '@/components/recording-status-poller'
 import { AskAIPanel } from '@/components/ask-ai-panel'
 import { GenerateEmbeddingsButton } from '@/components/generate-embeddings-button'
+import { RecordingActionsMenu } from '@/components/recording-actions-menu'
+import { GenerateWithTemplateButton } from '@/components/generate-with-template-button'
+import { NameSpeakersModal } from '@/components/name-speakers-modal'
 import { formatDuration, relativeTime } from '@/lib/utils'
 import { Mic2, Clock, Calendar, User, FileText, CheckSquare } from 'lucide-react'
 
@@ -69,6 +72,11 @@ export default async function RecordingDetailPage({ params }: Props) {
   const initialHasMore = allSegments.length > 100
 
   const hasDiarization = initialSegments.some((s) => s.speaker)
+  const uniqueSpeakerIds = Array.from(
+    new Set(initialSegments.map((s) => s.speaker).filter((s): s is string => !!s))
+  )
+  const hasTranscript = !!recording.transcript
+  const canRetranscribe = !!recording.s3Key
 
   return (
     <div className="mx-auto max-w-4xl p-4 pb-12 sm:p-8">
@@ -97,6 +105,11 @@ export default async function RecordingDetailPage({ params }: Props) {
               <AskAIPanel recordingId={recording.id} recordingTitle={recording.title} />
             </>
           )}
+          <RecordingActionsMenu
+            recordingId={recording.id}
+            hasTranscript={hasTranscript}
+            canRetranscribe={canRetranscribe}
+          />
           <DeleteRecordingButton recordingId={recording.id} />
         </div>
       </div>
@@ -133,9 +146,17 @@ export default async function RecordingDetailPage({ params }: Props) {
       {/* Notes */}
       {latestNote && (
         <section className="mt-7 sm:mt-8">
-          <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-brand-600" />
-            <h2 className="text-lg font-semibold text-neutral-900">Meeting Notes</h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-brand-600" />
+              <h2 className="text-lg font-semibold text-neutral-900">Meeting Notes</h2>
+            </div>
+            {recording.transcript && (
+              <GenerateWithTemplateButton
+                recordingId={recording.id}
+                currentTemplateId={latestNote.templateId ?? null}
+              />
+            )}
           </div>
 
           {latestNote.summary && (
@@ -186,20 +207,29 @@ export default async function RecordingDetailPage({ params }: Props) {
       {/* Transcript */}
       {recording.transcript && (
         <section className="mt-7 sm:mt-8">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-neutral-900">
-            <Mic2 className="h-5 w-5 text-brand-600" />
-            Transcript
-            {recording.transcript.language && (
-              <span className="ml-1 text-sm font-normal text-neutral-400">
-                · {recording.transcript.language}
-              </span>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-neutral-900">
+              <Mic2 className="h-5 w-5 text-brand-600" />
+              Transcript
+              {recording.transcript.language && (
+                <span className="ml-1 text-sm font-normal text-neutral-400">
+                  · {recording.transcript.language}
+                </span>
+              )}
+              {hasDiarization && (
+                <span className="ml-1 text-sm font-normal text-neutral-400">
+                  · speaker labels
+                </span>
+              )}
+            </h2>
+            {uniqueSpeakerIds.length > 0 && (
+              <NameSpeakersModal
+                recordingId={recording.id}
+                speakerIds={uniqueSpeakerIds}
+                speakerLabels={recording.speakerLabels}
+              />
             )}
-            {hasDiarization && (
-              <span className="ml-1 text-sm font-normal text-neutral-400">
-                · speaker labels
-              </span>
-            )}
-          </h2>
+          </div>
 
           <div className="mt-3 overflow-y-auto rounded-xl border border-neutral-200 bg-white p-4 sm:p-5" style={{ maxHeight: 'min(600px, 70dvh)' }}>
             <TranscriptPaginated

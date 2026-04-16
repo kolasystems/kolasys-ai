@@ -26,9 +26,13 @@ import { summarizationQueue, type TranscriptionJobData } from '@/lib/queues'
 import { JobStatus, RecordingStatus } from '@/generated/prisma/client'
 
 async function processTranscription(job: Job<TranscriptionJobData>) {
-  const { recordingId, orgId, s3Key } = job.data
+  const { recordingId, s3Key, language, quality } = job.data
 
-  console.log(`[transcription] Starting job ${job.id} for recording ${recordingId}`)
+  console.log(
+    `[transcription] Starting job ${job.id} for recording ${recordingId}` +
+      (language ? ` (lang=${language})` : '') +
+      (quality ? ` (quality=${quality})` : '')
+  )
 
   // Mark job as in-progress.
   // updateMany uses transactions internally — use findFirst + update instead.
@@ -62,7 +66,10 @@ async function processTranscription(job: Job<TranscriptionJobData>) {
   const filename = s3Key.split('/').pop() ?? 'audio.mp3'
 
   // Transcribe.
-  const result = await transcribeAudio(audioBuffer, filename)
+  const result = await transcribeAudio(audioBuffer, filename, {
+    language,
+    quality,
+  })
 
   // Persist transcript — guard against retries (Transcript.recordingId is unique).
   let transcript = await db.transcript.findUnique({

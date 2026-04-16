@@ -396,7 +396,8 @@ export const ModelName = {
   NoteComment: 'NoteComment',
   NoteTemplate: 'NoteTemplate',
   ProcessingJob: 'ProcessingJob',
-  ApiKey: 'ApiKey'
+  ApiKey: 'ApiKey',
+  TranscriptEmbedding: 'TranscriptEmbedding'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -412,7 +413,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "organization" | "orgMember" | "recording" | "transcript" | "transcriptSegment" | "speakerLabel" | "note" | "noteSection" | "actionItem" | "noteComment" | "noteTemplate" | "processingJob" | "apiKey"
+    modelProps: "organization" | "orgMember" | "recording" | "transcript" | "transcriptSegment" | "speakerLabel" | "note" | "noteSection" | "actionItem" | "noteComment" | "noteTemplate" | "processingJob" | "apiKey" | "transcriptEmbedding"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1378,6 +1379,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    TranscriptEmbedding: {
+      payload: Prisma.$TranscriptEmbeddingPayload<ExtArgs>
+      fields: Prisma.TranscriptEmbeddingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TranscriptEmbeddingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TranscriptEmbeddingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TranscriptEmbeddingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TranscriptEmbeddingPayload>
+        }
+        findFirst: {
+          args: Prisma.TranscriptEmbeddingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TranscriptEmbeddingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TranscriptEmbeddingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TranscriptEmbeddingPayload>
+        }
+        findMany: {
+          args: Prisma.TranscriptEmbeddingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TranscriptEmbeddingPayload>[]
+        }
+        create: {
+          args: Prisma.TranscriptEmbeddingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TranscriptEmbeddingPayload>
+        }
+        createMany: {
+          args: Prisma.TranscriptEmbeddingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TranscriptEmbeddingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TranscriptEmbeddingPayload>[]
+        }
+        delete: {
+          args: Prisma.TranscriptEmbeddingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TranscriptEmbeddingPayload>
+        }
+        update: {
+          args: Prisma.TranscriptEmbeddingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TranscriptEmbeddingPayload>
+        }
+        deleteMany: {
+          args: Prisma.TranscriptEmbeddingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TranscriptEmbeddingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TranscriptEmbeddingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TranscriptEmbeddingPayload>[]
+        }
+        upsert: {
+          args: Prisma.TranscriptEmbeddingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TranscriptEmbeddingPayload>
+        }
+        aggregate: {
+          args: Prisma.TranscriptEmbeddingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTranscriptEmbedding>
+        }
+        groupBy: {
+          args: Prisma.TranscriptEmbeddingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TranscriptEmbeddingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TranscriptEmbeddingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TranscriptEmbeddingCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1573,6 +1648,9 @@ export const NoteTemplateScalarFieldEnum = {
   id: 'id',
   orgId: 'orgId',
   name: 'name',
+  description: 'description',
+  prompt: 'prompt',
+  category: 'category',
   structure: 'structure',
   isDefault: 'isDefault',
   createdAt: 'createdAt',
@@ -1612,6 +1690,20 @@ export const ApiKeyScalarFieldEnum = {
 } as const
 
 export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
+
+
+export const TranscriptEmbeddingScalarFieldEnum = {
+  id: 'id',
+  orgId: 'orgId',
+  recordingId: 'recordingId',
+  chunkIndex: 'chunkIndex',
+  chunkText: 'chunkText',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  createdAt: 'createdAt'
+} as const
+
+export type TranscriptEmbeddingScalarFieldEnum = (typeof TranscriptEmbeddingScalarFieldEnum)[keyof typeof TranscriptEmbeddingScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1978,6 +2070,7 @@ export type GlobalOmitConfig = {
   noteTemplate?: Prisma.NoteTemplateOmit
   processingJob?: Prisma.ProcessingJobOmit
   apiKey?: Prisma.ApiKeyOmit
+  transcriptEmbedding?: Prisma.TranscriptEmbeddingOmit
 }
 
 /* Types for Logging */

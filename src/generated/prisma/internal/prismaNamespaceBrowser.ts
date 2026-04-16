@@ -63,7 +63,8 @@ export const ModelName = {
   NoteComment: 'NoteComment',
   NoteTemplate: 'NoteTemplate',
   ProcessingJob: 'ProcessingJob',
-  ApiKey: 'ApiKey'
+  ApiKey: 'ApiKey',
+  TranscriptEmbedding: 'TranscriptEmbedding'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -238,6 +239,9 @@ export const NoteTemplateScalarFieldEnum = {
   id: 'id',
   orgId: 'orgId',
   name: 'name',
+  description: 'description',
+  prompt: 'prompt',
+  category: 'category',
   structure: 'structure',
   isDefault: 'isDefault',
   createdAt: 'createdAt',
@@ -277,6 +281,20 @@ export const ApiKeyScalarFieldEnum = {
 } as const
 
 export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
+
+
+export const TranscriptEmbeddingScalarFieldEnum = {
+  id: 'id',
+  orgId: 'orgId',
+  recordingId: 'recordingId',
+  chunkIndex: 'chunkIndex',
+  chunkText: 'chunkText',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  createdAt: 'createdAt'
+} as const
+
+export type TranscriptEmbeddingScalarFieldEnum = (typeof TranscriptEmbeddingScalarFieldEnum)[keyof typeof TranscriptEmbeddingScalarFieldEnum]
 
 
 export const SortOrder = {

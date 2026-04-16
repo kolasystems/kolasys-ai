@@ -20,10 +20,14 @@ export const summarizationQueue = new Queue('summarization', {
   defaultJobOptions,
 })
 
+export type TranscriptionQuality = 'standard' | 'high'
+
 export type TranscriptionJobData = {
   recordingId: string
   orgId: string
   s3Key: string
+  language?: string
+  quality?: TranscriptionQuality
 }
 
 export type SummarizationJobData = {

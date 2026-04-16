@@ -254,13 +254,16 @@ model NoteComment {
 }
 
 model NoteTemplate {
-  id        String   @id @default(cuid())
-  orgId     String?  // null = global (built-in) template
-  name      String
-  structure Json     // array of { title, prompt } section definitions
-  isDefault Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  orgId       String?  // null = global (built-in) template
+  name        String
+  description String?  // short user-facing description
+  prompt      String?  // high-level system prompt prepended to section instructions
+  category    String?  // e.g. "Meeting", "Medical", "Sales"
+  structure   Json     // array of { title, prompt } section definitions
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   org   Organization? @relation(fields: [orgId], references: [id])
   notes Note[]
@@ -301,4 +304,23 @@ model ApiKey {
   org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
   @@index([orgId])
+}
+
+// pgvector-backed embeddings table. Managed at runtime by `src/lib/db-vector.ts`
+// via raw Neon SQL — declared here so `prisma db push` doesn't drop it.
+// The `embedding` column uses the `vector(1536)` type; Prisma exposes it via
+// the Unsupported escape hatch and does not read/write it directly.
+model TranscriptEmbedding {
+  id          String                          @id @default(dbgenerated("gen_random_uuid()::text"))
+  orgId       String
+  recordingId String
+  chunkIndex  Int
+  chunkText   String
+  embedding   Unsupported("vector(1536)")?
+  startTime   Float?
+  endTime     Float?
+  createdAt   DateTime?                       @default(now()) @db.Timestamptz(6)
+
+  @@index([orgId], map: "idx_te_org")
+  @@index([recordingId], map: "idx_te_recording")
 }

@@ -104,6 +104,37 @@ export default async function CalendarPage({
 
       {/* Connected — show meetings via client component (needs tRPC) */}
       {googleConfigured && isConnected && <CalendarMeetingsList />}
+
+      {/* Microsoft Outlook (coming soon) */}
+      <section className="mt-8 rounded-xl border border-neutral-200 bg-white shadow-sm">
+        <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded bg-neutral-100 text-xs font-semibold text-neutral-600"
+              aria-hidden
+            >
+              MS
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-neutral-900">Microsoft Outlook Calendar</p>
+              <p className="text-xs text-neutral-500">
+                Sync Teams and Outlook meetings. Deploy bots from your work calendar.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            disabled
+            aria-disabled
+            className="flex cursor-not-allowed items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-medium text-neutral-500"
+          >
+            Connect Microsoft
+            <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-medium text-neutral-600">
+              Coming soon
+            </span>
+          </button>
+        </div>
+      </section>
     </div>
   )
 }

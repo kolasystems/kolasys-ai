@@ -8,7 +8,7 @@ import {
   OrganizationSwitcher,
   CreateOrganization,
 } from '@clerk/nextjs'
-import { Mic2, LayoutDashboard, ListChecks, Settings, Sparkles, Calendar } from 'lucide-react'
+import { Mic2, LayoutDashboard, ListChecks, Settings, Sparkles, Calendar, Wand2 } from 'lucide-react'
 import { MobileNav } from '@/components/mobile-nav'
 
 export default async function DashboardLayout({
@@ -85,6 +85,9 @@ export default async function DashboardLayout({
           </NavLink>
           <NavLink href="/dashboard/settings" icon={<Settings className="h-4 w-4" />}>
             Settings
+          </NavLink>
+          <NavLink href="/dashboard/settings/templates" icon={<Wand2 className="h-4 w-4" />}>
+            Templates
           </NavLink>
           <NavLink href="/dashboard/settings/integrations" icon={<Settings className="h-4 w-4" />}>
             Integrations

@@ -20,6 +20,15 @@ export type TranscriptionResult = {
   segments: TranscriptSegment[]
 }
 
+export type TranscriptionOptions = {
+  language?: string
+  // 'high' asks Whisper for word-level granularity on top of segments. That
+  // costs more tokens but produces more accurate segment boundaries. Whisper
+  // only exposes one model (`whisper-1`), so quality here is expressed through
+  // the granularity setting rather than a model swap.
+  quality?: 'standard' | 'high'
+}
+
 /**
  * Transcribe an audio buffer using OpenAI Whisper.
  * Returns the full transcript text and per-segment data.
@@ -27,8 +36,12 @@ export type TranscriptionResult = {
 export async function transcribeAudio(
   audioBuffer: Buffer,
   filename: string,
-  language = 'en'
+  options: TranscriptionOptions = {}
 ): Promise<TranscriptionResult> {
+  const language = options.language ?? 'en'
+  const granularities: Array<'segment' | 'word'> =
+    options.quality === 'high' ? ['segment', 'word'] : ['segment']
+
   // Whisper expects a File-like object with a name property.
   // Wrap in Uint8Array so the buffer type is narrowed to ArrayBuffer (not SharedArrayBuffer).
   const file = new File([new Uint8Array(audioBuffer)], filename, { type: mimeTypeFromFilename(filename) })
@@ -38,7 +51,7 @@ export async function transcribeAudio(
     model: 'whisper-1',
     language,
     response_format: 'verbose_json',
-    timestamp_granularities: ['segment'],
+    timestamp_granularities: granularities,
   })
 
   const segments: TranscriptSegment[] = (response.segments ?? []).map((seg) => ({

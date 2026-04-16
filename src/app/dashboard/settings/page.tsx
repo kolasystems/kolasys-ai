@@ -2,8 +2,9 @@
 
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { db } from '@/lib/db'
-import { Settings, Building2, User, Key, CreditCard } from 'lucide-react'
+import { Building2, User, Key, CreditCard, Wand2, ArrowRight } from 'lucide-react'
 
 export const metadata = { title: 'Settings — Kolasys AI' }
 
@@ -69,11 +70,29 @@ export default async function SettingsPage() {
           </div>
         </section>
 
+        {/* Templates — live */}
+        <Link
+          href="/dashboard/settings/templates"
+          className="block rounded-xl border border-neutral-200 bg-white shadow-sm transition-colors hover:border-brand-300 hover:bg-brand-50/30"
+        >
+          <div className="flex items-center justify-between px-6 py-4">
+            <div className="flex items-center gap-3">
+              <Wand2 className="h-4 w-4 text-brand-600" />
+              <div>
+                <p className="text-sm font-semibold text-neutral-900">AI Skills &amp; Templates</p>
+                <p className="text-xs text-neutral-500">
+                  Customise the structure and tone of AI-generated notes.
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-4 w-4 text-neutral-400" />
+          </div>
+        </Link>
+
         {/* Coming soon */}
         {[
           { icon: <Key className="h-4 w-4 text-neutral-500" />, title: 'API Keys', note: 'Generate keys to access the Kolasys AI API.' },
           { icon: <CreditCard className="h-4 w-4 text-neutral-500" />, title: 'Billing', note: 'Manage your plan and payment method.' },
-          { icon: <Settings className="h-4 w-4 text-neutral-500" />, title: 'Note Templates', note: 'Customise the structure of AI-generated notes.' },
         ].map(({ icon, title, note }) => (
           <section
             key={title}
