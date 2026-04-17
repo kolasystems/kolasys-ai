@@ -8,6 +8,7 @@ import {
   RecordingStatus,
   ActionItemStatus,
   Priority,
+  JobStatus,
 } from '@/generated/prisma/client'
 import {
   generateRecordingKey,
@@ -741,6 +742,91 @@ export const recordingsRouter = router({
       })
 
       return { success: true }
+    }),
+
+  // ── Find recordings that appear stuck in an in-progress state ────────────
+  getStuckRecordings: orgProcedure
+    .input(
+      z
+        .object({ olderThanMinutes: z.number().int().min(1).max(10_080).default(30) })
+        .optional()
+        .default({ olderThanMinutes: 30 }),
+    )
+    .query(async ({ ctx, input }) => {
+      const olderThanMinutes = input?.olderThanMinutes ?? 30
+      const cutoff = new Date(Date.now() - olderThanMinutes * 60_000)
+      return ctx.db.recording.findMany({
+        where: {
+          orgId: ctx.orgId,
+          status: {
+            in: [
+              RecordingStatus.PENDING,
+              RecordingStatus.PROCESSING,
+              RecordingStatus.TRANSCRIBING,
+              RecordingStatus.SUMMARIZING,
+            ],
+          },
+          createdAt: { lt: cutoff },
+        },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          createdAt: true,
+          s3Key: true,
+        },
+      })
+    }),
+
+  // ── Re-enqueue a stuck recording ──────────────────────────────────────────
+  // Used by the "Retry" button in the stuck-banner UX. Unlike `retranscribe`
+  // this does NOT wipe existing transcript data — it only clears failed job
+  // records and kicks the worker again. Safe to call on a recording that's
+  // stuck in PENDING/PROCESSING with no transcript yet.
+  retryStuck: orgProcedure
+    .input(z.object({ recordingId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const recording = await ctx.db.recording.findFirst({
+        where: { id: input.recordingId, orgId: ctx.orgId },
+        select: { id: true, s3Key: true, orgId: true },
+      })
+      if (!recording) throw new TRPCError({ code: 'NOT_FOUND' })
+
+      if (!recording.s3Key) {
+        return {
+          success: false as const,
+          reason: 'Audio was purged, cannot retry. Please delete and re-upload.',
+        }
+      }
+
+      // Clear any failed ProcessingJob rows for this recording. HTTP mode has
+      // no deleteMany — loop one-by-one.
+      const failedJobs = await ctx.db.processingJob.findMany({
+        where: { recordingId: recording.id, status: JobStatus.FAILED },
+        select: { id: true },
+      })
+      for (const job of failedJobs) {
+        await ctx.db.processingJob.delete({ where: { id: job.id } })
+      }
+
+      await ctx.db.recording.update({
+        where: { id: recording.id },
+        data: { status: RecordingStatus.PENDING },
+      })
+
+      await transcriptionQueue.add('transcribe', {
+        recordingId: recording.id,
+        orgId: recording.orgId,
+        s3Key: recording.s3Key,
+      })
+
+      captureServerEvent(ctx.userId, 'recording_retry_stuck', {
+        recording_id: recording.id,
+        cleared_failed_jobs: failedJobs.length,
+      })
+
+      return { success: true as const }
     }),
 
   // ── TODO: Ask AI query ────────────────────────────────────────────────────

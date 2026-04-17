@@ -201,7 +201,10 @@ function RecordingRow({ r }: { r: RowRecording }) {
 
           {/* Second line: meta + status badge */}
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500">
-            <StatusBadge status={r.status as Parameters<typeof StatusBadge>[0]['status']} />
+            <StatusBadge
+              status={r.status as Parameters<typeof StatusBadge>[0]['status']}
+              createdAt={r.createdAt}
+            />
             {r.duration !== null && (
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />

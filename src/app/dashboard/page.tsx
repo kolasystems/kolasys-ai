@@ -5,8 +5,11 @@ import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { Mic2, FileText, CheckSquare, Clock } from 'lucide-react'
 import Link from 'next/link'
+import { StuckRecordingsBanner } from '@/components/stuck-recordings-banner'
 
 export const metadata: Metadata = { title: 'Dashboard' }
+
+const STUCK_THRESHOLD_MS = 30 * 60_000
 
 export default async function DashboardPage() {
   const { orgId } = await auth()
@@ -32,6 +35,18 @@ export default async function DashboardPage() {
       })
     : []
 
+  const stuckRecordings = orgId
+    ? await db.recording.findMany({
+        where: {
+          orgId,
+          status: { in: ['PENDING', 'PROCESSING', 'TRANSCRIBING', 'SUMMARIZING'] },
+          createdAt: { lt: new Date(Date.now() - STUCK_THRESHOLD_MS) },
+        },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, title: true },
+      })
+    : []
+
   const stats = [
     { label: 'Total Recordings', value: recordingCount, icon: Mic2, href: '/dashboard/recordings' },
     { label: 'Meeting Notes', value: noteCount, icon: FileText, href: '/dashboard/recordings' },
@@ -44,6 +59,10 @@ export default async function DashboardPage() {
       <p className="mt-1 text-sm text-neutral-500">
         Welcome to Kolasys AI — your AI-powered meeting intelligence hub.
       </p>
+
+      <div className="mt-5 sm:mt-6">
+        <StuckRecordingsBanner recordings={stuckRecordings} />
+      </div>
 
       {/* Stat cards */}
       <div className="mt-5 grid grid-cols-1 gap-3 sm:mt-6 sm:grid-cols-3 sm:gap-4">

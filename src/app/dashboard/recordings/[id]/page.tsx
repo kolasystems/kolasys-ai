@@ -4,8 +4,9 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
-import { StatusBadge } from '@/components/status-badge'
+import { StatusBadge, isStuck, formatStuckAge } from '@/components/status-badge'
 import { DeleteRecordingButton } from '@/components/delete-recording-button'
+import { RetryStuckButton } from '@/components/retry-stuck-button'
 import { EditableNoteSection } from '@/components/editable-note-section'
 import { EditableActionItem } from '@/components/editable-action-item'
 import { TranscriptPaginated } from '@/components/transcript-paginated'
@@ -98,7 +99,7 @@ export default async function RecordingDetailPage({ params }: Props) {
         </div>
 
         <div className="flex flex-shrink-0 flex-wrap items-center gap-2">
-          <StatusBadge status={recording.status} />
+          <StatusBadge status={recording.status} createdAt={recording.createdAt} />
           {recording.status === 'READY' && recording.transcript && (
             <>
               <GenerateEmbeddingsButton recordingId={recording.id} />
@@ -132,15 +133,35 @@ export default async function RecordingDetailPage({ params }: Props) {
         </span>
       </div>
 
-      {/* Processing banner */}
+      {/* Processing / Stuck banner */}
       {IN_PROGRESS_STATUSES.has(recording.status) && (
-        <div className="mt-5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 sm:mt-6">
-          <span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-blue-500" />
-          {recording.status === 'TRANSCRIBING' && 'Transcribing your recording…'}
-          {recording.status === 'SUMMARIZING' && 'Generating meeting notes…'}
-          {(recording.status === 'PROCESSING' || recording.status === 'PENDING') &&
-            'Processing your recording… this may take a few minutes.'}
-        </div>
+        isStuck(recording.status, recording.createdAt) ? (
+          <div className="mt-5 rounded-xl border border-amber-300 bg-amber-50 p-4 sm:mt-6">
+            <div className="flex items-start gap-3">
+              <span aria-hidden className="mt-0.5 text-lg leading-none">⚠</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-amber-900">
+                  This recording appears stuck
+                </p>
+                <p className="mt-1 text-sm text-amber-800">
+                  Stuck for {formatStuckAge(recording.createdAt)}. The transcription worker may have failed silently.
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <RetryStuckButton recordingId={recording.id} />
+                  <DeleteRecordingButton recordingId={recording.id} />
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 sm:mt-6">
+            <span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-blue-500" />
+            {recording.status === 'TRANSCRIBING' && 'Transcribing your recording…'}
+            {recording.status === 'SUMMARIZING' && 'Generating meeting notes…'}
+            {(recording.status === 'PROCESSING' || recording.status === 'PENDING') &&
+              'Processing your recording… this may take a few minutes.'}
+          </div>
+        )
       )}
 
       {/* Notes */}
