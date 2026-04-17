@@ -1,0 +1,30 @@
+# Kolasys AI — Railway deployment for background workers.
+#
+# The Next.js app is deployed on Vercel; Railway only runs the long-lived
+# BullMQ workers (Vercel can't run processes that exceed its function timeout).
+#
+# Two services are declared here — one per worker. Railway reads this file on
+# deploy; each service is built with Nixpacks (auto-detects Node + installs
+# dependencies from package.json) and started with the per-service
+# startCommand. restartPolicyType = "always" auto-restarts the process if it
+# crashes or exits for any reason.
+
+[[services]]
+name = "transcription-worker"
+
+[services.build]
+builder = "NIXPACKS"
+
+[services.deploy]
+startCommand = "npx tsx src/workers/transcription.worker.ts"
+restartPolicyType = "always"
+
+[[services]]
+name = "summarization-worker"
+
+[services.build]
+builder = "NIXPACKS"
+
+[services.deploy]
+startCommand = "npx tsx src/workers/summarization.worker.ts"
+restartPolicyType = "always"

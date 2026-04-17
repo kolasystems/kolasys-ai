@@ -285,10 +285,54 @@ worker.on('error', (err) => {
   Sentry.captureException(err, { tags: { worker: 'transcription', phase: 'worker_error' } })
 })
 
+// ─── Health check / heartbeat ───────────────────────────────────────────────
+// Railway doesn't expose an HTTP health check for worker-style services, so we
+// log every 60s instead. Counters are kept in-process (reset on restart).
+
+let jobsProcessed = 0
+let lastJobId: string | null = null
+
+worker.on('completed', (job) => {
+  jobsProcessed += 1
+  lastJobId = String(job.id)
+})
+
+const heartbeatInterval = setInterval(() => {
+  console.log(
+    `[transcription] alive — processed ${jobsProcessed} jobs, last job: ${lastJobId ?? 'none'}`
+  )
+}, 60_000)
+// If the process is otherwise idle, don't let the heartbeat keep it alive
+// past shutdown signals.
+heartbeatInterval.unref()
+
 console.log('[transcription] Worker started')
 
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  await worker.close()
+// ─── Graceful shutdown ──────────────────────────────────────────────────────
+// On SIGTERM (Railway redeploys) or SIGINT (local Ctrl-C) we stop the
+// heartbeat and wait for BullMQ to drain — worker.close() resolves once all
+// active jobs complete, so in-flight transcription work is never killed mid-run.
+
+let shuttingDown = false
+
+async function shutdown(signal: string) {
+  if (shuttingDown) return
+  shuttingDown = true
+  console.log(`[transcription] shutting down gracefully (${signal})`)
+  clearInterval(heartbeatInterval)
+  try {
+    await worker.close()
+  } catch (err) {
+    console.error('[transcription] Error during worker.close():', err)
+    Sentry.captureException(err, { tags: { worker: 'transcription', phase: 'shutdown' } })
+  }
+  try {
+    await Sentry.close(2000)
+  } catch {
+    /* noop */
+  }
   process.exit(0)
-})
+}
+
+process.on('SIGTERM', () => void shutdown('SIGTERM'))
+process.on('SIGINT', () => void shutdown('SIGINT'))
