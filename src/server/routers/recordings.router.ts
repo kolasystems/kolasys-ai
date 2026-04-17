@@ -9,7 +9,13 @@ import {
   ActionItemStatus,
   Priority,
 } from '@/generated/prisma/client'
-import { generateRecordingKey, getSignedUploadUrl, deleteFromS3 } from '@/lib/storage'
+import {
+  generateRecordingKey,
+  getSignedUploadUrl,
+  getSignedDownloadUrl,
+  deleteFromS3,
+  objectExists,
+} from '@/lib/storage'
 import { transcriptionQueue, summarizationQueue } from '@/lib/queues'
 import { deployBot } from '@/services/meetingbot.service'
 import { captureServerEvent } from '@/lib/posthog'
@@ -199,6 +205,27 @@ export const recordingsRouter = router({
       })
 
       return { url, key }
+    }),
+
+  // ── Get a pre-signed S3 download URL for the audio file ──────────────────
+  // Returns { url: null } if the recording never had audio or the audio file
+  // has already been purged (privacy-by-design: audio is deleted after
+  // transcription completes). The signed URL is valid for one hour.
+  getAudioUrl: orgProcedure
+    .input(z.object({ recordingId: z.string() }))
+    .query(async ({ ctx, input }): Promise<{ url: string | null }> => {
+      const recording = await ctx.db.recording.findFirst({
+        where: { id: input.recordingId, orgId: ctx.orgId },
+        select: { id: true, s3Key: true },
+      })
+      if (!recording) throw new TRPCError({ code: 'NOT_FOUND' })
+      if (!recording.s3Key) return { url: null }
+
+      const exists = await objectExists(recording.s3Key)
+      if (!exists) return { url: null }
+
+      const url = await getSignedDownloadUrl(recording.s3Key, 3600)
+      return { url }
     }),
 
   // ── Mark upload complete and enqueue transcription ────────────────────────

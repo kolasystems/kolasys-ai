@@ -4,6 +4,7 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
+  HeadObjectCommand,
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
@@ -60,4 +61,15 @@ export async function getSignedUploadUrl(
 
 export async function deleteFromS3(key: string): Promise<void> {
   await s3.send(new DeleteObjectCommand({ Bucket: BUCKET, Key: key }))
+}
+
+// Check whether an object actually exists at the given key. Used to distinguish
+// "audio was uploaded then purged after transcription" from "still available".
+export async function objectExists(key: string): Promise<boolean> {
+  try {
+    await s3.send(new HeadObjectCommand({ Bucket: BUCKET, Key: key }))
+    return true
+  } catch {
+    return false
+  }
 }
