@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { db } from '@/lib/db'
 import { Building2, User, Key, CreditCard, Wand2, ArrowRight } from 'lucide-react'
+import { AudioRetentionToggle } from '@/components/audio-retention-toggle'
 
 export const metadata = { title: 'Settings — Kolasys AI' }
 
@@ -16,7 +17,14 @@ export default async function SettingsPage() {
     currentUser(),
     db.organization.findFirst({
       where: { clerkOrgId },
-      select: { id: true, name: true, slug: true, plan: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        plan: true,
+        createdAt: true,
+        deleteAudioAfterTranscription: true,
+      },
     }),
   ])
 
@@ -69,6 +77,11 @@ export default async function SettingsPage() {
             />
           </div>
         </section>
+
+        {/* Audio retention */}
+        <AudioRetentionToggle
+          initialDeleteAfterTranscription={org?.deleteAudioAfterTranscription ?? false}
+        />
 
         {/* Templates — live */}
         <Link

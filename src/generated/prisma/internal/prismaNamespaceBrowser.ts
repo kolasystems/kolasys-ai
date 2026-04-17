@@ -92,6 +92,7 @@ export const OrganizationScalarFieldEnum = {
   slackWebhookUrl: 'slackWebhookUrl',
   notionApiKey: 'notionApiKey',
   notionDatabaseId: 'notionDatabaseId',
+  deleteAudioAfterTranscription: 'deleteAudioAfterTranscription',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -86,6 +86,10 @@ model Organization {
   slackWebhookUrl  String?
   notionApiKey     String?
   notionDatabaseId String?
+  // Audio retention — when true, the transcription worker deletes the S3
+  // audio file after transcription completes. Default is false (keep audio)
+  // so users can re-transcribe and play back recordings from the detail view.
+  deleteAudioAfterTranscription Boolean @default(false)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 

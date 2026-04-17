@@ -1501,6 +1501,7 @@ export const OrganizationScalarFieldEnum = {
   slackWebhookUrl: 'slackWebhookUrl',
   notionApiKey: 'notionApiKey',
   notionDatabaseId: 'notionDatabaseId',
+  deleteAudioAfterTranscription: 'deleteAudioAfterTranscription',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1789,6 +1790,13 @@ export type ListEnumPlanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -1883,13 +1891,6 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
-
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 

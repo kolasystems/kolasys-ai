@@ -33,6 +33,7 @@ export type OrganizationMinAggregateOutputType = {
   slackWebhookUrl: string | null
   notionApiKey: string | null
   notionDatabaseId: string | null
+  deleteAudioAfterTranscription: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,6 +47,7 @@ export type OrganizationMaxAggregateOutputType = {
   slackWebhookUrl: string | null
   notionApiKey: string | null
   notionDatabaseId: string | null
+  deleteAudioAfterTranscription: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -59,6 +61,7 @@ export type OrganizationCountAggregateOutputType = {
   slackWebhookUrl: number
   notionApiKey: number
   notionDatabaseId: number
+  deleteAudioAfterTranscription: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -74,6 +77,7 @@ export type OrganizationMinAggregateInputType = {
   slackWebhookUrl?: true
   notionApiKey?: true
   notionDatabaseId?: true
+  deleteAudioAfterTranscription?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -87,6 +91,7 @@ export type OrganizationMaxAggregateInputType = {
   slackWebhookUrl?: true
   notionApiKey?: true
   notionDatabaseId?: true
+  deleteAudioAfterTranscription?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -100,6 +105,7 @@ export type OrganizationCountAggregateInputType = {
   slackWebhookUrl?: true
   notionApiKey?: true
   notionDatabaseId?: true
+  deleteAudioAfterTranscription?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -186,6 +192,7 @@ export type OrganizationGroupByOutputType = {
   slackWebhookUrl: string | null
   notionApiKey: string | null
   notionDatabaseId: string | null
+  deleteAudioAfterTranscription: boolean
   createdAt: Date
   updatedAt: Date
   _count: OrganizationCountAggregateOutputType | null
@@ -220,6 +227,7 @@ export type OrganizationWhereInput = {
   slackWebhookUrl?: Prisma.StringNullableFilter<"Organization"> | string | null
   notionApiKey?: Prisma.StringNullableFilter<"Organization"> | string | null
   notionDatabaseId?: Prisma.StringNullableFilter<"Organization"> | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFilter<"Organization"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -237,6 +245,7 @@ export type OrganizationOrderByWithRelationInput = {
   slackWebhookUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   notionApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   notionDatabaseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  deleteAudioAfterTranscription?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   members?: Prisma.OrgMemberOrderByRelationAggregateInput
@@ -257,6 +266,7 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   slackWebhookUrl?: Prisma.StringNullableFilter<"Organization"> | string | null
   notionApiKey?: Prisma.StringNullableFilter<"Organization"> | string | null
   notionDatabaseId?: Prisma.StringNullableFilter<"Organization"> | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFilter<"Organization"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -274,6 +284,7 @@ export type OrganizationOrderByWithAggregationInput = {
   slackWebhookUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   notionApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   notionDatabaseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  deleteAudioAfterTranscription?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationCountOrderByAggregateInput
@@ -293,6 +304,7 @@ export type OrganizationScalarWhereWithAggregatesInput = {
   slackWebhookUrl?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
   notionApiKey?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
   notionDatabaseId?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolWithAggregatesFilter<"Organization"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
 }
@@ -306,6 +318,7 @@ export type OrganizationCreateInput = {
   slackWebhookUrl?: string | null
   notionApiKey?: string | null
   notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -323,6 +336,7 @@ export type OrganizationUncheckedCreateInput = {
   slackWebhookUrl?: string | null
   notionApiKey?: string | null
   notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -340,6 +354,7 @@ export type OrganizationUpdateInput = {
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -357,6 +372,7 @@ export type OrganizationUncheckedUpdateInput = {
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -374,6 +390,7 @@ export type OrganizationCreateManyInput = {
   slackWebhookUrl?: string | null
   notionApiKey?: string | null
   notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -387,6 +404,7 @@ export type OrganizationUpdateManyMutationInput = {
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -400,6 +418,7 @@ export type OrganizationUncheckedUpdateManyInput = {
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -413,6 +432,7 @@ export type OrganizationCountOrderByAggregateInput = {
   slackWebhookUrl?: Prisma.SortOrder
   notionApiKey?: Prisma.SortOrder
   notionDatabaseId?: Prisma.SortOrder
+  deleteAudioAfterTranscription?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -426,6 +446,7 @@ export type OrganizationMaxOrderByAggregateInput = {
   slackWebhookUrl?: Prisma.SortOrder
   notionApiKey?: Prisma.SortOrder
   notionDatabaseId?: Prisma.SortOrder
+  deleteAudioAfterTranscription?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -439,6 +460,7 @@ export type OrganizationMinOrderByAggregateInput = {
   slackWebhookUrl?: Prisma.SortOrder
   notionApiKey?: Prisma.SortOrder
   notionDatabaseId?: Prisma.SortOrder
+  deleteAudioAfterTranscription?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -463,6 +485,10 @@ export type EnumPlanFieldUpdateOperationsInput = {
 
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -536,6 +562,7 @@ export type OrganizationCreateWithoutMembersInput = {
   slackWebhookUrl?: string | null
   notionApiKey?: string | null
   notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
@@ -552,6 +579,7 @@ export type OrganizationUncheckedCreateWithoutMembersInput = {
   slackWebhookUrl?: string | null
   notionApiKey?: string | null
   notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
@@ -584,6 +612,7 @@ export type OrganizationUpdateWithoutMembersInput = {
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
@@ -600,6 +629,7 @@ export type OrganizationUncheckedUpdateWithoutMembersInput = {
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
@@ -616,6 +646,7 @@ export type OrganizationCreateWithoutRecordingsInput = {
   slackWebhookUrl?: string | null
   notionApiKey?: string | null
   notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -632,6 +663,7 @@ export type OrganizationUncheckedCreateWithoutRecordingsInput = {
   slackWebhookUrl?: string | null
   notionApiKey?: string | null
   notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -664,6 +696,7 @@ export type OrganizationUpdateWithoutRecordingsInput = {
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -680,6 +713,7 @@ export type OrganizationUncheckedUpdateWithoutRecordingsInput = {
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -696,6 +730,7 @@ export type OrganizationCreateWithoutTemplatesInput = {
   slackWebhookUrl?: string | null
   notionApiKey?: string | null
   notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -712,6 +747,7 @@ export type OrganizationUncheckedCreateWithoutTemplatesInput = {
   slackWebhookUrl?: string | null
   notionApiKey?: string | null
   notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -744,6 +780,7 @@ export type OrganizationUpdateWithoutTemplatesInput = {
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -760,6 +797,7 @@ export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -776,6 +814,7 @@ export type OrganizationCreateWithoutApiKeysInput = {
   slackWebhookUrl?: string | null
   notionApiKey?: string | null
   notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -792,6 +831,7 @@ export type OrganizationUncheckedCreateWithoutApiKeysInput = {
   slackWebhookUrl?: string | null
   notionApiKey?: string | null
   notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -824,6 +864,7 @@ export type OrganizationUpdateWithoutApiKeysInput = {
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -840,6 +881,7 @@ export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -914,6 +956,7 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   slackWebhookUrl?: boolean
   notionApiKey?: boolean
   notionDatabaseId?: boolean
+  deleteAudioAfterTranscription?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
@@ -932,6 +975,7 @@ export type OrganizationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   slackWebhookUrl?: boolean
   notionApiKey?: boolean
   notionDatabaseId?: boolean
+  deleteAudioAfterTranscription?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -945,6 +989,7 @@ export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   slackWebhookUrl?: boolean
   notionApiKey?: boolean
   notionDatabaseId?: boolean
+  deleteAudioAfterTranscription?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -958,11 +1003,12 @@ export type OrganizationSelectScalar = {
   slackWebhookUrl?: boolean
   notionApiKey?: boolean
   notionDatabaseId?: boolean
+  deleteAudioAfterTranscription?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
 export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
   recordings?: boolean | Prisma.Organization$recordingsArgs<ExtArgs>
@@ -990,6 +1036,7 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     slackWebhookUrl: string | null
     notionApiKey: string | null
     notionDatabaseId: string | null
+    deleteAudioAfterTranscription: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["organization"]>
@@ -1427,6 +1474,7 @@ export interface OrganizationFieldRefs {
   readonly slackWebhookUrl: Prisma.FieldRef<"Organization", 'String'>
   readonly notionApiKey: Prisma.FieldRef<"Organization", 'String'>
   readonly notionDatabaseId: Prisma.FieldRef<"Organization", 'String'>
+  readonly deleteAudioAfterTranscription: Prisma.FieldRef<"Organization", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Organization", 'DateTime'>
 }

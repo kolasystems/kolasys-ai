@@ -497,10 +497,6 @@ export type NoteUncheckedUpdateManyWithoutRecordingNestedInput = {
   deleteMany?: Prisma.NoteScalarWhereInput | Prisma.NoteScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type NoteCreateNestedOneWithoutSectionsInput = {
   create?: Prisma.XOR<Prisma.NoteCreateWithoutSectionsInput, Prisma.NoteUncheckedCreateWithoutSectionsInput>
   connectOrCreate?: Prisma.NoteCreateOrConnectWithoutSectionsInput

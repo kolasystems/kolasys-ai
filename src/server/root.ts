@@ -7,6 +7,7 @@ import { searchRouter } from './routers/search.router'
 import { calendarRouter } from './routers/calendar.router'
 import { integrationsRouter } from './routers/integrations.router'
 import { templatesRouter } from './routers/templates.router'
+import { settingsRouter } from './routers/settings.router'
 
 export const appRouter = router({
   recordings: recordingsRouter,
@@ -14,6 +15,7 @@ export const appRouter = router({
   calendar: calendarRouter,
   integrations: integrationsRouter,
   templates: templatesRouter,
+  settings: settingsRouter,
 })
 
 export type AppRouter = typeof appRouter

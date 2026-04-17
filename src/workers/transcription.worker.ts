@@ -167,16 +167,31 @@ async function processTranscription(job: Job<TranscriptionJobData>) {
     }
   }
 
-  // Delete the S3 audio file — privacy by design, audio is not kept after transcription.
-  try {
-    await deleteFromS3(s3Key)
-  } catch (err) {
-    // Log but don't fail the job — transcript is already saved.
-    console.error(`[transcription] Failed to delete S3 object ${s3Key}:`, err)
-    Sentry.captureException(err, {
-      tags: { worker: 'transcription', phase: 's3_delete' },
-      extra: { recordingId, s3Key },
+  // Audio retention — the org chooses whether to keep the audio file or purge
+  // it after transcription. Default is keep (Organization.deleteAudioAfterTranscription
+  // defaults to false), which enables playback + re-transcribe in the UI.
+  // Orgs that need the stricter privacy posture can flip the toggle in settings.
+  const org = await db.recording
+    .findUnique({
+      where: { id: recordingId },
+      select: { org: { select: { deleteAudioAfterTranscription: true } } },
     })
+    .then((r) => r?.org ?? null)
+
+  if (org?.deleteAudioAfterTranscription) {
+    try {
+      await deleteFromS3(s3Key)
+      console.log(`[transcription] Deleted S3 audio for ${recordingId} (retention OFF)`)
+    } catch (err) {
+      // Log but don't fail the job — transcript is already saved.
+      console.error(`[transcription] Failed to delete S3 object ${s3Key}:`, err)
+      Sentry.captureException(err, {
+        tags: { worker: 'transcription', phase: 's3_delete' },
+        extra: { recordingId, s3Key },
+      })
+    }
+  } else {
+    console.log(`[transcription] Keeping S3 audio for ${recordingId} (retention ON)`)
   }
 
   // Update recording duration if available.
