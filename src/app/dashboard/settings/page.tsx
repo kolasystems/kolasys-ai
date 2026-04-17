@@ -33,22 +33,22 @@ export default async function SettingsPage() {
     : 0
 
   return (
-    <div className="p-4 sm:p-8 max-w-2xl">
+    <div className="max-w-2xl p-4 dark:bg-[#0F0F13] sm:p-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-neutral-900">Settings</h1>
-        <p className="mt-1 text-sm text-neutral-500">
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Settings</h1>
+        <p className="mt-1 text-sm text-neutral-500 dark:text-gray-400">
           Manage your workspace and account preferences.
         </p>
       </div>
 
       <div className="space-y-6">
         {/* Workspace */}
-        <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
-          <div className="flex items-center gap-3 border-b border-neutral-100 px-6 py-4">
-            <Building2 className="h-4 w-4 text-neutral-500" />
-            <h2 className="text-sm font-semibold text-neutral-900">Workspace</h2>
+        <section className="rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#1A1A24]">
+          <div className="flex items-center gap-3 border-b border-neutral-100 px-6 py-4 dark:border-white/10">
+            <Building2 className="h-4 w-4 text-neutral-500 dark:text-gray-400" />
+            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">Workspace</h2>
           </div>
-          <div className="divide-y divide-neutral-100">
+          <div className="divide-y divide-neutral-100 dark:divide-white/10">
             <Row label="Name" value={org?.name ?? '—'} />
             <Row label="Slug" value={org?.slug ?? '—'} />
             <Row label="Plan" value={org?.plan ?? '—'} />
@@ -61,12 +61,12 @@ export default async function SettingsPage() {
         </section>
 
         {/* Account */}
-        <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
-          <div className="flex items-center gap-3 border-b border-neutral-100 px-6 py-4">
-            <User className="h-4 w-4 text-neutral-500" />
-            <h2 className="text-sm font-semibold text-neutral-900">Account</h2>
+        <section className="rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#1A1A24]">
+          <div className="flex items-center gap-3 border-b border-neutral-100 px-6 py-4 dark:border-white/10">
+            <User className="h-4 w-4 text-neutral-500 dark:text-gray-400" />
+            <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">Account</h2>
           </div>
-          <div className="divide-y divide-neutral-100">
+          <div className="divide-y divide-neutral-100 dark:divide-white/10">
             <Row
               label="Name"
               value={[user?.firstName, user?.lastName].filter(Boolean).join(' ') || '—'}
@@ -86,40 +86,40 @@ export default async function SettingsPage() {
         {/* Templates — live */}
         <Link
           href="/dashboard/settings/templates"
-          className="block rounded-xl border border-neutral-200 bg-white shadow-sm transition-colors hover:border-brand-300 hover:bg-brand-50/30"
+          className="block rounded-xl border border-neutral-200 bg-white shadow-sm transition-colors hover:border-brand-300 hover:bg-brand-50/30 dark:border-white/10 dark:bg-[#1A1A24] dark:hover:border-accent/50 dark:hover:bg-accent/10"
         >
           <div className="flex items-center justify-between px-6 py-4">
             <div className="flex items-center gap-3">
-              <Wand2 className="h-4 w-4 text-brand-600" />
+              <Wand2 className="h-4 w-4 text-brand-600 dark:text-accent" />
               <div>
-                <p className="text-sm font-semibold text-neutral-900">AI Skills &amp; Templates</p>
-                <p className="text-xs text-neutral-500">
+                <p className="text-sm font-semibold text-neutral-900 dark:text-white">AI Skills &amp; Templates</p>
+                <p className="text-xs text-neutral-500 dark:text-gray-400">
                   Customise the structure and tone of AI-generated notes.
                 </p>
               </div>
             </div>
-            <ArrowRight className="h-4 w-4 text-neutral-400" />
+            <ArrowRight className="h-4 w-4 text-neutral-400 dark:text-gray-500" />
           </div>
         </Link>
 
         {/* Coming soon */}
         {[
-          { icon: <Key className="h-4 w-4 text-neutral-500" />, title: 'API Keys', note: 'Generate keys to access the Kolasys AI API.' },
-          { icon: <CreditCard className="h-4 w-4 text-neutral-500" />, title: 'Billing', note: 'Manage your plan and payment method.' },
+          { icon: <Key className="h-4 w-4 text-neutral-500 dark:text-gray-400" />, title: 'API Keys', note: 'Generate keys to access the Kolasys AI API.' },
+          { icon: <CreditCard className="h-4 w-4 text-neutral-500 dark:text-gray-400" />, title: 'Billing', note: 'Manage your plan and payment method.' },
         ].map(({ icon, title, note }) => (
           <section
             key={title}
-            className="rounded-xl border border-neutral-200 bg-white shadow-sm opacity-60"
+            className="rounded-xl border border-neutral-200 bg-white opacity-60 shadow-sm dark:border-white/10 dark:bg-[#1A1A24]"
           >
             <div className="flex items-center justify-between px-6 py-4">
               <div className="flex items-center gap-3">
                 {icon}
                 <div>
-                  <p className="text-sm font-semibold text-neutral-900">{title}</p>
-                  <p className="text-xs text-neutral-500">{note}</p>
+                  <p className="text-sm font-semibold text-neutral-900 dark:text-white">{title}</p>
+                  <p className="text-xs text-neutral-500 dark:text-gray-400">{note}</p>
                 </div>
               </div>
-              <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-500">
+              <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-500 dark:bg-white/10 dark:text-gray-300">
                 Coming soon
               </span>
             </div>
@@ -133,8 +133,8 @@ export default async function SettingsPage() {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between px-6 py-3">
-      <span className="text-xs font-medium text-neutral-500">{label}</span>
-      <span className="text-sm text-neutral-900">{value}</span>
+      <span className="text-xs font-medium text-neutral-500 dark:text-gray-400">{label}</span>
+      <span className="text-sm text-neutral-900 dark:text-white">{value}</span>
     </div>
   )
 }

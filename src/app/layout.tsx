@@ -22,6 +22,18 @@ export const metadata: Metadata = {
   description: 'AI-powered meeting notes, transcription, and action items.',
 }
 
+// Inline pre-hydration script — reads localStorage ("kolasys-theme") and
+// applies the `dark` class to <html> before the first paint so users never
+// see a flash of the wrong theme on reload or across navigations.
+const themeInitScript = `
+(function() {
+  try {
+    var theme = localStorage.getItem('kolasys-theme');
+    if (theme === 'dark') document.documentElement.classList.add('dark');
+  } catch(e) {}
+})();
+`
+
 export default function RootLayout({
   children,
 }: {
@@ -30,6 +42,9 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
+        <head>
+          <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        </head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <TRPCReactProvider>
             <PostHogProvider>

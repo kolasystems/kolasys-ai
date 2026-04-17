@@ -19,77 +19,75 @@ import {
 } from 'lucide-react'
 import { UserButton, OrganizationSwitcher } from '@clerk/nextjs'
 import { cn } from '@/lib/utils'
+import { DarkModeToggle } from './dark-mode-toggle'
 
 const NAV_LINKS = [
-  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, exact: true },
   { href: '/dashboard/recordings', label: 'Recordings', icon: Mic2 },
   { href: '/dashboard/action-items', label: 'Action Items', icon: ListChecks },
   { href: '/dashboard/search', label: 'Ask AI', icon: Sparkles },
   { href: '/dashboard/calendar', label: 'Calendar', icon: Calendar },
-  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
+  { href: '/dashboard/settings', label: 'Settings', icon: Settings, exact: true },
   { href: '/dashboard/settings/templates', label: 'Templates', icon: Wand2 },
 ]
 
 export function MobileNav() {
   const [open, setOpen] = useState(false)
-  const pathname = usePathname()
+  const pathname = usePathname() ?? ''
 
   return (
     <>
-      {/*
-        Top bar: flex row with hamburger, brand, and user avatar.
-        Hidden at lg+ (desktop uses the persistent sidebar instead).
-      */}
-      <div className="flex flex-shrink-0 items-center justify-between border-b border-neutral-200 bg-white px-4 py-3 lg:hidden">
+      {/* Top bar */}
+      <div className="flex flex-shrink-0 items-center justify-between border-b border-line bg-surface/80 px-4 py-3 backdrop-blur-md lg:hidden">
         <div className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="rounded-md p-2 text-neutral-600 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
+            className="rounded-md p-2 text-secondary transition-colors hover:bg-[color-mix(in_srgb,var(--text-muted)_10%,transparent)]"
             aria-label="Open navigation menu"
           >
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
-            <Mic2 className="h-4 w-4 text-brand-600" />
-            <span className="text-sm font-semibold tracking-tight">Kolasys AI</span>
+            <Mic2 className="h-4 w-4 text-accent" />
+            <span className="logo-glow text-sm font-semibold tracking-tight text-primary">
+              Kolasys AI
+            </span>
           </div>
         </div>
-        <UserButton
-          appearance={{ elements: { userButtonAvatarBox: 'h-8 w-8' } }}
-        />
+        <div className="flex items-center gap-1.5">
+          <DarkModeToggle compact />
+          <UserButton appearance={{ elements: { userButtonAvatarBox: 'h-8 w-8' } }} />
+        </div>
       </div>
 
-      {/* Drawer overlay — rendered into a portal via fixed positioning */}
       {open && (
         <div className="fixed inset-0 z-50 flex">
-          {/* Dark backdrop — tap to close */}
           <div
             className="absolute inset-0 bg-black/50"
             onClick={() => setOpen(false)}
             aria-hidden
           />
 
-          {/* Sidebar panel */}
-          <div className="relative flex w-72 max-w-[85vw] flex-col bg-white shadow-2xl">
-            {/* Panel header */}
-            <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-4">
+          <div className="relative flex w-72 max-w-[85vw] flex-col bg-sidebar-gradient shadow-2xl">
+            <div className="flex items-center justify-between border-b border-line px-4 py-4">
               <div className="flex items-center gap-2">
-                <Mic2 className="h-5 w-5 text-brand-600" />
-                <span className="text-sm font-semibold tracking-tight">Kolasys AI</span>
+                <Mic2 className="h-5 w-5 text-accent" />
+                <span className="logo-glow text-sm font-semibold tracking-tight text-primary">
+                  Kolasys AI
+                </span>
               </div>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-md p-2 text-neutral-500 hover:bg-neutral-100 active:bg-neutral-200 transition-colors"
+                className="rounded-md p-2 text-secondary transition-colors hover:bg-[color-mix(in_srgb,var(--text-muted)_10%,transparent)]"
                 aria-label="Close navigation menu"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Org switcher */}
-            <div className="border-b border-neutral-200 px-4 py-3">
+            <div className="border-b border-line px-4 py-3">
               <OrganizationSwitcher
                 hidePersonal
                 afterCreateOrganizationUrl="/dashboard"
@@ -98,45 +96,51 @@ export function MobileNav() {
                   elements: {
                     rootBox: 'w-full',
                     organizationSwitcherTrigger:
-                      'w-full rounded-lg px-2 py-1.5 text-sm hover:bg-neutral-100 justify-start',
+                      'w-full rounded-lg px-2 py-1.5 text-sm hover:bg-[color-mix(in_srgb,var(--text-muted)_10%,transparent)] justify-start',
                   },
                 }}
               />
             </div>
 
-            {/* Nav links */}
             <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-              {NAV_LINKS.map(({ href, label, icon: Icon }) => {
-                const active =
-                  href === '/dashboard'
-                    ? pathname === '/dashboard'
-                    : pathname.startsWith(href)
+              {NAV_LINKS.map(({ href, label, icon: Icon, exact }) => {
+                const active = exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`)
                 return (
                   <Link
                     key={href}
                     href={href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      'flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                      'relative flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
                       active
-                        ? 'bg-brand-50 text-brand-700'
-                        : 'text-neutral-700 hover:bg-neutral-100 active:bg-neutral-200',
+                        ? 'glass-subtle text-primary'
+                        : 'text-secondary hover:bg-[color-mix(in_srgb,var(--text-muted)_10%,transparent)] hover:text-primary',
                     )}
                   >
-                    <Icon
-                      className={cn('h-4 w-4 flex-shrink-0', active ? 'text-brand-600' : 'text-neutral-400')}
-                    />
+                    {active && (
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-accent"
+                        style={{ boxShadow: '0 0 12px var(--accent)' }}
+                      />
+                    )}
+                    <Icon className={cn('h-4 w-4 flex-shrink-0', active ? 'text-accent' : 'text-muted')} />
                     {label}
                   </Link>
                 )
               })}
             </nav>
 
-            {/* User */}
-            <div className="border-t border-neutral-200 p-4">
-              <UserButton
-                appearance={{ elements: { userButtonAvatarBox: 'h-8 w-8' } }}
-              />
+            <div className="border-t border-line p-3">
+              <DarkModeToggle />
+            </div>
+
+            <div className="border-t border-line p-4">
+              <div className="inline-flex rounded-full bg-gradient-to-tr from-[#667eea] via-[#5B8DEF] to-[#f093fb] p-[2px]">
+                <div className="rounded-full bg-surface p-0.5">
+                  <UserButton appearance={{ elements: { userButtonAvatarBox: 'h-8 w-8' } }} />
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -2,8 +2,15 @@
 
 @import "tailwindcss";
 
+/* ── Dark mode variant ────────────────────────────────────────────────────
+ * Enables `dark:…` utilities. A `.dark` class on <html> (set by the theme
+ * toggle + pre-hydration script) flips the whole UI.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Tailwind theme (colors, fonts, radii) ───────────────────────────────── */
 @theme {
-  /* ── Brand palette (blue-indigo) ─────────────────────────────────────── */
+  /* Brand palette — blue-indigo (same both modes) */
   --color-brand-50:  oklch(0.971 0.013 262);
   --color-brand-100: oklch(0.931 0.027 262);
   --color-brand-200: oklch(0.876 0.055 262);
@@ -16,11 +23,14 @@
   --color-brand-900: oklch(0.323 0.110 262);
   --color-brand-950: oklch(0.223 0.075 262);
 
-  /* ── Typography ─────────────────────────────────────────────────────── */
+  /* Accent — same colour both modes */
+  --color-accent: #5B8DEF;
+
+  /* Typography */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "Cascadia Code", monospace;
 
-  /* ── Spacing / radius ───────────────────────────────────────────────── */
+  /* Radii */
   --radius-sm:  0.375rem;
   --radius-md:  0.5rem;
   --radius-lg:  0.75rem;
@@ -28,10 +38,209 @@
   --radius-2xl: 1.5rem;
 }
 
+/* ── Semantic colour tokens that flip per-mode ────────────────────────────
+ * These are real CSS custom properties rather than @theme values so the
+ * same property name resolves to different colours based on .dark. Utility
+ * classes in the @utility block below consume them.
+ */
+:root {
+  --bg: #F8F9FC;
+  --surface: #FFFFFF;
+  --border: #E5E7EB;
+  --accent: #5B8DEF;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+
+  /* Glass values */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.06);
+
+  /* Gradient for the sidebar */
+  --sidebar-gradient: linear-gradient(180deg, #F8F9FC 0%, #EEF2FF 100%);
+
+  /* Subtle page shimmer (skeletons) */
+  --shimmer-from: rgba(0, 0, 0, 0.04);
+  --shimmer-mid:  rgba(0, 0, 0, 0.08);
+
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0F0F13;
+  --surface: #1A1A24;
+  --border: rgba(255, 255, 255, 0.08);
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #64748B;
+
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  --sidebar-gradient: linear-gradient(180deg, #0F0F13 0%, #1A1A24 100%);
+
+  --shimmer-from: rgba(255, 255, 255, 0.04);
+  --shimmer-mid:  rgba(255, 255, 255, 0.10);
+
+  color-scheme: dark;
+}
+
+/* ── Semantic utility classes ────────────────────────────────────────────
+ * Declared via @utility so Tailwind applies variants (hover:, focus:, etc.).
+ * Uses the CSS vars above so they flip per-mode automatically — no
+ * duplicate `dark:` classes needed at call sites for the semantic tokens.
+ */
+@utility bg-app     { background-color: var(--bg); }
+@utility bg-surface { background-color: var(--surface); }
+@utility border-line { border-color: var(--border); }
+@utility text-primary    { color: var(--text-primary); }
+@utility text-secondary  { color: var(--text-secondary); }
+@utility text-muted      { color: var(--text-muted); }
+@utility text-accent     { color: var(--accent); }
+@utility bg-accent       { background-color: var(--accent); }
+@utility border-accent-line { border-color: var(--accent); }
+@utility bg-sidebar-gradient { background: var(--sidebar-gradient); }
+
+/* ── Glass surface ────────────────────────────────────────────────────────
+ * Frosted-glass look — sits on top of gradient/colour backgrounds.
+ * Both modes get 20 px blur; bg and border swap for theme parity.
+ */
+@utility glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+}
+
+/* Softer glass for nav + tab items */
+@utility glass-subtle {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+}
+
+/* Animated "lift" preset — tiny translate + shadow */
+@utility lift-on-hover {
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+.lift-on-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px -15px rgba(91, 141, 239, 0.45);
+}
+
+/* Stronger lift for stat cards */
+@utility stat-lift {
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.stat-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.35);
+}
+
+/* Logo glow */
+@utility logo-glow {
+  text-shadow: 0 0 24px rgba(91, 141, 239, 0.35);
+}
+
 /* ── Base ─────────────────────────────────────────────────────────────────── */
 
-body {
+html, body {
+  background: var(--bg);
+  color: var(--text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+body {
+  /* Subtle page fade-in on route change. Targets the whole body so it
+     triggers on first paint and on every App Router navigation. */
+  animation: fade-in 260ms ease-out both;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Focus rings — accent colour ─────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Scrollbars ──────────────────────────────────────────────────────────── */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text-muted) 35%, transparent) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--text-muted) 35%, transparent);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--text-muted) 55%, transparent);
+}
+
+/* ── Skeleton shimmer (replaces plain gray pulses) ──────────────────────── */
+
+@utility skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--shimmer-from);
+  border-radius: 12px;
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    var(--shimmer-mid),
+    transparent
+  );
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* ── Gradient stat-card presets (used by GradientStatCard) ──────────────── */
+
+.stat-gradient-recordings   { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.stat-gradient-notes        { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.stat-gradient-actionitems  { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.stat-gradient-checkins     { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+
+/* Subtle inner glow on stat cards */
+.stat-inner-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(80% 60% at 20% 10%, rgba(255, 255, 255, 0.25), transparent 60%),
+    radial-gradient(70% 50% at 80% 100%, rgba(0, 0, 0, 0.18), transparent 60%);
+  pointer-events: none;
+}
+
+/* ── Status badge glow variants ─────────────────────────────────────────── */
+
+.status-glow-ready   { box-shadow: 0 0 12px rgba(16, 185, 129, 0.45); }
+.status-glow-pending { box-shadow: 0 0 12px rgba(245, 158, 11, 0.45); }
+.status-glow-failed  { box-shadow: 0 0 12px rgba(239, 68, 68, 0.45); }

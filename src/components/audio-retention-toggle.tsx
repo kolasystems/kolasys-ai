@@ -48,23 +48,23 @@ export function AudioRetentionToggle({ initialDeleteAfterTranscription }: Props)
   const retentionOn = !deleteAfter
 
   return (
-    <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
-      <div className="flex items-center gap-3 border-b border-neutral-100 px-6 py-4">
+    <section className="rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#1A1A24]">
+      <div className="flex items-center gap-3 border-b border-neutral-100 px-6 py-4 dark:border-white/10">
         {retentionOn ? (
-          <HardDrive className="h-4 w-4 text-neutral-500" />
+          <HardDrive className="h-4 w-4 text-neutral-500 dark:text-gray-400" />
         ) : (
-          <Trash2 className="h-4 w-4 text-neutral-500" />
+          <Trash2 className="h-4 w-4 text-neutral-500 dark:text-gray-400" />
         )}
-        <h2 className="text-sm font-semibold text-neutral-900">Audio retention</h2>
+        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">Audio retention</h2>
       </div>
 
       <div className="space-y-4 px-6 py-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-neutral-900">
+            <p className="text-sm font-medium text-neutral-900 dark:text-white">
               Auto-delete audio after transcription
             </p>
-            <p className="mt-1 text-xs text-neutral-500">
+            <p className="mt-1 text-xs text-neutral-500 dark:text-gray-400">
               When enabled, the original audio file is permanently deleted from S3 as soon as
               transcription completes. Recommended for strict privacy requirements (HIPAA, legal
               holds, etc.). When disabled, audio is retained so you can re-transcribe or play
@@ -80,7 +80,7 @@ export function AudioRetentionToggle({ initialDeleteAfterTranscription }: Props)
             disabled={busy}
             className={cn(
               'relative h-6 w-11 flex-shrink-0 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/30 disabled:opacity-60',
-              deleteAfter ? 'bg-red-500' : 'bg-neutral-300',
+              deleteAfter ? 'bg-red-500' : 'bg-neutral-300 dark:bg-white/15',
             )}
           >
             <span
@@ -97,7 +97,7 @@ export function AudioRetentionToggle({ initialDeleteAfterTranscription }: Props)
 
         {/* Warning copy — shown only when retention is OFF (auto-delete ON) */}
         {deleteAfter && (
-          <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
+          <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
             <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <p>
               <span className="font-semibold">Audio deletion is permanent.</span> Once a recording
@@ -114,8 +114,8 @@ export function AudioRetentionToggle({ initialDeleteAfterTranscription }: Props)
             className={cn(
               'rounded-lg px-3 py-2 text-xs',
               feedback.type === 'success'
-                ? 'border border-green-200 bg-green-50 text-green-800'
-                : 'border border-red-200 bg-red-50 text-red-700',
+                ? 'border border-green-200 bg-green-50 text-green-800 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-200'
+                : 'border border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200',
             )}
           >
             {feedback.message}

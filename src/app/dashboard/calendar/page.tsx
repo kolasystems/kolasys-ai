@@ -35,12 +35,12 @@ export default async function CalendarPage({
   const googleConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
 
   return (
-    <div className="p-4 sm:p-8">
+    <div className="p-4 dark:bg-[#0F0F13] sm:p-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Calendar</h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Calendar</h1>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-gray-400">
             Upcoming meetings — deploy a recording bot in one click.
           </p>
         </div>
@@ -48,7 +48,7 @@ export default async function CalendarPage({
           <form action="/api/auth/google" method="GET">
             <button
               type="submit"
-              className="text-xs text-neutral-500 hover:text-neutral-700 underline"
+              className="text-xs text-neutral-500 underline hover:text-neutral-700 dark:text-gray-400 dark:hover:text-gray-200"
             >
               Reconnect Google
             </button>
@@ -58,24 +58,24 @@ export default async function CalendarPage({
 
       {/* Feedback banners */}
       {connected === '1' && (
-        <div className="mt-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+        <div className="mt-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-200">
           Google Calendar connected successfully.
         </div>
       )}
       {error && (
-        <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+        <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">
           {errorMessage(error)}
         </div>
       )}
 
       {/* Not configured */}
       {!googleConfigured && (
-        <div className="mt-8 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-200 py-16 text-center">
-          <Calendar className="mb-3 h-10 w-10 text-neutral-300" />
-          <p className="text-sm font-medium text-neutral-700">Google Calendar not configured</p>
-          <p className="mt-1 max-w-xs text-xs text-neutral-500">
-            Set <code className="rounded bg-neutral-100 px-1">GOOGLE_CLIENT_ID</code> and{' '}
-            <code className="rounded bg-neutral-100 px-1">GOOGLE_CLIENT_SECRET</code> in your
+        <div className="mt-8 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-200 py-16 text-center dark:border-white/10">
+          <Calendar className="mb-3 h-10 w-10 text-neutral-300 dark:text-gray-500" />
+          <p className="text-sm font-medium text-neutral-700 dark:text-white">Google Calendar not configured</p>
+          <p className="mt-1 max-w-xs text-xs text-neutral-500 dark:text-gray-400">
+            Set <code className="rounded bg-neutral-100 px-1 dark:bg-white/10 dark:text-gray-300">GOOGLE_CLIENT_ID</code> and{' '}
+            <code className="rounded bg-neutral-100 px-1 dark:bg-white/10 dark:text-gray-300">GOOGLE_CLIENT_SECRET</code> in your
             environment to enable Calendar sync.
           </p>
         </div>
@@ -83,10 +83,10 @@ export default async function CalendarPage({
 
       {/* Not connected */}
       {googleConfigured && !isConnected && (
-        <div className="mt-8 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-200 py-16 text-center">
-          <Calendar className="mb-3 h-10 w-10 text-neutral-300" />
-          <p className="text-sm font-medium text-neutral-900">Connect Google Calendar</p>
-          <p className="mt-1 max-w-xs text-xs text-neutral-500">
+        <div className="mt-8 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-200 py-16 text-center dark:border-white/10">
+          <Calendar className="mb-3 h-10 w-10 text-neutral-300 dark:text-gray-500" />
+          <p className="text-sm font-medium text-neutral-900 dark:text-white">Connect Google Calendar</p>
+          <p className="mt-1 max-w-xs text-xs text-neutral-500 dark:text-gray-400">
             Grant read-only access to your calendar. Kolasys AI will never modify your events.
           </p>
           <a
@@ -96,7 +96,7 @@ export default async function CalendarPage({
             <ExternalLink className="h-4 w-4" />
             Connect Google Calendar
           </a>
-          <p className="mt-3 text-xs text-neutral-400">
+          <p className="mt-3 text-xs text-neutral-400 dark:text-gray-500">
             Read-only access · Calendar events only · Disconnect any time
           </p>
         </div>
@@ -106,18 +106,18 @@ export default async function CalendarPage({
       {googleConfigured && isConnected && <CalendarMeetingsList />}
 
       {/* Microsoft Outlook (coming soon) */}
-      <section className="mt-8 rounded-xl border border-neutral-200 bg-white shadow-sm">
+      <section className="mt-8 rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#1A1A24]">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
             <div
-              className="flex h-8 w-8 items-center justify-center rounded bg-neutral-100 text-xs font-semibold text-neutral-600"
+              className="flex h-8 w-8 items-center justify-center rounded bg-neutral-100 text-xs font-semibold text-neutral-600 dark:bg-white/10 dark:text-gray-300"
               aria-hidden
             >
               MS
             </div>
             <div>
-              <p className="text-sm font-semibold text-neutral-900">Microsoft Outlook Calendar</p>
-              <p className="text-xs text-neutral-500">
+              <p className="text-sm font-semibold text-neutral-900 dark:text-white">Microsoft Outlook Calendar</p>
+              <p className="text-xs text-neutral-500 dark:text-gray-400">
                 Sync Teams and Outlook meetings. Deploy bots from your work calendar.
               </p>
             </div>
@@ -126,10 +126,10 @@ export default async function CalendarPage({
             type="button"
             disabled
             aria-disabled
-            className="flex cursor-not-allowed items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-medium text-neutral-500"
+            className="flex cursor-not-allowed items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-medium text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-gray-400"
           >
             Connect Microsoft
-            <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-medium text-neutral-600">
+            <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-medium text-neutral-600 dark:bg-white/10 dark:text-gray-300">
               Coming soon
             </span>
           </button>

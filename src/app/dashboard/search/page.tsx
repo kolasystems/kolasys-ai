@@ -26,16 +26,16 @@ export default function AskAIPage() {
   }, [messages])
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col dark:bg-[#0F0F13]">
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-white px-4 py-4 sm:px-8 sm:py-5">
+      <div className="border-b border-neutral-200 bg-white px-4 py-4 dark:border-white/10 dark:bg-[#1A1A24] sm:px-8 sm:py-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50">
-            <Sparkles className="h-5 w-5 text-brand-600" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 dark:bg-accent/15">
+            <Sparkles className="h-5 w-5 text-brand-600 dark:text-accent" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-neutral-900">Ask AI</h1>
-            <p className="text-xs text-neutral-500">
+            <h1 className="text-lg font-semibold text-neutral-900 dark:text-white">Ask AI</h1>
+            <p className="text-xs text-neutral-500 dark:text-gray-400">
               Ask questions across all your meeting recordings
             </p>
           </div>
@@ -54,10 +54,10 @@ export default function AskAIPage() {
 
             {isLoading && (
               <div className="flex gap-3">
-                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-neutral-100">
-                  <Bot className="h-4 w-4 text-neutral-600" />
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-neutral-100 dark:bg-white/10">
+                  <Bot className="h-4 w-4 text-neutral-600 dark:text-gray-300" />
                 </div>
-                <div className="flex items-center gap-2 rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-500 shadow-sm">
+                <div className="flex items-center gap-2 rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-500 shadow-sm dark:border-white/10 dark:bg-[#1A1A24] dark:text-gray-400">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   Thinking…
                 </div>
@@ -65,7 +65,7 @@ export default function AskAIPage() {
             )}
 
             {error && (
-              <p className="text-center text-sm text-red-500">{error}</p>
+              <p className="text-center text-sm text-red-500 dark:text-red-400">{error}</p>
             )}
             <div ref={bottomRef} />
           </div>
@@ -73,12 +73,12 @@ export default function AskAIPage() {
       </div>
 
       {/* Input area */}
-      <div className="border-t border-neutral-200 bg-white px-4 py-3 sm:px-8 sm:py-4">
+      <div className="border-t border-neutral-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-[#1A1A24] sm:px-8 sm:py-4">
         <div className="mx-auto max-w-3xl">
           <form onSubmit={handleSubmit}>
-            <div className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3 shadow-sm focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-500/20 transition-shadow">
+            <div className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3 shadow-sm transition-shadow focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-white/10 dark:bg-white/5 dark:focus-within:border-accent dark:focus-within:ring-accent/30">
               <input
-                className="flex-1 bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none"
+                className="flex-1 bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none dark:text-white dark:placeholder:text-gray-500"
                 value={input}
                 onChange={handleInputChange}
                 placeholder="Ask about your meetings…"
@@ -87,13 +87,13 @@ export default function AskAIPage() {
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-brand-600 text-white transition-colors hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-brand-600 text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <Send className="h-3.5 w-3.5" />
               </button>
             </div>
           </form>
-          <p className="mt-2 text-center text-xs text-neutral-400">
+          <p className="mt-2 text-center text-xs text-neutral-400 dark:text-gray-500">
             Click &ldquo;Index for AI&rdquo; on a recording detail page to include it in search.
           </p>
         </div>
@@ -116,7 +116,7 @@ function MessageRow({ message }: { message: ChatMessage }) {
             'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full',
             message.role === 'user'
               ? 'bg-brand-600 text-white'
-              : 'bg-neutral-100 text-neutral-600'
+              : 'bg-neutral-100 text-neutral-600 dark:bg-white/10 dark:text-gray-300'
           )}
         >
           {message.role === 'user' ? (
@@ -130,11 +130,11 @@ function MessageRow({ message }: { message: ChatMessage }) {
             'max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed',
             message.role === 'user'
               ? 'bg-brand-600 text-white'
-              : 'bg-white border border-neutral-200 text-neutral-800 shadow-sm'
+              : 'border border-neutral-200 bg-white text-neutral-800 shadow-sm dark:border-white/10 dark:bg-[#1A1A24] dark:text-white'
           )}
         >
           {message.content || (
-            <span className="flex items-center gap-2 text-neutral-400">
+            <span className="flex items-center gap-2 text-neutral-400 dark:text-gray-500">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               Thinking…
             </span>
@@ -144,7 +144,7 @@ function MessageRow({ message }: { message: ChatMessage }) {
 
       {message.sources && message.sources.length > 0 && (
         <div className="mt-3 ml-11 space-y-2">
-          <p className="text-xs font-medium text-neutral-400">Sources:</p>
+          <p className="text-xs font-medium text-neutral-400 dark:text-gray-500">Sources:</p>
           {message.sources.map((s) => (
             <CitationCard key={s.index} source={s} />
           ))}
@@ -158,17 +158,17 @@ function EmptyState({ onSuggest }: { onSuggest: (q: string) => void }) {
   return (
     <div className="mx-auto max-w-3xl">
       <div className="mb-10 flex flex-col items-center justify-center py-12 text-center">
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50">
-          <Sparkles className="h-8 w-8 text-brand-600" />
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 dark:bg-accent/15">
+          <Sparkles className="h-8 w-8 text-brand-600 dark:text-accent" />
         </div>
-        <h2 className="text-xl font-semibold text-neutral-900">Ask anything about your meetings</h2>
-        <p className="mt-2 max-w-sm text-sm text-neutral-500">
+        <h2 className="text-xl font-semibold text-neutral-900 dark:text-white">Ask anything about your meetings</h2>
+        <p className="mt-2 max-w-sm text-sm text-neutral-500 dark:text-gray-400">
           Semantic search across all your meeting transcripts, powered by Claude.
         </p>
       </div>
 
       <div>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-gray-500">
           Suggested questions
         </p>
         <div className="grid gap-2 sm:grid-cols-2">
@@ -177,7 +177,7 @@ function EmptyState({ onSuggest }: { onSuggest: (q: string) => void }) {
               key={q}
               type="button"
               onClick={() => onSuggest(q)}
-              className="rounded-xl border border-neutral-200 bg-white px-4 py-3 text-left text-sm text-neutral-700 shadow-sm transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+              className="rounded-xl border border-neutral-200 bg-white px-4 py-3 text-left text-sm text-neutral-700 shadow-sm transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 dark:border-white/10 dark:bg-[#1A1A24] dark:text-gray-300 dark:hover:border-accent/50 dark:hover:bg-accent/10 dark:hover:text-white"
             >
               {q}
             </button>
@@ -190,31 +190,31 @@ function EmptyState({ onSuggest }: { onSuggest: (q: string) => void }) {
 
 function CitationCard({ source }: { source: ChatSource }) {
   return (
-    <div className="flex items-start gap-2 rounded-xl border border-neutral-100 bg-neutral-50 p-3">
-      <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700">
+    <div className="flex items-start gap-2 rounded-xl border border-neutral-100 bg-neutral-50 p-3 dark:border-white/10 dark:bg-white/5">
+      <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-700 dark:bg-accent/20 dark:text-accent">
         {source.index}
       </span>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <Link
             href={`/dashboard/recordings/${source.recordingId}`}
-            className="truncate text-xs font-semibold text-brand-600 hover:underline"
+            className="truncate text-xs font-semibold text-brand-600 hover:underline dark:text-accent"
           >
             {source.recordingTitle}
           </Link>
           {source.startTime != null && (
-            <span className="flex-shrink-0 font-mono text-xs text-neutral-400">
+            <span className="flex-shrink-0 font-mono text-xs text-neutral-400 dark:text-gray-500">
               {formatDuration(Math.floor(source.startTime))}
             </span>
           )}
           <Link
             href={`/dashboard/recordings/${source.recordingId}`}
-            className="ml-auto flex-shrink-0 text-neutral-400 hover:text-neutral-600"
+            className="ml-auto flex-shrink-0 text-neutral-400 hover:text-neutral-600 dark:text-gray-500 dark:hover:text-gray-300"
           >
             <ExternalLink className="h-3 w-3" />
           </Link>
         </div>
-        <p className="mt-1 line-clamp-2 text-xs text-neutral-600">{source.chunkText}</p>
+        <p className="mt-1 line-clamp-2 text-xs text-neutral-600 dark:text-gray-400">{source.chunkText}</p>
       </div>
     </div>
   )

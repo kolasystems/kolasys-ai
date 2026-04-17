@@ -14,11 +14,20 @@ const PRIORITY_LABEL: Record<string, string> = {
   URGENT: 'Urgent',
 }
 
+// Priority pills — tuned for readability in both modes.
 const PRIORITY_COLOR: Record<string, string> = {
-  LOW: 'bg-neutral-100 text-neutral-600',
-  MEDIUM: 'bg-blue-100 text-blue-700',
-  HIGH: 'bg-orange-100 text-orange-700',
-  URGENT: 'bg-red-100 text-red-700',
+  LOW:
+    'bg-neutral-100 text-neutral-600 ' +
+    'dark:bg-white/5 dark:text-gray-400',
+  MEDIUM:
+    'bg-blue-100 text-blue-700 ' +
+    'dark:bg-blue-500/15 dark:text-blue-200',
+  HIGH:
+    'bg-orange-100 text-orange-700 ' +
+    'dark:bg-orange-500/15 dark:text-orange-200',
+  URGENT:
+    'bg-red-100 text-red-700 ' +
+    'dark:bg-red-500/15 dark:text-red-200',
 }
 
 export default async function ActionItemsPage() {
@@ -49,15 +58,15 @@ export default async function ActionItemsPage() {
   const completed = actionItems.filter((i) => i.status === 'COMPLETED')
 
   return (
-    <div className="p-4 sm:p-8">
+    <div className="p-4 dark:bg-[#0F0F13] sm:p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Action Items</h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Action Items</h1>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-gray-400">
             Tasks extracted from your meeting notes.
           </p>
         </div>
-        <div className="flex items-center gap-3 text-sm text-neutral-500">
+        <div className="flex items-center gap-3 text-sm text-neutral-500 dark:text-gray-400">
           <span className="flex items-center gap-1.5">
             <Circle className="h-3.5 w-3.5 text-blue-500" />
             {open.length} open
@@ -74,10 +83,10 @@ export default async function ActionItemsPage() {
       </div>
 
       {actionItems.length === 0 ? (
-        <div className="mt-12 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-200 py-16 text-center">
-          <ListChecks className="mb-3 h-10 w-10 text-neutral-300" />
-          <p className="text-sm font-medium text-neutral-500">No action items yet</p>
-          <p className="mt-1 text-xs text-neutral-400">
+        <div className="mt-12 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-200 py-16 text-center dark:border-white/10">
+          <ListChecks className="mb-3 h-10 w-10 text-neutral-300 dark:text-gray-500" />
+          <p className="text-sm font-medium text-neutral-500 dark:text-gray-400">No action items yet</p>
+          <p className="mt-1 text-xs text-neutral-400 dark:text-gray-500">
             Action items are extracted automatically from your meeting notes.
           </p>
         </div>
@@ -93,7 +102,7 @@ export default async function ActionItemsPage() {
               <section key={group.label}>
                 <div className="mb-3 flex items-center gap-2">
                   {group.icon}
-                  <h2 className="text-sm font-semibold text-neutral-700">
+                  <h2 className="text-sm font-semibold text-neutral-700 dark:text-gray-300">
                     {group.label} · {group.items.length}
                   </h2>
                 </div>
@@ -101,28 +110,28 @@ export default async function ActionItemsPage() {
                   {group.items.map((item) => (
                     <li
                       key={item.id}
-                      className="flex items-start gap-4 rounded-xl border border-neutral-200 bg-white px-5 py-4 shadow-sm"
+                      className="flex items-start gap-4 rounded-xl border border-neutral-200 bg-white px-5 py-4 shadow-sm dark:border-white/10 dark:bg-[#1A1A24]"
                     >
                       <div className="min-w-0 flex-1">
                         <p
                           className={
                             item.status === 'COMPLETED'
-                              ? 'text-sm font-medium text-neutral-400 line-through'
-                              : 'text-sm font-medium text-neutral-900'
+                              ? 'text-sm font-medium text-neutral-400 line-through dark:text-gray-500'
+                              : 'text-sm font-medium text-neutral-900 dark:text-white'
                           }
                         >
                           {item.title}
                         </p>
                         {item.description && (
-                          <p className="mt-0.5 text-xs text-neutral-500 line-clamp-2">
+                          <p className="mt-0.5 text-xs text-neutral-500 line-clamp-2 dark:text-gray-400">
                             {item.description}
                           </p>
                         )}
-                        <p className="mt-1.5 text-xs text-neutral-400">
+                        <p className="mt-1.5 text-xs text-neutral-400 dark:text-gray-500">
                           From:{' '}
                           <a
                             href={`/dashboard/recordings/${item.note.recording.id}`}
-                            className="text-brand-600 hover:underline"
+                            className="text-brand-600 hover:underline dark:text-accent"
                           >
                             {item.note.recording.title}
                           </a>
