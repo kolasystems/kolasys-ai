@@ -697,6 +697,28 @@ export const recordingsRouter = router({
   // ── Regenerate notes with a different template ────────────────────────────
   // Re-enqueues the summarization job with the selected templateId. The
   // existing worker creates a new Note row; the UI always shows the latest.
+  // ── Refine the summary (condense/elaborate) ─────────────────────────────
+  // Stub for now — returns placeholder text so the UI flow can be tested.
+  // Real AI refinement (Claude with a condense/elaborate prompt on the
+  // existing summary + transcript) will be wired later.
+  refineSummary: orgProcedure
+    .input(
+      z.object({
+        recordingId: z.string(),
+        mode: z.enum(['condense', 'elaborate']),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const recording = await ctx.db.recording.findFirst({
+        where: { id: input.recordingId, orgId: ctx.orgId },
+        select: { id: true },
+      })
+      if (!recording) throw new TRPCError({ code: 'NOT_FOUND' })
+
+      const label = input.mode === 'condense' ? 'Condensed' : 'Elaborated'
+      return { summary: `${label} version coming soon` }
+    }),
+
   regenerateWithTemplate: orgProcedure
     .input(
       z.object({

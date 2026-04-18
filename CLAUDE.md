@@ -577,3 +577,56 @@ All recording mutations are `orgProcedure`. Users must have an active org (via `
 
 See `docs/SERVICES.md` for full setup instructions for each service.
 See `docs/DEPLOYMENT.md` for production deployment guide.
+
+---
+
+## 13. April 17, 2026 — Operating Notes
+
+The sections below are incremental rules discovered after the initial build.
+They **add to**, and do not replace, the guidance earlier in this file.
+
+### Railway Production Workers (added April 17, 2026)
+- **kolasys-ai service** — runs `transcription.worker.ts` 24/7 on Railway (project: *glorious-serenity*, region: *us-west2*).
+- **summarization-worker service** — runs `summarization.worker.ts` 24/7 on Railway (same project).
+- **CRITICAL:** `NEXT_PUBLIC_APP_URL` in Railway env vars **must** be `https://app.kolasys.ai` (never `localhost`). Workers embed this URL in notes-ready emails, Slack messages, and Notion pages.
+- **Local dev still needs 3 terminals:** `npm run dev` in one, each worker in its own (the Railway services handle prod; local copies handle dev).
+- Both Railway services share the **same 27 env vars** and the **same Upstash Redis queue** — jobs enqueued from production Vercel flow to the Railway consumer; jobs enqueued locally flow to the local consumer.
+
+### Clerk Key Rules (added April 17, 2026)
+- **Local `.env`:** use **matching test keys** — `pk_test_…` + `sk_test_…` together.
+- **Railway (production):** use **matching live keys** — `pk_live_…` + `sk_live_…` together.
+- **NEVER mix** a test publishable key with a live secret key — Clerk returns `jwk-kid-mismatch` and every request fails auth.
+- After switching Clerk instances locally (e.g. dev → staging), **clear browser cookies manually** (Cmd+Shift+Delete) or sign-in will be wedged on stale session tokens from the previous instance.
+
+### Dark Mode (added April 17, 2026)
+- Implemented on `feat/ui-redesign` branch — merged to `main` (commit `a4dc96b`).
+- **localStorage key:** `kolasys-theme` — values `'dark'` or `'light'`.
+- **Pre-hydration script** in `src/app/layout.tsx` reads the key and adds `.dark` to `<html>` *before* first paint — prevents FOUC on hard reload.
+- **Colors (flip via CSS vars in `globals.css`):**
+  - Page bg: `#0F0F13`
+  - Surface (cards): `#1A1A24`
+  - Border: `rgba(255, 255, 255, 0.08)`
+  - Accent: `#5B8DEF` (same both modes)
+- **Toggle component:** `src/components/dark-mode-toggle.tsx` — label and icon show the *destination* mode (click to switch *to* the other mode, not the current one).
+
+### RSC Rule (added April 17, 2026)
+- **NEVER** pass Lucide icon components (or any function/class reference) as props from a Server Component to a Client Component.
+- **Pattern that fails:**
+  ```tsx
+  // Server component:
+  <GradientStatCard icon={Mic2} />   // ❌ "Only plain objects can be passed to Client Components"
+  ```
+- **Fix — two options:**
+  1. Make the consumer a Server Component (drop `'use client'`) if it doesn't need hooks. Server-to-server prop passes never serialise.
+  2. Pass the icon **name as a string** and resolve to the component via a lookup map *inside* the Client Component:
+     ```tsx
+     const iconMap = { recordings: Mic2, notes: FileText, 'action-items': CheckSquare, clock: Clock }
+     ```
+- Passing JSX (`icon={<Mic2 />}`) usually works because React renders the element on the server before crossing the boundary, but the direct function reference never does.
+
+### Current branches
+- `feat/ui-redesign` — dark mode + glass UI (merged to main).
+- `feat/split-pane` — Fireflies-style split pane on the recording detail page + `recordings.refineSummary` mutation stub (in progress).
+
+### Session docs
+- Save a narrative log of each session to `docs/sessions/KOLASYS_SESSION_YYYY-MM-DD.md` after every session.
