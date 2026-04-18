@@ -17,8 +17,9 @@ export default function RecordingsPage() {
   const [rawQuery, setRawQuery] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
 
+  // 500 ms debounce, cleared when the input is blanked.
   useEffect(() => {
-    const t = setTimeout(() => setSearchQuery(rawQuery.trim()), 300)
+    const t = setTimeout(() => setSearchQuery(rawQuery.trim()), 500)
     return () => clearTimeout(t)
   }, [rawQuery])
 
@@ -35,14 +36,20 @@ export default function RecordingsPage() {
       },
     )
 
-  const { data: searchData, isFetching: searchFetching } = trpc.recordings.search.useQuery(
+  // Semantic search across all indexed transcripts (pgvector). Falls back to
+  // a title + transcript contains filter server-side if no embeddings exist.
+  const {
+    data: searchData,
+    isFetching: searchFetching,
+  } = trpc.recordings.semanticSearch.useQuery(
     { query: searchQuery },
-    { enabled: searchQuery.length > 0 },
+    { enabled: searchQuery.length > 0, staleTime: 30_000 },
   )
 
   const recordings = data?.pages.flatMap((p) => p.items) ?? []
   const isSearching = searchQuery.length > 0
-  const searchResults = searchData ?? []
+  const searchResults = searchData?.results ?? []
+  const searchMode = searchData?.mode ?? 'text'
 
   if (error?.data?.code === 'FORBIDDEN') {
     return (
@@ -76,12 +83,18 @@ export default function RecordingsPage() {
         </button>
       </div>
 
-      {/* Search bar */}
-      <div className="relative mt-4 sm:mt-5">
+      {/* Search bar — submit-on-Enter + 500ms debounce */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          setSearchQuery(rawQuery.trim())
+        }}
+        className="relative mt-4 sm:mt-5"
+      >
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
         <input
           type="text"
-          placeholder="Search by title or transcript…"
+          placeholder="Search meanings, not just titles — press Enter"
           value={rawQuery}
           onChange={(e) => setRawQuery(e.target.value)}
           className="glass w-full py-2.5 pl-9 pr-9 text-sm text-primary placeholder:text-muted focus:outline-none"
@@ -91,36 +104,68 @@ export default function RecordingsPage() {
             type="button"
             onClick={() => { setRawQuery(''); setSearchQuery('') }}
             className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted hover:text-secondary"
+            aria-label="Clear search"
           >
             <X className="h-4 w-4" />
           </button>
         )}
-      </div>
+      </form>
 
       {/* List / Search results */}
       <div className="mt-4">
         {isSearching ? (
-          searchFetching ? (
-            <ul className="space-y-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <li key={i} className="skeleton h-16" />
-              ))}
-            </ul>
+          searchFetching && !searchData ? (
+            <>
+              <p className="mb-3 text-xs text-secondary">
+                Searching across transcripts for &ldquo;{searchQuery}&rdquo;…
+              </p>
+              <ul className="space-y-2">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <li key={i} className="skeleton h-20" />
+                ))}
+              </ul>
+            </>
           ) : searchResults.length === 0 ? (
             <div className="glass flex flex-col items-center justify-center py-12 text-center">
               <Search className="mb-3 h-8 w-8 text-muted" />
               <p className="text-sm font-medium text-secondary">
                 No results for &ldquo;{searchQuery}&rdquo;
               </p>
+              <button
+                type="button"
+                onClick={() => { setRawQuery(''); setSearchQuery('') }}
+                className="mt-3 text-xs font-medium text-accent hover:opacity-80"
+              >
+                Clear search
+              </button>
             </div>
           ) : (
             <>
-              <p className="mb-3 text-xs text-secondary">
-                {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for &ldquo;{searchQuery}&rdquo;
-              </p>
+              <div className="mb-3 flex items-center justify-between gap-3 text-xs text-secondary">
+                <p>
+                  {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for &ldquo;{searchQuery}&rdquo;
+                  {searchMode === 'text' && (
+                    <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-neutral-600 dark:bg-white/10 dark:text-gray-300">
+                      Text match
+                    </span>
+                  )}
+                  {searchMode === 'semantic' && (
+                    <span className="ml-2 rounded-full bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent">
+                      Semantic
+                    </span>
+                  )}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { setRawQuery(''); setSearchQuery('') }}
+                  className="font-medium text-accent hover:opacity-80"
+                >
+                  Clear search
+                </button>
+              </div>
               <ul className="space-y-2">
                 {searchResults.map((r) => (
-                  <RecordingRow key={r.id} r={r} />
+                  <SearchResultRow key={r.recordingId} result={r} query={searchQuery} />
                 ))}
               </ul>
             </>
@@ -180,6 +225,66 @@ type RowRecording = {
   duration: number | null
   createdAt: Date
   _count: { notes: number }
+}
+
+// ── Semantic search result row ───────────────────────────────────────────
+
+type SearchResult = {
+  recordingId: string
+  title: string
+  createdAt: Date
+  snippet: string
+  score: number
+}
+
+function SearchResultRow({ result, query }: { result: SearchResult; query: string }) {
+  // Highlight matches inside the snippet. Case-insensitive, escaped for regex.
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const re = new RegExp(`(${escaped})`, 'gi')
+  const parts = result.snippet.split(re)
+
+  // Score is a cosine similarity (0..1) from pgvector; text fallback reports 0.
+  const scorePct = Math.round(result.score * 100)
+
+  return (
+    <li>
+      <Link
+        href={`/dashboard/recordings/${result.recordingId}`}
+        className="glass lift-on-hover group flex flex-col gap-2 px-4 py-3 sm:px-5"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <p className="min-w-0 flex-1 truncate text-sm font-semibold text-primary">
+            {result.title}
+          </p>
+          <div className="flex flex-shrink-0 items-center gap-2 text-xs text-secondary">
+            {result.score > 0 && (
+              <span className="rounded-full bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] px-2 py-0.5 text-[10px] font-semibold text-accent">
+                {scorePct}% match
+              </span>
+            )}
+            <span>{relativeTime(result.createdAt)}</span>
+          </div>
+        </div>
+
+        {result.snippet && (
+          <p className="line-clamp-2 text-xs leading-relaxed text-secondary">
+            {parts.map((p, i) =>
+              re.test(p) ? (
+                <mark
+                  key={i}
+                  className="rounded bg-[color-mix(in_srgb,var(--accent)_22%,transparent)] px-0.5 text-primary"
+                >
+                  {p}
+                </mark>
+              ) : (
+                <span key={i}>{p}</span>
+              ),
+            )}
+          </p>
+        )}
+      </Link>
+    </li>
+  )
 }
 
 function RecordingRow({ r }: { r: RowRecording }) {

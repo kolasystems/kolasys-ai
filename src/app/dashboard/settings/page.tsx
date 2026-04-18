@@ -7,6 +7,7 @@ import { db } from '@/lib/db'
 import { Building2, User, Key, CreditCard, Wand2, ArrowRight } from 'lucide-react'
 import { AudioRetentionToggle } from '@/components/audio-retention-toggle'
 import { PostMeetingEmailToggle } from '@/components/post-meeting-email-toggle'
+import { DailyDigestToggle } from '@/components/daily-digest-toggle'
 
 export const metadata = { title: 'Settings — Kolasys AI' }
 
@@ -26,6 +27,7 @@ export default async function SettingsPage() {
         createdAt: true,
         deleteAudioAfterTranscription: true,
         postMeetingEmail: true,
+        dailyDigest: true,
       },
     }),
   ])
@@ -88,6 +90,11 @@ export default async function SettingsPage() {
         {/* Post-meeting email */}
         <PostMeetingEmailToggle
           initialPostMeetingEmail={org?.postMeetingEmail ?? true}
+        />
+
+        {/* Daily digest */}
+        <DailyDigestToggle
+          initialDailyDigest={org?.dailyDigest ?? true}
         />
 
         {/* Templates — live */}

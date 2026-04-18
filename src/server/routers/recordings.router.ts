@@ -21,6 +21,8 @@ import { transcriptionQueue, summarizationQueue } from '@/lib/queues'
 import { deployBot } from '@/services/meetingbot.service'
 import { captureServerEvent } from '@/lib/posthog'
 import Anthropic from '@anthropic-ai/sdk'
+import { embedText } from '@/services/embeddings.service'
+import { vectorSimilaritySearch } from '@/lib/db-vector'
 
 export const recordingsRouter = router({
   // ── List recordings for the active org ────────────────────────────────────
@@ -275,6 +277,115 @@ export const recordingsRouter = router({
       })
 
       return { success: true }
+    }),
+
+  // ── Semantic search across indexed transcripts (pgvector) ───────────────
+  // Falls back to a title + transcript ILIKE contains filter if the pgvector
+  // extension isn't available or no embeddings have been indexed yet — the
+  // UI should never show an error for a valid query.
+  semanticSearch: orgProcedure
+    .input(z.object({ query: z.string().min(1).max(500) }))
+    .query(async ({ ctx, input }) => {
+      type Result = {
+        recordingId: string
+        title: string
+        createdAt: Date
+        snippet: string
+        score: number
+      }
+
+      // 1. Try the vector path.
+      try {
+        const queryEmbedding = await embedText(input.query)
+        const rows = await vectorSimilaritySearch({
+          orgId: ctx.orgId,
+          queryEmbedding,
+          limit: 20,
+        })
+
+        if (rows.length > 0) {
+          // Keep the highest-scoring chunk per recording so the result list
+          // is one entry per meeting.
+          const byRecording = new Map<string, typeof rows[number]>()
+          for (const r of rows) {
+            const current = byRecording.get(r.recordingId)
+            if (!current || r.similarity > current.similarity) {
+              byRecording.set(r.recordingId, r)
+            }
+          }
+
+          // Hydrate titles + dates via one batched query.
+          const ids = [...byRecording.keys()]
+          const meta = await ctx.db.recording.findMany({
+            where: { id: { in: ids }, orgId: ctx.orgId, status: 'READY' },
+            select: { id: true, title: true, createdAt: true },
+          })
+          const metaMap = new Map(meta.map((m) => [m.id, m]))
+
+          const hits: Result[] = [...byRecording.values()]
+            .map((r) => {
+              const m = metaMap.get(r.recordingId)
+              if (!m) return null
+              return {
+                recordingId: r.recordingId,
+                title: m.title,
+                createdAt: m.createdAt,
+                snippet: r.chunkText,
+                score: r.similarity,
+              }
+            })
+            .filter((x): x is Result => x !== null)
+            .sort((a, b) => b.score - a.score)
+
+          if (hits.length > 0) {
+            return { mode: 'semantic' as const, results: hits }
+          }
+        }
+      } catch (err) {
+        // Logged but non-fatal — fall through to text search. Most likely
+        // cause: OpenAI unavailable, pgvector not installed, or the
+        // TranscriptEmbedding table is empty for this org.
+        console.warn('[recordings.semanticSearch] vector path failed — falling back:', err)
+      }
+
+      // 2. Plain-text fallback — same shape as semantic results.
+      const rows = await ctx.db.recording.findMany({
+        where: {
+          orgId: ctx.orgId,
+          status: 'READY',
+          OR: [
+            { title: { contains: input.query, mode: 'insensitive' } },
+            { transcript: { text: { contains: input.query, mode: 'insensitive' } } },
+          ],
+        },
+        select: {
+          id: true,
+          title: true,
+          createdAt: true,
+          transcript: { select: { text: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 20,
+      })
+
+      const q = input.query.toLowerCase()
+      const results: Result[] = rows.map((r) => {
+        const text = r.transcript?.text ?? ''
+        const idx = text.toLowerCase().indexOf(q)
+        const snippet =
+          idx >= 0
+            ? text.slice(Math.max(0, idx - 80), idx + q.length + 120).trim()
+            : text.slice(0, 200).trim()
+        return {
+          recordingId: r.id,
+          title: r.title,
+          createdAt: r.createdAt,
+          snippet,
+          score: 0, // no similarity score in fallback mode
+        }
+      })
+
+      return { mode: 'text' as const, results }
     }),
 
   // ── Search recordings by title or transcript text (ILIKE) ─────────────────

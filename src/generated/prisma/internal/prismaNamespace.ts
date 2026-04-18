@@ -1503,6 +1503,7 @@ export const OrganizationScalarFieldEnum = {
   notionDatabaseId: 'notionDatabaseId',
   deleteAudioAfterTranscription: 'deleteAudioAfterTranscription',
   postMeetingEmail: 'postMeetingEmail',
+  dailyDigest: 'dailyDigest',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

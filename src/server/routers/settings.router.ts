@@ -13,12 +13,14 @@ export const settingsRouter = router({
       select: {
         deleteAudioAfterTranscription: true,
         postMeetingEmail: true,
+        dailyDigest: true,
       },
     })
     if (!org) throw new TRPCError({ code: 'NOT_FOUND' })
     return {
       deleteAudioAfterTranscription: org.deleteAudioAfterTranscription,
       postMeetingEmail: org.postMeetingEmail,
+      dailyDigest: org.dailyDigest,
     }
   }),
 
@@ -29,6 +31,7 @@ export const settingsRouter = router({
         .object({
           deleteAudioAfterTranscription: z.boolean().optional(),
           postMeetingEmail: z.boolean().optional(),
+          dailyDigest: z.boolean().optional(),
         })
         .refine((v) => Object.keys(v).length > 0, {
           message: 'At least one field must be provided.',
@@ -44,10 +47,14 @@ export const settingsRouter = router({
           ...(input.postMeetingEmail !== undefined && {
             postMeetingEmail: input.postMeetingEmail,
           }),
+          ...(input.dailyDigest !== undefined && {
+            dailyDigest: input.dailyDigest,
+          }),
         },
         select: {
           deleteAudioAfterTranscription: true,
           postMeetingEmail: true,
+          dailyDigest: true,
         },
       })
       return updated

@@ -9,6 +9,7 @@ import { integrationsRouter } from './routers/integrations.router'
 import { templatesRouter } from './routers/templates.router'
 import { settingsRouter } from './routers/settings.router'
 import { analyticsRouter } from './routers/analytics.router'
+import { contactsRouter } from './routers/contacts.router'
 
 export const appRouter = router({
   recordings: recordingsRouter,
@@ -18,6 +19,7 @@ export const appRouter = router({
   templates: templatesRouter,
   settings: settingsRouter,
   analytics: analyticsRouter,
+  contacts: contactsRouter,
 })
 
 export type AppRouter = typeof appRouter
