@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { Loader2 } from 'lucide-react'
 import { trpc } from '@/lib/trpc'
+import { MarkdownContent } from './markdown-content'
 
 type Props = {
   sectionId: string
@@ -60,25 +61,28 @@ export function EditableNoteSection({ sectionId, title, initialContent }: Props)
     }, 0)
   }
 
+  // The wrapper is intentionally transparent — parent .glass card owns
+  // background, border, border-left accent, and shadow. We only own padding +
+  // the internal title/edit/content layout.
   return (
-    <div className="group rounded-xl border border-neutral-200 bg-white p-5">
+    <div className="group p-4 sm:p-5">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-semibold text-neutral-800">{title}</p>
+        <p className="text-sm font-semibold text-primary">{title}</p>
         <div className="flex items-center gap-2">
           {mutation.isPending && (
-            <Loader2 className="h-3 w-3 animate-spin text-neutral-400" />
+            <Loader2 className="h-3 w-3 animate-spin text-muted" />
           )}
           {!editing && !mutation.isPending && (
             <button
               type="button"
               onClick={enterEdit}
-              className="text-xs text-neutral-400 opacity-0 transition-opacity group-hover:opacity-100 hover:text-brand-600"
+              className="text-xs text-muted opacity-0 transition-opacity hover:text-accent group-hover:opacity-100"
             >
               Edit
             </button>
           )}
           {editing && (
-            <span className="text-xs text-neutral-400">
+            <span className="text-xs text-muted">
               Blur to save · Esc to cancel
             </span>
           )}
@@ -93,18 +97,13 @@ export function EditableNoteSection({ sectionId, title, initialContent }: Props)
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           rows={Math.max(4, content.split('\n').length + 1)}
-          className="w-full resize-y rounded-lg border border-brand-300 p-2 text-sm leading-relaxed text-neutral-700 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+          className="w-full resize-y rounded-lg border border-accent/50 bg-white/70 p-2 text-sm leading-relaxed text-primary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25 dark:bg-white/5"
         />
       ) : (
-        <div
-          className="prose prose-sm max-w-none cursor-text text-neutral-600"
-          onClick={enterEdit}
-        >
-          {saved.split('\n').map((line, i) => (
-            <p key={i} className="my-1">
-              {line || <span className="text-neutral-300">—</span>}
-            </p>
-          ))}
+        <div onClick={enterEdit} className="cursor-text">
+          {saved.trim()
+            ? <MarkdownContent content={saved} />
+            : <p className="text-muted">Click to add content…</p>}
         </div>
       )}
     </div>

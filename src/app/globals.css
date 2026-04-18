@@ -52,12 +52,14 @@
   --text-secondary: #475569;
   --text-muted: #94A3B8;
 
-  /* Glass values */
+  /* Glass values — light mode needs a crisp border + soft shadow so cards
+     don't blend into the off-white page background. */
   --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-border: #E5E7EB;
+  --glass-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
 
-  /* Gradient for the sidebar */
-  --sidebar-gradient: linear-gradient(180deg, #F8F9FC 0%, #EEF2FF 100%);
+  /* Gradient for the sidebar — slight cool-white falloff for depth. */
+  --sidebar-gradient: linear-gradient(180deg, #F8F9FC 0%, #F1F5FF 100%);
 
   /* Subtle page shimmer (skeletons) */
   --shimmer-from: rgba(0, 0, 0, 0.04);
@@ -76,6 +78,9 @@
 
   --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.08);
+  /* Dark surfaces don't need an elevation shadow — the contrast with the
+     almost-black background is already sufficient. */
+  --glass-shadow: none;
 
   --sidebar-gradient: linear-gradient(180deg, #0F0F13 0%, #1A1A24 100%);
 
@@ -111,6 +116,7 @@
   backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
+  box-shadow: var(--glass-shadow);
 }
 
 /* Softer glass for nav + tab items */

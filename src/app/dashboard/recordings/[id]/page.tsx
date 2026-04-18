@@ -94,6 +94,7 @@ export default async function RecordingDetailPage({ params }: Props) {
         actionItems: latestNote.actionItems.map((a) => ({
           id: a.id,
           title: a.title,
+          description: a.description,
           status: a.status as 'OPEN' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED',
           priority: a.priority as 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT',
           dueDate: a.dueDate,

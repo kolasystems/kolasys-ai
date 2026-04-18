@@ -16,6 +16,7 @@ import { GenerateWithTemplateButton } from './generate-with-template-button'
 import { RefineSummaryButton } from './refine-summary-button'
 import { RecordingAudioPlayer } from './recording-audio-player'
 import { InlineAskAI } from './inline-ask-ai'
+import { MarkdownContent } from './markdown-content'
 
 // Plain-object shapes that travel across the RSC boundary.
 type Segment = {
@@ -31,6 +32,7 @@ type NoteSection = { id: string; title: string; content: string }
 type ActionItem = {
   id: string
   title: string
+  description: string | null
   status: 'OPEN' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
   dueDate: Date | null
@@ -154,7 +156,9 @@ export function RecordingSplitView({
                     <p className="text-xs font-semibold uppercase tracking-wider text-secondary">
                       Summary
                     </p>
-                    <p className="mt-2 text-sm leading-relaxed text-primary">{summary}</p>
+                    <div className="mt-2">
+                      <MarkdownContent content={summary} />
+                    </div>
                   </div>
                 )}
 
@@ -187,6 +191,7 @@ export function RecordingSplitView({
                           key={item.id}
                           itemId={item.id}
                           title={item.title}
+                          description={item.description}
                           initialStatus={item.status}
                           initialPriority={item.priority}
                           dueDate={item.dueDate}

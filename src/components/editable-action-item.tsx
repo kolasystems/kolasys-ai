@@ -6,6 +6,7 @@ import * as Select from '@radix-ui/react-select'
 import { ChevronDown } from 'lucide-react'
 import { trpc } from '@/lib/trpc'
 import { cn } from '@/lib/utils'
+import { MarkdownContent } from './markdown-content'
 
 // Local string-union types — never import Prisma enums in client components.
 type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
@@ -35,6 +36,7 @@ const PRIORITY_TEXT: Record<Priority, string> = {
 type Props = {
   itemId: string
   title: string
+  description?: string | null
   initialStatus: ActionItemStatus
   initialPriority: Priority
   dueDate: Date | null
@@ -43,6 +45,7 @@ type Props = {
 export function EditableActionItem({
   itemId,
   title,
+  description,
   initialStatus,
   initialPriority,
   dueDate,
@@ -66,37 +69,44 @@ export function EditableActionItem({
   const done = status === 'COMPLETED'
 
   return (
-    <li className="flex items-center gap-3 text-sm">
+    <li className="flex items-start gap-3 text-sm">
       {/* Checkbox */}
       <button
         type="button"
         onClick={toggleDone}
         aria-label={done ? 'Mark as open' : 'Mark as done'}
         className={cn(
-          'flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition-colors',
+          'mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded border transition-colors',
           done
             ? 'border-green-500 bg-green-500 text-white'
-            : 'border-neutral-300 hover:border-brand-500'
+            : 'border-neutral-300 hover:border-brand-500 dark:border-white/20'
         )}
       >
         {done && <Check className="h-2.5 w-2.5" />}
       </button>
 
-      {/* Title */}
-      <span className={cn('flex-1 text-neutral-700', done && 'text-neutral-400 line-through')}>
-        {title}
-        {dueDate && (
-          <span className="ml-2 text-xs text-neutral-400">
-            due {new Date(dueDate).toLocaleDateString()}
-          </span>
+      {/* Title + optional description */}
+      <div className="flex-1 min-w-0">
+        <span className={cn('text-primary', done && 'text-muted line-through')}>
+          {title}
+          {dueDate && (
+            <span className="ml-2 text-xs text-muted">
+              due {new Date(dueDate).toLocaleDateString()}
+            </span>
+          )}
+        </span>
+        {description && (
+          <div className={cn('mt-1', done && 'opacity-60')}>
+            <MarkdownContent content={description} className="text-xs text-secondary" />
+          </div>
         )}
-      </span>
+      </div>
 
       {/* Priority picker */}
       <Select.Root value={priority} onValueChange={(v) => changePriority(v as Priority)}>
         <Select.Trigger
           className={cn(
-            'flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors hover:bg-neutral-100 focus:outline-none',
+            'mt-0.5 flex flex-shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors hover:bg-neutral-100 focus:outline-none dark:hover:bg-white/10',
             PRIORITY_TEXT[priority]
           )}
         >
@@ -110,14 +120,14 @@ export function EditableActionItem({
             position="popper"
             side="bottom"
             align="end"
-            className="z-50 min-w-[100px] overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg"
+            className="z-50 min-w-[100px] overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg dark:border-white/10 dark:bg-[#1A1A24]"
           >
             <Select.Viewport className="p-1">
               {PRIORITY_OPTIONS.map((opt) => (
                 <Select.Item
                   key={opt.value}
                   value={opt.value}
-                  className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium text-neutral-700 outline-none hover:bg-neutral-100 data-[highlighted]:bg-neutral-100"
+                  className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium text-primary outline-none hover:bg-neutral-100 data-[highlighted]:bg-neutral-100 dark:hover:bg-white/10 dark:data-[highlighted]:bg-white/10"
                 >
                   <span className={cn('h-1.5 w-1.5 rounded-full', PRIORITY_DOT[opt.value])} />
                   <Select.ItemText>{opt.label}</Select.ItemText>
