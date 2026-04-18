@@ -15,6 +15,7 @@ import {
   Sparkles,
   Calendar,
   Wand2,
+  BarChart2,
 } from 'lucide-react'
 import { MobileNav } from '@/components/mobile-nav'
 import { DashboardNavLink } from '@/components/dashboard-nav-link'
@@ -95,6 +96,9 @@ export default async function DashboardLayout({
           </DashboardNavLink>
           <DashboardNavLink href="/dashboard/action-items" icon={<ListChecks className="h-4 w-4" />}>
             Action Items
+          </DashboardNavLink>
+          <DashboardNavLink href="/dashboard/analytics" icon={<BarChart2 className="h-4 w-4" />}>
+            Analytics
           </DashboardNavLink>
           <DashboardNavLink href="/dashboard/search" icon={<Sparkles className="h-4 w-4" />}>
             Ask AI

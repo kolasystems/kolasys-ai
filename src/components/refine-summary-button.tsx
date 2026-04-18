@@ -3,9 +3,9 @@
 // Kolasys AI — "Refine Summary" button with Condense / Elaborate dropdown.
 // Stubs the call today; real AI refinement will be wired later on the server.
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import * as Dropdown from '@radix-ui/react-dropdown-menu'
-import { Sparkles, ChevronDown, Minimize2, Maximize2, Loader2 } from 'lucide-react'
+import { CheckCircle2, ChevronDown, Loader2, Maximize2, Minimize2, Sparkles } from 'lucide-react'
 import { trpc } from '@/lib/trpc'
 
 type Mode = 'condense' | 'elaborate'
@@ -18,11 +18,20 @@ type Props = {
 export function RefineSummaryButton({ recordingId, onRefined }: Props) {
   const [pending, setPending] = useState<Mode | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [justRefined, setJustRefined] = useState(false)
+
+  // Auto-dismiss the success toast after 3 seconds.
+  useEffect(() => {
+    if (!justRefined) return
+    const t = setTimeout(() => setJustRefined(false), 3_000)
+    return () => clearTimeout(t)
+  }, [justRefined])
 
   const mutation = trpc.recordings.refineSummary.useMutation({
     onSuccess: (data) => {
       onRefined(data.summary)
       setPending(null)
+      setJustRefined(true)
     },
     onError: (err) => {
       setError(err.message)
@@ -99,8 +108,15 @@ export function RefineSummaryButton({ recordingId, onRefined }: Props) {
       </Dropdown.Root>
 
       {error && (
-        <p className="absolute right-0 top-full mt-2 whitespace-nowrap rounded-lg bg-red-50 px-3 py-1.5 text-xs text-red-700 shadow-sm dark:bg-red-500/15 dark:text-red-200">
+        <p className="absolute right-0 top-full z-10 mt-2 whitespace-nowrap rounded-lg bg-red-50 px-3 py-1.5 text-xs text-red-700 shadow-sm dark:bg-red-500/15 dark:text-red-200">
           {error}
+        </p>
+      )}
+
+      {justRefined && !error && (
+        <p className="absolute right-0 top-full z-10 mt-2 flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 shadow-sm dark:bg-emerald-500/15 dark:text-emerald-200">
+          <CheckCircle2 className="h-3.5 w-3.5" />
+          Summary refined
         </p>
       )}
     </div>

@@ -20,6 +20,7 @@ import {
 import { transcriptionQueue, summarizationQueue } from '@/lib/queues'
 import { deployBot } from '@/services/meetingbot.service'
 import { captureServerEvent } from '@/lib/posthog'
+import Anthropic from '@anthropic-ai/sdk'
 
 export const recordingsRouter = router({
   // ── List recordings for the active org ────────────────────────────────────
@@ -697,10 +698,7 @@ export const recordingsRouter = router({
   // ── Regenerate notes with a different template ────────────────────────────
   // Re-enqueues the summarization job with the selected templateId. The
   // existing worker creates a new Note row; the UI always shows the latest.
-  // ── Refine the summary (condense/elaborate) ─────────────────────────────
-  // Stub for now — returns placeholder text so the UI flow can be tested.
-  // Real AI refinement (Claude with a condense/elaborate prompt on the
-  // existing summary + transcript) will be wired later.
+  // ── Refine the summary (condense / elaborate) via Claude ────────────────
   refineSummary: orgProcedure
     .input(
       z.object({
@@ -709,14 +707,84 @@ export const recordingsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // 1. Load the recording + latest note. Our schema uses `orgId` (not
+      //    `organizationId`); there's no NoteSection.type column, so we fall
+      //    back to title-matching when Note.summary is null.
       const recording = await ctx.db.recording.findFirst({
         where: { id: input.recordingId, orgId: ctx.orgId },
-        select: { id: true },
+        select: {
+          id: true,
+          notes: {
+            include: { sections: { orderBy: { order: 'asc' } } },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
+        },
       })
-      if (!recording) throw new TRPCError({ code: 'NOT_FOUND' })
 
-      const label = input.mode === 'condense' ? 'Condensed' : 'Elaborated'
-      return { summary: `${label} version coming soon` }
+      if (!recording || !recording.notes[0]) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Recording not found.' })
+      }
+
+      const note = recording.notes[0]
+      const summarySection = note.sections.find((s) =>
+        s.title?.toLowerCase().includes('summary')
+      )
+      const currentSummary = note.summary ?? summarySection?.content ?? ''
+
+      if (!currentSummary.trim()) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'No summary to refine yet.',
+        })
+      }
+
+      // 2. Call Claude. Opus for the highest-quality rewrite on a short input.
+      if (!process.env.ANTHROPIC_API_KEY) {
+        throw new TRPCError({
+          code: 'PRECONDITION_FAILED',
+          message: 'Anthropic API key is not configured.',
+        })
+      }
+
+      const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
+      const prompt =
+        input.mode === 'condense'
+          ? `Condense this meeting summary to 2-3 sentences, keeping only the most critical points. Respond with only the rewritten summary — no preamble, no disclaimers.\n\n${currentSummary}`
+          : `Elaborate on this meeting summary with more detail, expanding each point with context and implications. Respond with only the rewritten summary — no preamble.\n\n${currentSummary}`
+
+      const message = await client.messages.create({
+        model: 'claude-opus-4-7',
+        max_tokens: 1_024,
+        messages: [{ role: 'user', content: prompt }],
+      })
+
+      const refined = message.content
+        .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+        .map((b) => b.text)
+        .join('')
+        .trim()
+
+      if (!refined) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Claude returned an empty summary.',
+        })
+      }
+
+      // 3. Persist the refined summary on the note.
+      await ctx.db.note.update({
+        where: { id: note.id },
+        data: { summary: refined },
+      })
+
+      captureServerEvent(ctx.userId, 'summary_refined', {
+        recording_id: input.recordingId,
+        mode: input.mode,
+      })
+
+      return { summary: refined }
     }),
 
   regenerateWithTemplate: orgProcedure

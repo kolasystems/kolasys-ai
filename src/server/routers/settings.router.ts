@@ -10,10 +10,16 @@ export const settingsRouter = router({
   getOrgSettings: orgProcedure.query(async ({ ctx }) => {
     const org = await ctx.db.organization.findFirst({
       where: { id: ctx.orgId },
-      select: { deleteAudioAfterTranscription: true },
+      select: {
+        deleteAudioAfterTranscription: true,
+        postMeetingEmail: true,
+      },
     })
     if (!org) throw new TRPCError({ code: 'NOT_FOUND' })
-    return { deleteAudioAfterTranscription: org.deleteAudioAfterTranscription }
+    return {
+      deleteAudioAfterTranscription: org.deleteAudioAfterTranscription,
+      postMeetingEmail: org.postMeetingEmail,
+    }
   }),
 
   // ── Update org-level preferences ──────────────────────────────────────────
@@ -22,6 +28,7 @@ export const settingsRouter = router({
       z
         .object({
           deleteAudioAfterTranscription: z.boolean().optional(),
+          postMeetingEmail: z.boolean().optional(),
         })
         .refine((v) => Object.keys(v).length > 0, {
           message: 'At least one field must be provided.',
@@ -34,8 +41,14 @@ export const settingsRouter = router({
           ...(input.deleteAudioAfterTranscription !== undefined && {
             deleteAudioAfterTranscription: input.deleteAudioAfterTranscription,
           }),
+          ...(input.postMeetingEmail !== undefined && {
+            postMeetingEmail: input.postMeetingEmail,
+          }),
         },
-        select: { deleteAudioAfterTranscription: true },
+        select: {
+          deleteAudioAfterTranscription: true,
+          postMeetingEmail: true,
+        },
       })
       return updated
     }),

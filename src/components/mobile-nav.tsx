@@ -16,6 +16,7 @@ import {
   Sparkles,
   Calendar,
   Wand2,
+  BarChart2,
 } from 'lucide-react'
 import { UserButton, OrganizationSwitcher } from '@clerk/nextjs'
 import { cn } from '@/lib/utils'
@@ -25,6 +26,7 @@ const NAV_LINKS = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, exact: true },
   { href: '/dashboard/recordings', label: 'Recordings', icon: Mic2 },
   { href: '/dashboard/action-items', label: 'Action Items', icon: ListChecks },
+  { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart2 },
   { href: '/dashboard/search', label: 'Ask AI', icon: Sparkles },
   { href: '/dashboard/calendar', label: 'Calendar', icon: Calendar },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings, exact: true },

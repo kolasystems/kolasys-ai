@@ -93,6 +93,7 @@ export const OrganizationScalarFieldEnum = {
   notionApiKey: 'notionApiKey',
   notionDatabaseId: 'notionDatabaseId',
   deleteAudioAfterTranscription: 'deleteAudioAfterTranscription',
+  postMeetingEmail: 'postMeetingEmail',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

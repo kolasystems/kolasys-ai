@@ -34,6 +34,7 @@ export type OrganizationMinAggregateOutputType = {
   notionApiKey: string | null
   notionDatabaseId: string | null
   deleteAudioAfterTranscription: boolean | null
+  postMeetingEmail: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -48,6 +49,7 @@ export type OrganizationMaxAggregateOutputType = {
   notionApiKey: string | null
   notionDatabaseId: string | null
   deleteAudioAfterTranscription: boolean | null
+  postMeetingEmail: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +64,7 @@ export type OrganizationCountAggregateOutputType = {
   notionApiKey: number
   notionDatabaseId: number
   deleteAudioAfterTranscription: number
+  postMeetingEmail: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -78,6 +81,7 @@ export type OrganizationMinAggregateInputType = {
   notionApiKey?: true
   notionDatabaseId?: true
   deleteAudioAfterTranscription?: true
+  postMeetingEmail?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -92,6 +96,7 @@ export type OrganizationMaxAggregateInputType = {
   notionApiKey?: true
   notionDatabaseId?: true
   deleteAudioAfterTranscription?: true
+  postMeetingEmail?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -106,6 +111,7 @@ export type OrganizationCountAggregateInputType = {
   notionApiKey?: true
   notionDatabaseId?: true
   deleteAudioAfterTranscription?: true
+  postMeetingEmail?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -193,6 +199,7 @@ export type OrganizationGroupByOutputType = {
   notionApiKey: string | null
   notionDatabaseId: string | null
   deleteAudioAfterTranscription: boolean
+  postMeetingEmail: boolean
   createdAt: Date
   updatedAt: Date
   _count: OrganizationCountAggregateOutputType | null
@@ -228,6 +235,7 @@ export type OrganizationWhereInput = {
   notionApiKey?: Prisma.StringNullableFilter<"Organization"> | string | null
   notionDatabaseId?: Prisma.StringNullableFilter<"Organization"> | string | null
   deleteAudioAfterTranscription?: Prisma.BoolFilter<"Organization"> | boolean
+  postMeetingEmail?: Prisma.BoolFilter<"Organization"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -246,6 +254,7 @@ export type OrganizationOrderByWithRelationInput = {
   notionApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   notionDatabaseId?: Prisma.SortOrderInput | Prisma.SortOrder
   deleteAudioAfterTranscription?: Prisma.SortOrder
+  postMeetingEmail?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   members?: Prisma.OrgMemberOrderByRelationAggregateInput
@@ -267,6 +276,7 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   notionApiKey?: Prisma.StringNullableFilter<"Organization"> | string | null
   notionDatabaseId?: Prisma.StringNullableFilter<"Organization"> | string | null
   deleteAudioAfterTranscription?: Prisma.BoolFilter<"Organization"> | boolean
+  postMeetingEmail?: Prisma.BoolFilter<"Organization"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -285,6 +295,7 @@ export type OrganizationOrderByWithAggregationInput = {
   notionApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   notionDatabaseId?: Prisma.SortOrderInput | Prisma.SortOrder
   deleteAudioAfterTranscription?: Prisma.SortOrder
+  postMeetingEmail?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationCountOrderByAggregateInput
@@ -305,6 +316,7 @@ export type OrganizationScalarWhereWithAggregatesInput = {
   notionApiKey?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
   notionDatabaseId?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
   deleteAudioAfterTranscription?: Prisma.BoolWithAggregatesFilter<"Organization"> | boolean
+  postMeetingEmail?: Prisma.BoolWithAggregatesFilter<"Organization"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
 }
@@ -319,6 +331,7 @@ export type OrganizationCreateInput = {
   notionApiKey?: string | null
   notionDatabaseId?: string | null
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -337,6 +350,7 @@ export type OrganizationUncheckedCreateInput = {
   notionApiKey?: string | null
   notionDatabaseId?: string | null
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -355,6 +369,7 @@ export type OrganizationUpdateInput = {
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -373,6 +388,7 @@ export type OrganizationUncheckedUpdateInput = {
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -391,6 +407,7 @@ export type OrganizationCreateManyInput = {
   notionApiKey?: string | null
   notionDatabaseId?: string | null
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -405,6 +422,7 @@ export type OrganizationUpdateManyMutationInput = {
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -419,6 +437,7 @@ export type OrganizationUncheckedUpdateManyInput = {
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -433,6 +452,7 @@ export type OrganizationCountOrderByAggregateInput = {
   notionApiKey?: Prisma.SortOrder
   notionDatabaseId?: Prisma.SortOrder
   deleteAudioAfterTranscription?: Prisma.SortOrder
+  postMeetingEmail?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -447,6 +467,7 @@ export type OrganizationMaxOrderByAggregateInput = {
   notionApiKey?: Prisma.SortOrder
   notionDatabaseId?: Prisma.SortOrder
   deleteAudioAfterTranscription?: Prisma.SortOrder
+  postMeetingEmail?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -461,6 +482,7 @@ export type OrganizationMinOrderByAggregateInput = {
   notionApiKey?: Prisma.SortOrder
   notionDatabaseId?: Prisma.SortOrder
   deleteAudioAfterTranscription?: Prisma.SortOrder
+  postMeetingEmail?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -563,6 +585,7 @@ export type OrganizationCreateWithoutMembersInput = {
   notionApiKey?: string | null
   notionDatabaseId?: string | null
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
@@ -580,6 +603,7 @@ export type OrganizationUncheckedCreateWithoutMembersInput = {
   notionApiKey?: string | null
   notionDatabaseId?: string | null
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
@@ -613,6 +637,7 @@ export type OrganizationUpdateWithoutMembersInput = {
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
@@ -630,6 +655,7 @@ export type OrganizationUncheckedUpdateWithoutMembersInput = {
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
@@ -647,6 +673,7 @@ export type OrganizationCreateWithoutRecordingsInput = {
   notionApiKey?: string | null
   notionDatabaseId?: string | null
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -664,6 +691,7 @@ export type OrganizationUncheckedCreateWithoutRecordingsInput = {
   notionApiKey?: string | null
   notionDatabaseId?: string | null
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -697,6 +725,7 @@ export type OrganizationUpdateWithoutRecordingsInput = {
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -714,6 +743,7 @@ export type OrganizationUncheckedUpdateWithoutRecordingsInput = {
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -731,6 +761,7 @@ export type OrganizationCreateWithoutTemplatesInput = {
   notionApiKey?: string | null
   notionDatabaseId?: string | null
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -748,6 +779,7 @@ export type OrganizationUncheckedCreateWithoutTemplatesInput = {
   notionApiKey?: string | null
   notionDatabaseId?: string | null
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -781,6 +813,7 @@ export type OrganizationUpdateWithoutTemplatesInput = {
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -798,6 +831,7 @@ export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -815,6 +849,7 @@ export type OrganizationCreateWithoutApiKeysInput = {
   notionApiKey?: string | null
   notionDatabaseId?: string | null
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -832,6 +867,7 @@ export type OrganizationUncheckedCreateWithoutApiKeysInput = {
   notionApiKey?: string | null
   notionDatabaseId?: string | null
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -865,6 +901,7 @@ export type OrganizationUpdateWithoutApiKeysInput = {
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -882,6 +919,7 @@ export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
   notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -957,6 +995,7 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   notionApiKey?: boolean
   notionDatabaseId?: boolean
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
@@ -976,6 +1015,7 @@ export type OrganizationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   notionApiKey?: boolean
   notionDatabaseId?: boolean
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -990,6 +1030,7 @@ export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   notionApiKey?: boolean
   notionDatabaseId?: boolean
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -1004,11 +1045,12 @@ export type OrganizationSelectScalar = {
   notionApiKey?: boolean
   notionDatabaseId?: boolean
   deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
 export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
   recordings?: boolean | Prisma.Organization$recordingsArgs<ExtArgs>
@@ -1037,6 +1079,7 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     notionApiKey: string | null
     notionDatabaseId: string | null
     deleteAudioAfterTranscription: boolean
+    postMeetingEmail: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["organization"]>
@@ -1475,6 +1518,7 @@ export interface OrganizationFieldRefs {
   readonly notionApiKey: Prisma.FieldRef<"Organization", 'String'>
   readonly notionDatabaseId: Prisma.FieldRef<"Organization", 'String'>
   readonly deleteAudioAfterTranscription: Prisma.FieldRef<"Organization", 'Boolean'>
+  readonly postMeetingEmail: Prisma.FieldRef<"Organization", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Organization", 'DateTime'>
 }

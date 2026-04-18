@@ -24,9 +24,15 @@ type Props = {
   icon: LucideIcon
   label: string
   value: number
+  /**
+   * Optional string override. When provided, replaces the AnimatedCounter
+   * so a card can display a pre-formatted value like "3h 24m" without
+   * losing the gradient + lift treatment.
+   */
+  displayValue?: string
 }
 
-export function GradientStatCard({ href, variant, icon: Icon, label, value }: Props) {
+export function GradientStatCard({ href, variant, icon: Icon, label, value, displayValue }: Props) {
   const content = (
     <div
       className={cn(
@@ -41,7 +47,7 @@ export function GradientStatCard({ href, variant, icon: Icon, label, value }: Pr
         </div>
         <div className="min-w-0">
           <p className="text-3xl font-bold tabular-nums leading-none">
-            <AnimatedCounter value={value} />
+            {displayValue ?? <AnimatedCounter value={value} />}
           </p>
           <p className="mt-1.5 text-xs font-medium uppercase tracking-wider text-white/80">
             {label}

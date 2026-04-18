@@ -90,6 +90,9 @@ model Organization {
   // audio file after transcription completes. Default is false (keep audio)
   // so users can re-transcribe and play back recordings from the detail view.
   deleteAudioAfterTranscription Boolean @default(false)
+  // Post-meeting email — when true (default), the summarization worker emails
+  // the recording owner once notes are ready. Users can opt out per-org.
+  postMeetingEmail              Boolean @default(true)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
