@@ -1,20 +1,23 @@
 // Kolasys AI — Root layout
 
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 import { TRPCReactProvider } from '@/providers/trpc-provider'
 import { PostHogProvider } from '@/providers/posthog-provider'
 import './globals.css'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+// Inter is the single UI font. `variable: '--font-inter'` writes the resolved
+// font-family + feature settings to the `--font-inter` custom property; the
+// class `inter.variable` is applied to <html> so the property cascades to
+// everything.
+//
+// `display: 'swap'` shows a fallback immediately and swaps in Inter once
+// loaded — avoids blocking first paint.
+const inter = Inter({
   subsets: ['latin'],
-})
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -41,11 +44,11 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
+      <html lang="en" className={inter.variable} suppressHydrationWarning>
         <head>
           <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         </head>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <body className="antialiased">
           <TRPCReactProvider>
             <PostHogProvider>
               {children}
