@@ -67,7 +67,7 @@ export function EditableNoteSection({ sectionId, title, initialContent }: Props)
   return (
     <div className="group p-4 sm:p-5">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-sm font-semibold text-primary">{title}</p>
+        <p className="text-sm font-semibold text-neutral-900 dark:text-white">{title}</p>
         <div className="flex items-center gap-2">
           {mutation.isPending && (
             <Loader2 className="h-3 w-3 animate-spin text-muted" />

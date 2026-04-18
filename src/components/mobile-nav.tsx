@@ -49,7 +49,9 @@ export function MobileNav() {
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
-            <Mic2 className="h-4 w-4 text-accent" />
+            <div className="flex items-center justify-center rounded-xl bg-gradient-to-br from-[#667eea] to-[#764ba2] p-1 shadow-sm">
+              <Mic2 className="h-4 w-4 text-white" />
+            </div>
             <span className="logo-glow text-sm font-semibold tracking-tight text-primary">
               Kolasys AI
             </span>
@@ -96,7 +98,11 @@ export function MobileNav() {
                   elements: {
                     rootBox: 'w-full',
                     organizationSwitcherTrigger:
-                      'w-full rounded-lg px-2 py-1.5 text-sm hover:bg-[color-mix(in_srgb,var(--text-muted)_10%,transparent)] justify-start',
+                      'w-full rounded-lg px-2 py-1.5 text-sm hover:bg-[color-mix(in_srgb,var(--text-muted)_10%,transparent)] justify-start gap-2',
+                    avatarBox:
+                      'w-7 h-7 rounded-lg text-white text-xs font-bold flex items-center justify-center',
+                    organizationPreviewMainIdentifier: 'text-sm font-semibold text-primary',
+                    organizationPreviewSecondaryIdentifier: 'text-xs text-secondary',
                   },
                 }}
               />

@@ -68,6 +68,15 @@ type Props = {
 
 type Tab = 'notes' | 'transcript' | 'ai'
 
+// Solid note-section card surface — replaces the translucent `.glass` look
+// that was blending into the off-white page background in light mode.
+//   Light: crisp white card, subtle 1px neutral-200/80 border, shadow-sm depth.
+//   Dark:  existing #1A1A24 surface with a white/10 border (no shadow).
+// Kept at module scope so every note card is styled identically.
+const NOTE_CARD =
+  'rounded-2xl bg-white shadow-sm border border-neutral-200/80 ' +
+  'dark:bg-[#1A1A24] dark:border-white/10'
+
 export function RecordingSplitView({
   recordingId,
   recordingTitle,
@@ -150,10 +159,13 @@ export function RecordingSplitView({
               <div className="space-y-3">
                 {summary && (
                   <div
-                    className="glass relative p-4 sm:p-5"
+                    className={`${NOTE_CARD} relative p-4 sm:p-5`}
                     style={{ borderLeft: '3px solid var(--accent)' }}
                   >
-                    <p className="text-xs font-semibold uppercase tracking-wider text-secondary">
+                    <p
+                      className="text-xs font-semibold uppercase tracking-widest"
+                      style={{ color: 'color-mix(in srgb, var(--accent) 80%, transparent)' }}
+                    >
                       Summary
                     </p>
                     <div className="mt-2">
@@ -165,7 +177,7 @@ export function RecordingSplitView({
                 {note.sections.map((section) => (
                   <div
                     key={section.id}
-                    className="glass relative"
+                    className={`${NOTE_CARD} relative`}
                     style={{ borderLeft: '3px solid var(--accent)' }}
                   >
                     <EditableNoteSection
@@ -178,12 +190,14 @@ export function RecordingSplitView({
 
                 {note.actionItems.length > 0 && (
                   <div
-                    className="glass p-4 sm:p-5"
+                    className={`${NOTE_CARD} p-4 sm:p-5`}
                     style={{ borderLeft: '3px solid var(--accent)' }}
                   >
                     <div className="mb-3 flex items-center gap-2">
                       <CheckSquare className="h-4 w-4 text-accent" />
-                      <p className="text-sm font-semibold text-primary">Action Items</p>
+                      <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                        Action Items
+                      </p>
                     </div>
                     <ul className="space-y-3">
                       {note.actionItems.map((item) => (
