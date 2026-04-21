@@ -485,6 +485,25 @@ Key differentiation opportunities:
 - Set up Clerk org webhook with production URL (not ngrok)
 - Weekly digest cron job (Vercel cron configured, needs testing)
 
+### April 21, 2026 — Shipped Features (Web)
+
+Appended to Phase 2's list — these are all on `main` and deployed via Vercel.
+
+| Feature | Where |
+|---|---|
+| SSO settings | Settings → Single Sign-On (Enterprise plan gate, Clerk SAML/OIDC) |
+| Custom bot name | Settings → Recording capture → Bot display name (inline editable) |
+| Ask Kolasys prompt chips | 5 suggested prompts on AskAI empty state, click to submit |
+| Desktop capture tab | New Recording modal — 4 tabs: Upload / Record / Desktop (Soon) / Bot |
+| Pricing page | /pricing — public, no auth, Free / $12 / $10 / Enterprise plans |
+| Word-level audio sync | Click transcript word → audio seeks to that timestamp |
+| wordsJson per segment | Whisper word timestamps stored in DB, falls back gracefully |
+
+The Tier 1 / Tier 2 roadmap items these closed out (SSO, custom bot name,
+Ask Kolasys upgrade, free tier + pricing, word-level sync, bot-free
+desktop preview) have corresponding sections in `docs/ROADMAP.md` that
+should be marked shipped on the next ROADMAP pass.
+
 ---
 
 ## 9. Phase Roadmap
@@ -630,3 +649,63 @@ They **add to**, and do not replace, the guidance earlier in this file.
 
 ### Session docs
 - Save a narrative log of each session to `docs/sessions/KOLASYS_SESSION_YYYY-MM-DD.md` after every session.
+
+---
+
+## 15. April 21, 2026 — Tier 1 + Tier 2 Build Session
+
+### Tier 1 Shipped
+
+**SSO (Settings → Single Sign-On)**
+- Schema: ssoEnabled, ssoDomain, samlMetadataUrl on Organization
+- src/components/sso-settings.tsx — plan-gated; Enterprise shows enable toggle, domain field, SAML metadata URL, SP details (ACS URL + Entity ID)
+- Clerk SAML/OIDC is built-in — this is a config UI unlock
+
+**Custom Bot Name (Settings → Recording capture)**
+- Schema: botDisplayName String @default("Kolasys AI")
+- src/components/bot-display-name-input.tsx — inline editable, red checkmark saves
+- meetingbot.service.ts deployBot() accepts botDisplayName param
+- recordings.router.ts fetches org.botDisplayName and passes to deployBot()
+
+**Ask Kolasys Prompt Chips**
+- src/components/inline-ask-ai.tsx — 5 chip buttons on empty state
+- Clicking chip sets input + submits via formRef.current.requestSubmit()
+- Form has data-ask-form attribute for targeting
+
+**Desktop Capture Tab**
+- src/components/new-recording-modal.tsx — 4 tabs: Upload / Record Now / Desktop / Meeting Bot
+- Desktop tab: "Record without a bot", COMING SOON badge, mailto CTA
+- Active tab uses brand red #CA2625
+
+### Tier 2 Shipped
+
+**Public Pricing Page (/pricing)**
+- src/app/pricing/page.tsx — no auth required
+- 4 plans: Free, Pro ($12/mo), Team ($10/seat/mo), Enterprise (custom)
+- src/proxy.ts — /pricing(.*) added to isPublicRoute matcher
+
+**Word-Level Audio Sync**
+- Schema: wordsJson String? on TranscriptSegment
+- transcription.service.ts — always requests ['segment', 'word'] granularities; maps Whisper's flat response.words array to each segment by time range
+- transcription.worker.ts — saves wordsJson: JSON.stringify(seg.words)
+- recording-audio-player.tsx — onSeekReady + onTimeUpdate props added
+- recording-split-view.tsx — seekFnRef + playhead state wired between player and transcript
+- transcript-paginated.tsx — clickable word buttons when wordsJson exists; falls back to plain text
+- Old recordings: graceful fallback. New recordings: full word-level sync automatically.
+
+### Competitive Intelligence
+- Granola ($1.5B, Series C March 2026) — bot-free desktop is their moat; only 10 languages
+- Google Meet now flags bots as security risks — bot-free approach is urgent
+- Apple Watch — zero competitors have WatchOS integration; 12-month first-mover window
+- Fireflies hidden credits = #1 complaint; our flat-rate pricing wins on transparency
+
+### SettingsStack Navigation Pattern (Mobile)
+useNavigation() inside a screen that is the root of a nested stack returns the parent tab navigator's context, not the stack. Always accept navigation as a typed prop from the stack:
+
+```tsx
+export default function SettingsScreen({
+  navigation
+}: {
+  navigation: NativeStackNavigationProp<SettingsStackParamList, 'SettingsMain'>
+}) { ... }
+```
