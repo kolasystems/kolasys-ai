@@ -6,6 +6,7 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 const isPublicRoute = createRouteMatcher([
   '/sign-in(.*)',
   '/sign-up(.*)',
+  '/pricing(.*)',
   '/api/webhooks/(.*)',
   // tRPC routes handle their own auth via protectedProcedure / orgProcedure.
   // Letting the middleware redirect here produces a 302 → /sign-in response
