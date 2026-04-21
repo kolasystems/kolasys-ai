@@ -167,6 +167,7 @@ export const TranscriptSegmentScalarFieldEnum = {
   startTime: 'startTime',
   endTime: 'endTime',
   confidence: 'confidence',
+  wordsJson: 'wordsJson',
   createdAt: 'createdAt'
 } as const
 

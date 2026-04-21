@@ -71,6 +71,7 @@ export default async function RecordingDetailPage({ params }: Props) {
     endTime: s.endTime,
     speaker: s.speaker,
     text: s.text,
+    wordsJson: s.wordsJson,
   }))
   const initialHasMore = allSegments.length > 100
   const uniqueSpeakerIds = Array.from(

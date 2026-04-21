@@ -13,7 +13,13 @@ type Segment = {
   endTime: number
   speaker: string | null
   text: string
+  // JSON-encoded Array<{ word: string; start: number; end: number }> when the
+  // segment has word-level timestamps. Null on legacy segments — they fall
+  // back to plain text rendering.
+  wordsJson?: string | null
 }
+
+type WordToken = { word: string; start: number; end: number }
 
 type SpeakerLabel = {
   speakerId: string
@@ -28,6 +34,29 @@ type Props = {
   fullText: string
   speakerLabels: SpeakerLabel[]
   duration?: number | null
+  /** Called with the target timestamp (seconds) when the user clicks a word. */
+  onSeek?: (seconds: number) => void
+  /** Current audio playhead in seconds — used to highlight the spoken word. */
+  playhead?: number
+}
+
+// Defensive JSON parse for wordsJson — avoids throwing on malformed DB rows.
+function parseWords(json: string | null | undefined): WordToken[] {
+  if (!json) return []
+  try {
+    const parsed = JSON.parse(json)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(
+      (w): w is WordToken =>
+        w &&
+        typeof w === 'object' &&
+        typeof (w as WordToken).word === 'string' &&
+        typeof (w as WordToken).start === 'number' &&
+        typeof (w as WordToken).end === 'number',
+    )
+  } catch {
+    return []
+  }
 }
 
 // ─── Pre-seeded waveform heights (stable across renders) ─────────────────────
@@ -206,6 +235,8 @@ export function TranscriptPaginated({
   fullText,
   speakerLabels,
   duration,
+  onSeek,
+  playhead,
 }: Props) {
   const [segments, setSegments] = useState<Segment[]>(initialSegments)
   const [cursor, setCursor] = useState<string | undefined>(
@@ -281,17 +312,57 @@ export function TranscriptPaginated({
         {segments.map((seg) => {
           const displayName = seg.speaker ? (labelMap[seg.speaker] ?? seg.speaker) : null
           const color = seg.speaker ? speakerColor(seg.speaker) : null
+          const words = parseWords(seg.wordsJson)
+          const hasWords = words.length > 0
 
           return (
             <div key={seg.id} id={`seg-${seg.id}`} className="flex gap-3 scroll-mt-4">
-              <span className="mt-0.5 w-14 flex-shrink-0 font-mono text-xs text-neutral-400">
+              {/* Click the timestamp to seek to the start of the segment */}
+              <button
+                type="button"
+                onClick={() => onSeek?.(seg.startTime)}
+                disabled={!onSeek}
+                className={cn(
+                  'mt-0.5 w-14 flex-shrink-0 text-left font-mono text-xs text-neutral-400',
+                  onSeek && 'cursor-pointer transition-colors hover:text-accent',
+                )}
+                aria-label={`Seek to ${formatDuration(seg.startTime)}`}
+              >
                 {formatDuration(seg.startTime)}
-              </span>
+              </button>
               <div className="min-w-0">
                 {displayName && (
                   <p className={cn('mb-0.5 text-xs font-semibold', color)}>{displayName}</p>
                 )}
-                <p className="text-sm leading-relaxed text-neutral-700">{seg.text}</p>
+                {hasWords ? (
+                  // Word-level click-to-seek. Whisper includes a leading space
+                  // in each word token, so buttons sit flush without extra
+                  // separators. `inline` display lets them wrap naturally.
+                  <p className="text-sm leading-relaxed text-neutral-700">
+                    {words.map((w, i) => {
+                      const isActive =
+                        typeof playhead === 'number' &&
+                        playhead >= w.start &&
+                        playhead < w.end
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => onSeek?.(w.start)}
+                          className={cn(
+                            'inline rounded px-0.5 transition-colors',
+                            onSeek && 'cursor-pointer hover:bg-accent/20',
+                            isActive && 'bg-accent/20 font-medium text-accent',
+                          )}
+                        >
+                          {w.word}
+                        </button>
+                      )
+                    })}
+                  </p>
+                ) : (
+                  <p className="text-sm leading-relaxed text-neutral-700">{seg.text}</p>
+                )}
               </div>
             </div>
           )

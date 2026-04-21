@@ -46,6 +46,7 @@ export type TranscriptSegmentMinAggregateOutputType = {
   startTime: number | null
   endTime: number | null
   confidence: number | null
+  wordsJson: string | null
   createdAt: Date | null
 }
 
@@ -57,6 +58,7 @@ export type TranscriptSegmentMaxAggregateOutputType = {
   startTime: number | null
   endTime: number | null
   confidence: number | null
+  wordsJson: string | null
   createdAt: Date | null
 }
 
@@ -68,6 +70,7 @@ export type TranscriptSegmentCountAggregateOutputType = {
   startTime: number
   endTime: number
   confidence: number
+  wordsJson: number
   createdAt: number
   _all: number
 }
@@ -93,6 +96,7 @@ export type TranscriptSegmentMinAggregateInputType = {
   startTime?: true
   endTime?: true
   confidence?: true
+  wordsJson?: true
   createdAt?: true
 }
 
@@ -104,6 +108,7 @@ export type TranscriptSegmentMaxAggregateInputType = {
   startTime?: true
   endTime?: true
   confidence?: true
+  wordsJson?: true
   createdAt?: true
 }
 
@@ -115,6 +120,7 @@ export type TranscriptSegmentCountAggregateInputType = {
   startTime?: true
   endTime?: true
   confidence?: true
+  wordsJson?: true
   createdAt?: true
   _all?: true
 }
@@ -213,6 +219,7 @@ export type TranscriptSegmentGroupByOutputType = {
   startTime: number
   endTime: number
   confidence: number | null
+  wordsJson: string | null
   createdAt: Date
   _count: TranscriptSegmentCountAggregateOutputType | null
   _avg: TranscriptSegmentAvgAggregateOutputType | null
@@ -247,6 +254,7 @@ export type TranscriptSegmentWhereInput = {
   startTime?: Prisma.FloatFilter<"TranscriptSegment"> | number
   endTime?: Prisma.FloatFilter<"TranscriptSegment"> | number
   confidence?: Prisma.FloatNullableFilter<"TranscriptSegment"> | number | null
+  wordsJson?: Prisma.StringNullableFilter<"TranscriptSegment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"TranscriptSegment"> | Date | string
   transcript?: Prisma.XOR<Prisma.TranscriptScalarRelationFilter, Prisma.TranscriptWhereInput>
 }
@@ -259,6 +267,7 @@ export type TranscriptSegmentOrderByWithRelationInput = {
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
   confidence?: Prisma.SortOrderInput | Prisma.SortOrder
+  wordsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   transcript?: Prisma.TranscriptOrderByWithRelationInput
 }
@@ -274,6 +283,7 @@ export type TranscriptSegmentWhereUniqueInput = Prisma.AtLeast<{
   startTime?: Prisma.FloatFilter<"TranscriptSegment"> | number
   endTime?: Prisma.FloatFilter<"TranscriptSegment"> | number
   confidence?: Prisma.FloatNullableFilter<"TranscriptSegment"> | number | null
+  wordsJson?: Prisma.StringNullableFilter<"TranscriptSegment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"TranscriptSegment"> | Date | string
   transcript?: Prisma.XOR<Prisma.TranscriptScalarRelationFilter, Prisma.TranscriptWhereInput>
 }, "id">
@@ -286,6 +296,7 @@ export type TranscriptSegmentOrderByWithAggregationInput = {
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
   confidence?: Prisma.SortOrderInput | Prisma.SortOrder
+  wordsJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.TranscriptSegmentCountOrderByAggregateInput
   _avg?: Prisma.TranscriptSegmentAvgOrderByAggregateInput
@@ -305,6 +316,7 @@ export type TranscriptSegmentScalarWhereWithAggregatesInput = {
   startTime?: Prisma.FloatWithAggregatesFilter<"TranscriptSegment"> | number
   endTime?: Prisma.FloatWithAggregatesFilter<"TranscriptSegment"> | number
   confidence?: Prisma.FloatNullableWithAggregatesFilter<"TranscriptSegment"> | number | null
+  wordsJson?: Prisma.StringNullableWithAggregatesFilter<"TranscriptSegment"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"TranscriptSegment"> | Date | string
 }
 
@@ -315,6 +327,7 @@ export type TranscriptSegmentCreateInput = {
   startTime: number
   endTime: number
   confidence?: number | null
+  wordsJson?: string | null
   createdAt?: Date | string
   transcript: Prisma.TranscriptCreateNestedOneWithoutSegmentsInput
 }
@@ -327,6 +340,7 @@ export type TranscriptSegmentUncheckedCreateInput = {
   startTime: number
   endTime: number
   confidence?: number | null
+  wordsJson?: string | null
   createdAt?: Date | string
 }
 
@@ -337,6 +351,7 @@ export type TranscriptSegmentUpdateInput = {
   startTime?: Prisma.FloatFieldUpdateOperationsInput | number
   endTime?: Prisma.FloatFieldUpdateOperationsInput | number
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  wordsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUpdateOneRequiredWithoutSegmentsNestedInput
 }
@@ -349,6 +364,7 @@ export type TranscriptSegmentUncheckedUpdateInput = {
   startTime?: Prisma.FloatFieldUpdateOperationsInput | number
   endTime?: Prisma.FloatFieldUpdateOperationsInput | number
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  wordsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -360,6 +376,7 @@ export type TranscriptSegmentCreateManyInput = {
   startTime: number
   endTime: number
   confidence?: number | null
+  wordsJson?: string | null
   createdAt?: Date | string
 }
 
@@ -370,6 +387,7 @@ export type TranscriptSegmentUpdateManyMutationInput = {
   startTime?: Prisma.FloatFieldUpdateOperationsInput | number
   endTime?: Prisma.FloatFieldUpdateOperationsInput | number
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  wordsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -381,6 +399,7 @@ export type TranscriptSegmentUncheckedUpdateManyInput = {
   startTime?: Prisma.FloatFieldUpdateOperationsInput | number
   endTime?: Prisma.FloatFieldUpdateOperationsInput | number
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  wordsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -402,6 +421,7 @@ export type TranscriptSegmentCountOrderByAggregateInput = {
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
+  wordsJson?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -419,6 +439,7 @@ export type TranscriptSegmentMaxOrderByAggregateInput = {
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
+  wordsJson?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -430,6 +451,7 @@ export type TranscriptSegmentMinOrderByAggregateInput = {
   startTime?: Prisma.SortOrder
   endTime?: Prisma.SortOrder
   confidence?: Prisma.SortOrder
+  wordsJson?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -496,6 +518,7 @@ export type TranscriptSegmentCreateWithoutTranscriptInput = {
   startTime: number
   endTime: number
   confidence?: number | null
+  wordsJson?: string | null
   createdAt?: Date | string
 }
 
@@ -506,6 +529,7 @@ export type TranscriptSegmentUncheckedCreateWithoutTranscriptInput = {
   startTime: number
   endTime: number
   confidence?: number | null
+  wordsJson?: string | null
   createdAt?: Date | string
 }
 
@@ -546,6 +570,7 @@ export type TranscriptSegmentScalarWhereInput = {
   startTime?: Prisma.FloatFilter<"TranscriptSegment"> | number
   endTime?: Prisma.FloatFilter<"TranscriptSegment"> | number
   confidence?: Prisma.FloatNullableFilter<"TranscriptSegment"> | number | null
+  wordsJson?: Prisma.StringNullableFilter<"TranscriptSegment"> | string | null
   createdAt?: Prisma.DateTimeFilter<"TranscriptSegment"> | Date | string
 }
 
@@ -556,6 +581,7 @@ export type TranscriptSegmentCreateManyTranscriptInput = {
   startTime: number
   endTime: number
   confidence?: number | null
+  wordsJson?: string | null
   createdAt?: Date | string
 }
 
@@ -566,6 +592,7 @@ export type TranscriptSegmentUpdateWithoutTranscriptInput = {
   startTime?: Prisma.FloatFieldUpdateOperationsInput | number
   endTime?: Prisma.FloatFieldUpdateOperationsInput | number
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  wordsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -576,6 +603,7 @@ export type TranscriptSegmentUncheckedUpdateWithoutTranscriptInput = {
   startTime?: Prisma.FloatFieldUpdateOperationsInput | number
   endTime?: Prisma.FloatFieldUpdateOperationsInput | number
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  wordsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -586,6 +614,7 @@ export type TranscriptSegmentUncheckedUpdateManyWithoutTranscriptInput = {
   startTime?: Prisma.FloatFieldUpdateOperationsInput | number
   endTime?: Prisma.FloatFieldUpdateOperationsInput | number
   confidence?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  wordsJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -599,6 +628,7 @@ export type TranscriptSegmentSelect<ExtArgs extends runtime.Types.Extensions.Int
   startTime?: boolean
   endTime?: boolean
   confidence?: boolean
+  wordsJson?: boolean
   createdAt?: boolean
   transcript?: boolean | Prisma.TranscriptDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["transcriptSegment"]>
@@ -611,6 +641,7 @@ export type TranscriptSegmentSelectCreateManyAndReturn<ExtArgs extends runtime.T
   startTime?: boolean
   endTime?: boolean
   confidence?: boolean
+  wordsJson?: boolean
   createdAt?: boolean
   transcript?: boolean | Prisma.TranscriptDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["transcriptSegment"]>
@@ -623,6 +654,7 @@ export type TranscriptSegmentSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   startTime?: boolean
   endTime?: boolean
   confidence?: boolean
+  wordsJson?: boolean
   createdAt?: boolean
   transcript?: boolean | Prisma.TranscriptDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["transcriptSegment"]>
@@ -635,10 +667,11 @@ export type TranscriptSegmentSelectScalar = {
   startTime?: boolean
   endTime?: boolean
   confidence?: boolean
+  wordsJson?: boolean
   createdAt?: boolean
 }
 
-export type TranscriptSegmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "transcriptId" | "speaker" | "text" | "startTime" | "endTime" | "confidence" | "createdAt", ExtArgs["result"]["transcriptSegment"]>
+export type TranscriptSegmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "transcriptId" | "speaker" | "text" | "startTime" | "endTime" | "confidence" | "wordsJson" | "createdAt", ExtArgs["result"]["transcriptSegment"]>
 export type TranscriptSegmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   transcript?: boolean | Prisma.TranscriptDefaultArgs<ExtArgs>
 }
@@ -662,6 +695,7 @@ export type $TranscriptSegmentPayload<ExtArgs extends runtime.Types.Extensions.I
     startTime: number
     endTime: number
     confidence: number | null
+    wordsJson: string | null
     createdAt: Date
   }, ExtArgs["result"]["transcriptSegment"]>
   composites: {}
@@ -1094,6 +1128,7 @@ export interface TranscriptSegmentFieldRefs {
   readonly startTime: Prisma.FieldRef<"TranscriptSegment", 'Float'>
   readonly endTime: Prisma.FieldRef<"TranscriptSegment", 'Float'>
   readonly confidence: Prisma.FieldRef<"TranscriptSegment", 'Float'>
+  readonly wordsJson: Prisma.FieldRef<"TranscriptSegment", 'String'>
   readonly createdAt: Prisma.FieldRef<"TranscriptSegment", 'DateTime'>
 }
     

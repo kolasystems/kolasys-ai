@@ -5,12 +5,21 @@ import { Readable } from 'stream'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
+export type TranscriptWord = {
+  word: string
+  start: number
+  end: number
+}
+
 export type TranscriptSegment = {
   speaker?: string
   text: string
   startTime: number
   endTime: number
   confidence?: number
+  // Word-level timestamps inside this segment (Whisper word granularity).
+  // Empty when the provider can't produce per-word timings.
+  words?: TranscriptWord[]
 }
 
 export type TranscriptionResult = {
@@ -22,16 +31,15 @@ export type TranscriptionResult = {
 
 export type TranscriptionOptions = {
   language?: string
-  // 'high' asks Whisper for word-level granularity on top of segments. That
-  // costs more tokens but produces more accurate segment boundaries. Whisper
-  // only exposes one model (`whisper-1`), so quality here is expressed through
-  // the granularity setting rather than a model swap.
+  // Kept for forward-compatibility — word granularity is now always requested
+  // so clicking a word in the transcript can seek the audio player. Quality
+  // is still accepted by callers but no longer changes the Whisper request.
   quality?: 'standard' | 'high'
 }
 
 /**
  * Transcribe an audio buffer using OpenAI Whisper.
- * Returns the full transcript text and per-segment data.
+ * Returns the full transcript text and per-segment data with word timings.
  */
 export async function transcribeAudio(
   audioBuffer: Buffer,
@@ -39,8 +47,9 @@ export async function transcribeAudio(
   options: TranscriptionOptions = {}
 ): Promise<TranscriptionResult> {
   const language = options.language ?? 'en'
-  const granularities: Array<'segment' | 'word'> =
-    options.quality === 'high' ? ['segment', 'word'] : ['segment']
+  // Always request both segment and word granularity — the word timings power
+  // click-to-seek in the transcript UI. The extra cost is negligible.
+  const granularities: Array<'segment' | 'word'> = ['segment', 'word']
 
   // Whisper expects a File-like object with a name property.
   // Wrap in Uint8Array so the buffer type is narrowed to ArrayBuffer (not SharedArrayBuffer).
@@ -54,12 +63,23 @@ export async function transcribeAudio(
     timestamp_granularities: granularities,
   })
 
+  // Whisper returns `words` as a flat array across the whole transcript when
+  // word granularity is requested. We redistribute them into their containing
+  // segment using start-time overlap — a word belongs to the segment whose
+  // [start, end) range contains the word's start time.
+  const allWords: TranscriptWord[] = (response.words ?? []).map((w) => ({
+    word: w.word,
+    start: w.start,
+    end: w.end,
+  }))
+
   const segments: TranscriptSegment[] = (response.segments ?? []).map((seg) => ({
     text: seg.text.trim(),
     startTime: seg.start,
     endTime: seg.end,
     // Whisper doesn't return per-segment confidence, but avg_logprob is a proxy.
     confidence: seg.avg_logprob !== undefined ? logprobToConfidence(seg.avg_logprob) : undefined,
+    words: allWords.filter((w) => w.start >= seg.start && w.start < seg.end),
   }))
 
   return {

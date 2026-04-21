@@ -11,9 +11,24 @@ import { formatDuration } from '@/lib/utils'
 
 type Props = {
   recordingId: string
+  /**
+   * Called once per audio-URL load with a function the parent can keep and
+   * use to drive the player externally (e.g. clicking a word in the
+   * transcript to seek + play from that word's timestamp).
+   */
+  onSeekReady?: (seekFn: (seconds: number) => void) => void
+  /**
+   * Fires on every HTMLAudioElement timeupdate event. Use it upstream to
+   * drive a "currently playing" highlight on the transcript word.
+   */
+  onTimeUpdate?: (seconds: number) => void
 }
 
-export function RecordingAudioPlayer({ recordingId }: Props) {
+export function RecordingAudioPlayer({
+  recordingId,
+  onSeekReady,
+  onTimeUpdate: onTimeUpdateProp,
+}: Props) {
   const { data, isLoading, refetch } = trpc.recordings.getAudioUrl.useQuery(
     { recordingId },
     { retry: false, staleTime: 50 * 60_000 }, // 50 min — the URL itself is valid 60 min
@@ -26,6 +41,12 @@ export function RecordingAudioPlayer({ recordingId }: Props) {
   const [barWidth, setBarWidth] = useState(0)
   const barRef = useRef<HTMLDivElement>(null)
   const retriedRef = useRef(false)
+
+  // Ref-hold the prop callbacks so the registration effect below can depend
+  // only on `url` without stale-closure warnings or re-registering on every
+  // parent render (the parent typically passes inline lambdas).
+  const onSeekReadyRef = useRef(onSeekReady)
+  useEffect(() => { onSeekReadyRef.current = onSeekReady }, [onSeekReady])
 
   const url = data?.url ?? null
 
@@ -44,6 +65,18 @@ export function RecordingAudioPlayer({ recordingId }: Props) {
   useEffect(() => {
     setPlaying(false)
     setPosition(0)
+  }, [url])
+
+  // Expose a seek function to the parent whenever the audio is ready.
+  useEffect(() => {
+    onSeekReadyRef.current?.((secs) => {
+      const a = audioRef.current
+      if (!a) return
+      a.currentTime = secs
+      if (a.paused) a.play().catch(() => {})
+      setPlaying(true)
+      setPosition(secs)
+    })
   }, [url])
 
   async function togglePlay() {
@@ -103,7 +136,11 @@ export function RecordingAudioPlayer({ recordingId }: Props) {
       <audio
         ref={audioRef}
         src={url}
-        onTimeUpdate={(e) => setPosition(e.currentTarget.currentTime)}
+        onTimeUpdate={(e) => {
+          const t = e.currentTarget.currentTime
+          setPosition(t)
+          onTimeUpdateProp?.(t)
+        }}
         onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
         onEnded={() => {
           setPlaying(false)

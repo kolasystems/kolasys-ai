@@ -5,7 +5,7 @@
 // Mobile (< 1024px): single-panel view with a Notes | Transcript | Ask AI tab bar.
 // A sticky audio player lives at the bottom of the right pane.
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { CheckSquare, FileText, Mic2, Search, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { EditableActionItem } from './editable-action-item'
@@ -25,6 +25,9 @@ type Segment = {
   endTime: number
   speaker: string | null
   text: string
+  // JSON-encoded array of { word, start, end } — parsed in TranscriptPaginated
+  // to render clickable word buttons that seek the audio player.
+  wordsJson?: string | null
 }
 
 type SpeakerLabel = { speakerId: string; displayName: string }
@@ -88,6 +91,17 @@ export function RecordingSplitView({
 }: Props) {
   const [tab, setTab] = useState<Tab>('notes')
   const [summary, setSummary] = useState<string | null>(note?.summary ?? null)
+
+  // Word-level audio sync — the audio player registers a seek function here
+  // whenever its URL loads; clicking a word in the transcript invokes it.
+  // `playhead` is updated on every audio timeupdate so the currently-spoken
+  // word can be highlighted.
+  const seekFnRef = useRef<((secs: number) => void) | null>(null)
+  const [playhead, setPlayhead] = useState(0)
+
+  function handleSeek(secs: number) {
+    seekFnRef.current?.(secs)
+  }
   const [findQuery, setFindQuery] = useState('')
 
   // Right pane content: "Transcript" shows whenever tab != 'ai'.
@@ -291,6 +305,8 @@ export function RecordingSplitView({
                   fullText={transcript.text}
                   speakerLabels={speakerLabels}
                   duration={duration}
+                  onSeek={handleSeek}
+                  playhead={playhead}
                 />
               </div>
             ) : (
@@ -304,7 +320,11 @@ export function RecordingSplitView({
           </div>
 
           {/* Sticky audio player — pinned at the bottom of the right pane */}
-          <RecordingAudioPlayer recordingId={recordingId} />
+          <RecordingAudioPlayer
+            recordingId={recordingId}
+            onSeekReady={(fn) => { seekFnRef.current = fn }}
+            onTimeUpdate={(secs) => setPlayhead(secs)}
+          />
         </section>
       </div>
     </div>

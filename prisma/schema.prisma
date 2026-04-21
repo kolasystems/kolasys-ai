@@ -185,6 +185,11 @@ model TranscriptSegment {
   startTime    Float    // seconds
   endTime      Float    // seconds
   confidence   Float?
+  // Word-level timestamps from Whisper — JSON-encoded array of
+  // { word: string; start: number; end: number }. Null on segments that were
+  // transcribed before word granularity was added. Kept as JSON text rather
+  // than a separate Word table to avoid a multi-hundred-row join per segment.
+  wordsJson    String?
   createdAt    DateTime @default(now())
 
   transcript Transcript @relation(fields: [transcriptId], references: [id], onDelete: Cascade)

@@ -460,7 +460,14 @@ export const recordingsRouter = router({
         where: { transcriptId: input.transcriptId },
         orderBy: { startTime: 'asc' },
         take: input.limit + 1,
-        select: { id: true, startTime: true, endTime: true, speaker: true, text: true },
+        select: {
+          id: true,
+          startTime: true,
+          endTime: true,
+          speaker: true,
+          text: true,
+          wordsJson: true,
+        },
         ...(input.cursor && { cursor: { id: input.cursor }, skip: 1 }),
       })
 

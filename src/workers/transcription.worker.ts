@@ -96,6 +96,11 @@ async function processTranscription(job: Job<TranscriptionJobData>) {
           endTime: seg.endTime,
           confidence: seg.confidence,
           speaker: seg.speaker,
+          // Persist word timings as JSON for click-to-seek in the UI.
+          wordsJson:
+            seg.words && seg.words.length > 0
+              ? JSON.stringify(seg.words)
+              : null,
         },
       })
     }
