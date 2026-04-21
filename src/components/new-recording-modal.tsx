@@ -8,6 +8,7 @@ import { X, Upload, Mic, Video } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
 import { trpc } from '@/lib/trpc'
 import { BrowserRecorder } from './browser-recorder'
+import { TRANSCRIPTION_LANGUAGES } from './default-language-selector'
 import { cn } from '@/lib/utils'
 
 type Tab = 'upload' | 'browser' | 'bot'
@@ -29,6 +30,7 @@ function extractError(err: unknown): string {
 export function NewRecordingModal({ open, onOpenChange }: Props) {
   const [tab, setTab] = useState<Tab>('upload')
   const [title, setTitle] = useState('')
+  const [language, setLanguage] = useState('en')
   const [meetingUrl, setMeetingUrl] = useState('')
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -109,6 +111,7 @@ export function NewRecordingModal({ open, onOpenChange }: Props) {
         recordingId: recording.id,
         fileSize: selectedFile.size,
         mimeType: contentType,
+        language: language === 'auto' ? undefined : language,
       })
       console.log('[upload] Step 4 ✓ upload confirmed')
 
@@ -160,6 +163,7 @@ export function NewRecordingModal({ open, onOpenChange }: Props) {
         recordingId: recording.id,
         fileSize: blob.size,
         mimeType,
+        language: language === 'auto' ? undefined : language,
       })
 
       await utils.recordings.list.invalidate()
@@ -197,6 +201,7 @@ export function NewRecordingModal({ open, onOpenChange }: Props) {
 
   function resetForm() {
     setTitle('')
+    setLanguage('en')
     setMeetingUrl('')
     setError(null)
     setTab('upload')
@@ -237,6 +242,27 @@ export function NewRecordingModal({ open, onOpenChange }: Props) {
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
               />
+            </div>
+
+            {/* Language */}
+            <div>
+              <label className="mb-1 block text-sm font-medium text-neutral-700">
+                Language
+              </label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+              >
+                {TRANSCRIPTION_LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.label}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-neutral-500">
+                Matching the spoken language improves transcription accuracy and speed.
+              </p>
             </div>
 
             {/* Tabs */}

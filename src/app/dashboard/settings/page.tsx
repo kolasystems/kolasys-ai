@@ -8,6 +8,7 @@ import { Building2, User, Key, CreditCard, Wand2, ArrowRight } from 'lucide-reac
 import { AudioRetentionToggle } from '@/components/audio-retention-toggle'
 import { PostMeetingEmailToggle } from '@/components/post-meeting-email-toggle'
 import { DailyDigestToggle } from '@/components/daily-digest-toggle'
+import { DefaultLanguageSelector } from '@/components/default-language-selector'
 
 export const metadata = { title: 'Settings — Kolasys AI' }
 
@@ -28,6 +29,7 @@ export default async function SettingsPage() {
         deleteAudioAfterTranscription: true,
         postMeetingEmail: true,
         dailyDigest: true,
+        defaultTranscriptionLanguage: true,
       },
     }),
   ])
@@ -95,6 +97,11 @@ export default async function SettingsPage() {
         {/* Daily digest */}
         <DailyDigestToggle
           initialDailyDigest={org?.dailyDigest ?? true}
+        />
+
+        {/* Default transcription language */}
+        <DefaultLanguageSelector
+          initialLanguage={org?.defaultTranscriptionLanguage ?? 'en'}
         />
 
         {/* Templates — live */}

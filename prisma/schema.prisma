@@ -96,6 +96,9 @@ model Organization {
   // Daily digest — when true (default), the 8 AM cron sends a morning summary
   // of yesterday's meetings + open action items to the org's members.
   dailyDigest                   Boolean @default(true)
+  // Default language passed to Whisper for new uploads. Uses ISO 639-1 codes
+  // (e.g. "en", "es", "fr"). Use "auto" to let Whisper detect the language.
+  defaultTranscriptionLanguage  String  @default("en")
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 

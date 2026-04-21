@@ -1504,6 +1504,7 @@ export const OrganizationScalarFieldEnum = {
   deleteAudioAfterTranscription: 'deleteAudioAfterTranscription',
   postMeetingEmail: 'postMeetingEmail',
   dailyDigest: 'dailyDigest',
+  defaultTranscriptionLanguage: 'defaultTranscriptionLanguage',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

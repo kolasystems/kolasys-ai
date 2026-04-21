@@ -36,6 +36,7 @@ export type OrganizationMinAggregateOutputType = {
   deleteAudioAfterTranscription: boolean | null
   postMeetingEmail: boolean | null
   dailyDigest: boolean | null
+  defaultTranscriptionLanguage: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -52,6 +53,7 @@ export type OrganizationMaxAggregateOutputType = {
   deleteAudioAfterTranscription: boolean | null
   postMeetingEmail: boolean | null
   dailyDigest: boolean | null
+  defaultTranscriptionLanguage: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -68,6 +70,7 @@ export type OrganizationCountAggregateOutputType = {
   deleteAudioAfterTranscription: number
   postMeetingEmail: number
   dailyDigest: number
+  defaultTranscriptionLanguage: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -86,6 +89,7 @@ export type OrganizationMinAggregateInputType = {
   deleteAudioAfterTranscription?: true
   postMeetingEmail?: true
   dailyDigest?: true
+  defaultTranscriptionLanguage?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -102,6 +106,7 @@ export type OrganizationMaxAggregateInputType = {
   deleteAudioAfterTranscription?: true
   postMeetingEmail?: true
   dailyDigest?: true
+  defaultTranscriptionLanguage?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -118,6 +123,7 @@ export type OrganizationCountAggregateInputType = {
   deleteAudioAfterTranscription?: true
   postMeetingEmail?: true
   dailyDigest?: true
+  defaultTranscriptionLanguage?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -207,6 +213,7 @@ export type OrganizationGroupByOutputType = {
   deleteAudioAfterTranscription: boolean
   postMeetingEmail: boolean
   dailyDigest: boolean
+  defaultTranscriptionLanguage: string
   createdAt: Date
   updatedAt: Date
   _count: OrganizationCountAggregateOutputType | null
@@ -244,6 +251,7 @@ export type OrganizationWhereInput = {
   deleteAudioAfterTranscription?: Prisma.BoolFilter<"Organization"> | boolean
   postMeetingEmail?: Prisma.BoolFilter<"Organization"> | boolean
   dailyDigest?: Prisma.BoolFilter<"Organization"> | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFilter<"Organization"> | string
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -264,6 +272,7 @@ export type OrganizationOrderByWithRelationInput = {
   deleteAudioAfterTranscription?: Prisma.SortOrder
   postMeetingEmail?: Prisma.SortOrder
   dailyDigest?: Prisma.SortOrder
+  defaultTranscriptionLanguage?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   members?: Prisma.OrgMemberOrderByRelationAggregateInput
@@ -287,6 +296,7 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   deleteAudioAfterTranscription?: Prisma.BoolFilter<"Organization"> | boolean
   postMeetingEmail?: Prisma.BoolFilter<"Organization"> | boolean
   dailyDigest?: Prisma.BoolFilter<"Organization"> | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFilter<"Organization"> | string
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -307,6 +317,7 @@ export type OrganizationOrderByWithAggregationInput = {
   deleteAudioAfterTranscription?: Prisma.SortOrder
   postMeetingEmail?: Prisma.SortOrder
   dailyDigest?: Prisma.SortOrder
+  defaultTranscriptionLanguage?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationCountOrderByAggregateInput
@@ -329,6 +340,7 @@ export type OrganizationScalarWhereWithAggregatesInput = {
   deleteAudioAfterTranscription?: Prisma.BoolWithAggregatesFilter<"Organization"> | boolean
   postMeetingEmail?: Prisma.BoolWithAggregatesFilter<"Organization"> | boolean
   dailyDigest?: Prisma.BoolWithAggregatesFilter<"Organization"> | boolean
+  defaultTranscriptionLanguage?: Prisma.StringWithAggregatesFilter<"Organization"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
 }
@@ -345,6 +357,7 @@ export type OrganizationCreateInput = {
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -365,6 +378,7 @@ export type OrganizationUncheckedCreateInput = {
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -385,6 +399,7 @@ export type OrganizationUpdateInput = {
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -405,6 +420,7 @@ export type OrganizationUncheckedUpdateInput = {
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -425,6 +441,7 @@ export type OrganizationCreateManyInput = {
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -441,6 +458,7 @@ export type OrganizationUpdateManyMutationInput = {
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -457,6 +475,7 @@ export type OrganizationUncheckedUpdateManyInput = {
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -473,6 +492,7 @@ export type OrganizationCountOrderByAggregateInput = {
   deleteAudioAfterTranscription?: Prisma.SortOrder
   postMeetingEmail?: Prisma.SortOrder
   dailyDigest?: Prisma.SortOrder
+  defaultTranscriptionLanguage?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -489,6 +509,7 @@ export type OrganizationMaxOrderByAggregateInput = {
   deleteAudioAfterTranscription?: Prisma.SortOrder
   postMeetingEmail?: Prisma.SortOrder
   dailyDigest?: Prisma.SortOrder
+  defaultTranscriptionLanguage?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -505,6 +526,7 @@ export type OrganizationMinOrderByAggregateInput = {
   deleteAudioAfterTranscription?: Prisma.SortOrder
   postMeetingEmail?: Prisma.SortOrder
   dailyDigest?: Prisma.SortOrder
+  defaultTranscriptionLanguage?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -609,6 +631,7 @@ export type OrganizationCreateWithoutMembersInput = {
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
@@ -628,6 +651,7 @@ export type OrganizationUncheckedCreateWithoutMembersInput = {
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
@@ -663,6 +687,7 @@ export type OrganizationUpdateWithoutMembersInput = {
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
@@ -682,6 +707,7 @@ export type OrganizationUncheckedUpdateWithoutMembersInput = {
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
@@ -701,6 +727,7 @@ export type OrganizationCreateWithoutRecordingsInput = {
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -720,6 +747,7 @@ export type OrganizationUncheckedCreateWithoutRecordingsInput = {
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -755,6 +783,7 @@ export type OrganizationUpdateWithoutRecordingsInput = {
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -774,6 +803,7 @@ export type OrganizationUncheckedUpdateWithoutRecordingsInput = {
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -793,6 +823,7 @@ export type OrganizationCreateWithoutTemplatesInput = {
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -812,6 +843,7 @@ export type OrganizationUncheckedCreateWithoutTemplatesInput = {
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -847,6 +879,7 @@ export type OrganizationUpdateWithoutTemplatesInput = {
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -866,6 +899,7 @@ export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -885,6 +919,7 @@ export type OrganizationCreateWithoutApiKeysInput = {
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -904,6 +939,7 @@ export type OrganizationUncheckedCreateWithoutApiKeysInput = {
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -939,6 +975,7 @@ export type OrganizationUpdateWithoutApiKeysInput = {
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -958,6 +995,7 @@ export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
   deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1035,6 +1073,7 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
@@ -1056,6 +1095,7 @@ export type OrganizationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -1072,6 +1112,7 @@ export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -1088,11 +1129,12 @@ export type OrganizationSelectScalar = {
   deleteAudioAfterTranscription?: boolean
   postMeetingEmail?: boolean
   dailyDigest?: boolean
+  defaultTranscriptionLanguage?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "dailyDigest" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "dailyDigest" | "defaultTranscriptionLanguage" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
 export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
   recordings?: boolean | Prisma.Organization$recordingsArgs<ExtArgs>
@@ -1123,6 +1165,7 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     deleteAudioAfterTranscription: boolean
     postMeetingEmail: boolean
     dailyDigest: boolean
+    defaultTranscriptionLanguage: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["organization"]>
@@ -1563,6 +1606,7 @@ export interface OrganizationFieldRefs {
   readonly deleteAudioAfterTranscription: Prisma.FieldRef<"Organization", 'Boolean'>
   readonly postMeetingEmail: Prisma.FieldRef<"Organization", 'Boolean'>
   readonly dailyDigest: Prisma.FieldRef<"Organization", 'Boolean'>
+  readonly defaultTranscriptionLanguage: Prisma.FieldRef<"Organization", 'String'>
   readonly createdAt: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Organization", 'DateTime'>
 }

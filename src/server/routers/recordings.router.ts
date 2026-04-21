@@ -240,6 +240,9 @@ export const recordingsRouter = router({
         duration: z.number().int().positive().optional(),
         fileSize: z.number().int().positive().optional(),
         mimeType: z.string().optional(),
+        // ISO 639-1 language code (e.g. "en", "es", "fr").
+        // "auto" or omitted → Whisper auto-detects.
+        language: z.string().min(2).max(10).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -261,10 +264,22 @@ export const recordingsRouter = router({
         },
       })
 
+      // Resolve language: explicit input > org default > 'en'.
+      // "auto" is passed as-is; the transcription service treats it as undefined.
+      const org = await ctx.db.organization.findFirst({
+        where: { id: ctx.orgId },
+        select: { defaultTranscriptionLanguage: true },
+      })
+      const language =
+        input.language ??
+        org?.defaultTranscriptionLanguage ??
+        'en'
+
       await transcriptionQueue.add('transcribe', {
         recordingId: recording.id,
         orgId: ctx.orgId,
         s3Key: recording.s3Key,
+        language: language === 'auto' ? undefined : language,
       })
 
       // PostHog: track recording upload (fire-and-forget)
