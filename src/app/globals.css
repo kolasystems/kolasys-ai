@@ -10,21 +10,21 @@
 
 /* ── Tailwind theme (colors, fonts, radii) ───────────────────────────────── */
 @theme {
-  /* Brand palette — blue-indigo (same both modes) */
-  --color-brand-50:  oklch(0.971 0.013 262);
-  --color-brand-100: oklch(0.931 0.027 262);
-  --color-brand-200: oklch(0.876 0.055 262);
-  --color-brand-300: oklch(0.808 0.087 262);
-  --color-brand-400: oklch(0.724 0.120 262);
-  --color-brand-500: oklch(0.621 0.160 262);
-  --color-brand-600: oklch(0.535 0.175 262);
-  --color-brand-700: oklch(0.459 0.165 262);
-  --color-brand-800: oklch(0.393 0.140 262);
-  --color-brand-900: oklch(0.323 0.110 262);
-  --color-brand-950: oklch(0.223 0.075 262);
+  /* Brand palette — Kolasys red (same both modes) */
+  --color-brand-50:  oklch(0.971 0.013 27);
+  --color-brand-100: oklch(0.931 0.027 27);
+  --color-brand-200: oklch(0.876 0.055 27);
+  --color-brand-300: oklch(0.808 0.087 27);
+  --color-brand-400: oklch(0.724 0.120 27);
+  --color-brand-500: oklch(0.621 0.160 27);
+  --color-brand-600: oklch(0.535 0.175 27);
+  --color-brand-700: oklch(0.459 0.165 27);
+  --color-brand-800: oklch(0.393 0.140 27);
+  --color-brand-900: oklch(0.323 0.110 27);
+  --color-brand-950: oklch(0.223 0.075 27);
 
-  /* Accent — same colour both modes */
-  --color-accent: #5B8DEF;
+  /* Accent — brand red #CA2625 */
+  --color-accent: #CA2625;
 
   /* Typography — Geist Sans for UI, Geist Mono for code/timestamps.
    *
@@ -57,7 +57,7 @@
   --bg: #F8F9FC;
   --surface: #FFFFFF;
   --border: #E5E7EB;
-  --accent: #5B8DEF;
+  --accent: #CA2625;
   --text-primary: #0F172A;
   --text-secondary: #475569;
   --text-muted: #94A3B8;
@@ -157,7 +157,7 @@
 
 /* Logo glow */
 @utility logo-glow {
-  text-shadow: 0 0 24px rgba(91, 141, 239, 0.35);
+  text-shadow: 0 0 24px rgba(202, 38, 37, 0.35);
 }
 
 /* ── Base ─────────────────────────────────────────────────────────────────── */
@@ -269,7 +269,7 @@ body {
 .cl-organizationSwitcherTrigger .cl-avatarBox,
 .cl-organizationPreview .cl-avatarBox,
 .cl-organizationSwitcherPopoverCard .cl-avatarBox {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #CA2625 0%, #8B1A1A 100%) !important;
   background-color: transparent !important;
   border-radius: 0.5rem !important;
   color: #ffffff !important;

@@ -8,7 +8,6 @@ import {
   CreateOrganization,
 } from '@clerk/nextjs'
 import {
-  Mic2,
   LayoutDashboard,
   ListChecks,
   Settings,
@@ -17,10 +16,12 @@ import {
   Wand2,
   BarChart2,
   Users,
+  Mic2,
 } from 'lucide-react'
 import { MobileNav } from '@/components/mobile-nav'
 import { DashboardNavLink } from '@/components/dashboard-nav-link'
 import { DarkModeToggle } from '@/components/dark-mode-toggle'
+import { KolasysLogoMark } from '@/components/kolasys-logo'
 
 export default async function DashboardLayout({
   children,
@@ -35,9 +36,9 @@ export default async function DashboardLayout({
       <div className="flex min-h-screen flex-col items-center justify-center bg-app px-4">
         <div className="mb-6 text-center">
           <div className="mb-3 flex items-center justify-center gap-2">
-            <Mic2 className="h-6 w-6 text-accent" />
+            <KolasysLogoMark size={24} className="text-black dark:text-white" />
             <span className="logo-glow text-xl font-semibold tracking-tight text-primary">
-              Kolasys AI
+              Kolasys <span style={{ color: '#CA2625' }}>AI</span>
             </span>
           </div>
           <p className="text-sm text-secondary">
@@ -57,13 +58,11 @@ export default async function DashboardLayout({
     <div className="flex h-screen overflow-hidden bg-app">
       {/* ── Desktop sidebar — only visible at lg (1024px+) ───────────────── */}
       <aside className="hidden w-64 flex-shrink-0 flex-col border-r border-line bg-sidebar-gradient lg:flex">
-        {/* Brand — Mic2 in gradient container + glowing wordmark */}
+        {/* Brand — actual logo mark + wordmark */}
         <div className="flex h-16 items-center gap-2.5 border-b border-line px-5">
-          <div className="flex items-center justify-center rounded-xl bg-gradient-to-br from-[#667eea] to-[#764ba2] p-1.5 shadow-sm">
-            <Mic2 className="h-5 w-5 text-white" />
-          </div>
-          <span className="logo-glow text-sm font-semibold tracking-tight text-primary">
-            Kolasys AI
+          <KolasysLogoMark size={28} className="text-black dark:text-white flex-shrink-0" />
+          <span className="text-sm font-semibold tracking-tight text-primary">
+            Kolasys <span style={{ color: '#CA2625' }}>AI</span>
           </span>
         </div>
 
@@ -128,7 +127,7 @@ export default async function DashboardLayout({
 
         {/* User avatar with gradient ring */}
         <div className="border-t border-line p-4">
-          <div className="inline-flex rounded-full bg-gradient-to-tr from-[#667eea] via-[#5B8DEF] to-[#f093fb] p-[2px]">
+          <div className="inline-flex rounded-full p-[2px]" style={{ background: 'linear-gradient(135deg, #CA2625, #8B1A1A)' }}>
             <div className="rounded-full bg-surface p-0.5">
               <UserButton appearance={{ elements: { userButtonAvatarBox: 'h-8 w-8' } }} />
             </div>
