@@ -158,7 +158,17 @@ export const calendarRouter = router({
 
       try {
         const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/recall`
-        const botId = await deployBot(input.meetingUrl, recording.id, webhookUrl)
+        // Honor the org's custom bot display name (same as the recordings router).
+        const orgPrefs = await ctx.db.organization.findUnique({
+          where: { id: ctx.orgId },
+          select: { botDisplayName: true },
+        })
+        const botId = await deployBot(
+          input.meetingUrl,
+          recording.id,
+          webhookUrl,
+          orgPrefs?.botDisplayName ?? 'Kolasys AI',
+        )
         await ctx.db.recording.update({
           where: { id: recording.id },
           data: { botId, status: RecordingStatus.PROCESSING },

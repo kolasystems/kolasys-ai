@@ -37,6 +37,10 @@ export type OrganizationMinAggregateOutputType = {
   postMeetingEmail: boolean | null
   dailyDigest: boolean | null
   defaultTranscriptionLanguage: string | null
+  botDisplayName: string | null
+  ssoEnabled: boolean | null
+  ssoDomain: string | null
+  samlMetadataUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,6 +58,10 @@ export type OrganizationMaxAggregateOutputType = {
   postMeetingEmail: boolean | null
   dailyDigest: boolean | null
   defaultTranscriptionLanguage: string | null
+  botDisplayName: string | null
+  ssoEnabled: boolean | null
+  ssoDomain: string | null
+  samlMetadataUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -71,6 +79,10 @@ export type OrganizationCountAggregateOutputType = {
   postMeetingEmail: number
   dailyDigest: number
   defaultTranscriptionLanguage: number
+  botDisplayName: number
+  ssoEnabled: number
+  ssoDomain: number
+  samlMetadataUrl: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -90,6 +102,10 @@ export type OrganizationMinAggregateInputType = {
   postMeetingEmail?: true
   dailyDigest?: true
   defaultTranscriptionLanguage?: true
+  botDisplayName?: true
+  ssoEnabled?: true
+  ssoDomain?: true
+  samlMetadataUrl?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -107,6 +123,10 @@ export type OrganizationMaxAggregateInputType = {
   postMeetingEmail?: true
   dailyDigest?: true
   defaultTranscriptionLanguage?: true
+  botDisplayName?: true
+  ssoEnabled?: true
+  ssoDomain?: true
+  samlMetadataUrl?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -124,6 +144,10 @@ export type OrganizationCountAggregateInputType = {
   postMeetingEmail?: true
   dailyDigest?: true
   defaultTranscriptionLanguage?: true
+  botDisplayName?: true
+  ssoEnabled?: true
+  ssoDomain?: true
+  samlMetadataUrl?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -214,6 +238,10 @@ export type OrganizationGroupByOutputType = {
   postMeetingEmail: boolean
   dailyDigest: boolean
   defaultTranscriptionLanguage: string
+  botDisplayName: string
+  ssoEnabled: boolean
+  ssoDomain: string | null
+  samlMetadataUrl: string | null
   createdAt: Date
   updatedAt: Date
   _count: OrganizationCountAggregateOutputType | null
@@ -252,6 +280,10 @@ export type OrganizationWhereInput = {
   postMeetingEmail?: Prisma.BoolFilter<"Organization"> | boolean
   dailyDigest?: Prisma.BoolFilter<"Organization"> | boolean
   defaultTranscriptionLanguage?: Prisma.StringFilter<"Organization"> | string
+  botDisplayName?: Prisma.StringFilter<"Organization"> | string
+  ssoEnabled?: Prisma.BoolFilter<"Organization"> | boolean
+  ssoDomain?: Prisma.StringNullableFilter<"Organization"> | string | null
+  samlMetadataUrl?: Prisma.StringNullableFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -273,6 +305,10 @@ export type OrganizationOrderByWithRelationInput = {
   postMeetingEmail?: Prisma.SortOrder
   dailyDigest?: Prisma.SortOrder
   defaultTranscriptionLanguage?: Prisma.SortOrder
+  botDisplayName?: Prisma.SortOrder
+  ssoEnabled?: Prisma.SortOrder
+  ssoDomain?: Prisma.SortOrderInput | Prisma.SortOrder
+  samlMetadataUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   members?: Prisma.OrgMemberOrderByRelationAggregateInput
@@ -297,6 +333,10 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   postMeetingEmail?: Prisma.BoolFilter<"Organization"> | boolean
   dailyDigest?: Prisma.BoolFilter<"Organization"> | boolean
   defaultTranscriptionLanguage?: Prisma.StringFilter<"Organization"> | string
+  botDisplayName?: Prisma.StringFilter<"Organization"> | string
+  ssoEnabled?: Prisma.BoolFilter<"Organization"> | boolean
+  ssoDomain?: Prisma.StringNullableFilter<"Organization"> | string | null
+  samlMetadataUrl?: Prisma.StringNullableFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -318,6 +358,10 @@ export type OrganizationOrderByWithAggregationInput = {
   postMeetingEmail?: Prisma.SortOrder
   dailyDigest?: Prisma.SortOrder
   defaultTranscriptionLanguage?: Prisma.SortOrder
+  botDisplayName?: Prisma.SortOrder
+  ssoEnabled?: Prisma.SortOrder
+  ssoDomain?: Prisma.SortOrderInput | Prisma.SortOrder
+  samlMetadataUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationCountOrderByAggregateInput
@@ -341,6 +385,10 @@ export type OrganizationScalarWhereWithAggregatesInput = {
   postMeetingEmail?: Prisma.BoolWithAggregatesFilter<"Organization"> | boolean
   dailyDigest?: Prisma.BoolWithAggregatesFilter<"Organization"> | boolean
   defaultTranscriptionLanguage?: Prisma.StringWithAggregatesFilter<"Organization"> | string
+  botDisplayName?: Prisma.StringWithAggregatesFilter<"Organization"> | string
+  ssoEnabled?: Prisma.BoolWithAggregatesFilter<"Organization"> | boolean
+  ssoDomain?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
+  samlMetadataUrl?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
 }
@@ -358,6 +406,10 @@ export type OrganizationCreateInput = {
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -379,6 +431,10 @@ export type OrganizationUncheckedCreateInput = {
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -400,6 +456,10 @@ export type OrganizationUpdateInput = {
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -421,6 +481,10 @@ export type OrganizationUncheckedUpdateInput = {
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -442,6 +506,10 @@ export type OrganizationCreateManyInput = {
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -459,6 +527,10 @@ export type OrganizationUpdateManyMutationInput = {
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -476,6 +548,10 @@ export type OrganizationUncheckedUpdateManyInput = {
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -493,6 +569,10 @@ export type OrganizationCountOrderByAggregateInput = {
   postMeetingEmail?: Prisma.SortOrder
   dailyDigest?: Prisma.SortOrder
   defaultTranscriptionLanguage?: Prisma.SortOrder
+  botDisplayName?: Prisma.SortOrder
+  ssoEnabled?: Prisma.SortOrder
+  ssoDomain?: Prisma.SortOrder
+  samlMetadataUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -510,6 +590,10 @@ export type OrganizationMaxOrderByAggregateInput = {
   postMeetingEmail?: Prisma.SortOrder
   dailyDigest?: Prisma.SortOrder
   defaultTranscriptionLanguage?: Prisma.SortOrder
+  botDisplayName?: Prisma.SortOrder
+  ssoEnabled?: Prisma.SortOrder
+  ssoDomain?: Prisma.SortOrder
+  samlMetadataUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -527,6 +611,10 @@ export type OrganizationMinOrderByAggregateInput = {
   postMeetingEmail?: Prisma.SortOrder
   dailyDigest?: Prisma.SortOrder
   defaultTranscriptionLanguage?: Prisma.SortOrder
+  botDisplayName?: Prisma.SortOrder
+  ssoEnabled?: Prisma.SortOrder
+  ssoDomain?: Prisma.SortOrder
+  samlMetadataUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -632,6 +720,10 @@ export type OrganizationCreateWithoutMembersInput = {
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
@@ -652,6 +744,10 @@ export type OrganizationUncheckedCreateWithoutMembersInput = {
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
@@ -688,6 +784,10 @@ export type OrganizationUpdateWithoutMembersInput = {
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
@@ -708,6 +808,10 @@ export type OrganizationUncheckedUpdateWithoutMembersInput = {
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
@@ -728,6 +832,10 @@ export type OrganizationCreateWithoutRecordingsInput = {
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -748,6 +856,10 @@ export type OrganizationUncheckedCreateWithoutRecordingsInput = {
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -784,6 +896,10 @@ export type OrganizationUpdateWithoutRecordingsInput = {
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -804,6 +920,10 @@ export type OrganizationUncheckedUpdateWithoutRecordingsInput = {
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -824,6 +944,10 @@ export type OrganizationCreateWithoutTemplatesInput = {
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -844,6 +968,10 @@ export type OrganizationUncheckedCreateWithoutTemplatesInput = {
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -880,6 +1008,10 @@ export type OrganizationUpdateWithoutTemplatesInput = {
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -900,6 +1032,10 @@ export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -920,6 +1056,10 @@ export type OrganizationCreateWithoutApiKeysInput = {
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -940,6 +1080,10 @@ export type OrganizationUncheckedCreateWithoutApiKeysInput = {
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -976,6 +1120,10 @@ export type OrganizationUpdateWithoutApiKeysInput = {
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -996,6 +1144,10 @@ export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
   postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
   defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1074,6 +1226,10 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: boolean
+  botDisplayName?: boolean
+  ssoEnabled?: boolean
+  ssoDomain?: boolean
+  samlMetadataUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
@@ -1096,6 +1252,10 @@ export type OrganizationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: boolean
+  botDisplayName?: boolean
+  ssoEnabled?: boolean
+  ssoDomain?: boolean
+  samlMetadataUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -1113,6 +1273,10 @@ export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: boolean
+  botDisplayName?: boolean
+  ssoEnabled?: boolean
+  ssoDomain?: boolean
+  samlMetadataUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -1130,11 +1294,15 @@ export type OrganizationSelectScalar = {
   postMeetingEmail?: boolean
   dailyDigest?: boolean
   defaultTranscriptionLanguage?: boolean
+  botDisplayName?: boolean
+  ssoEnabled?: boolean
+  ssoDomain?: boolean
+  samlMetadataUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "dailyDigest" | "defaultTranscriptionLanguage" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "dailyDigest" | "defaultTranscriptionLanguage" | "botDisplayName" | "ssoEnabled" | "ssoDomain" | "samlMetadataUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
 export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
   recordings?: boolean | Prisma.Organization$recordingsArgs<ExtArgs>
@@ -1166,6 +1334,10 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     postMeetingEmail: boolean
     dailyDigest: boolean
     defaultTranscriptionLanguage: string
+    botDisplayName: string
+    ssoEnabled: boolean
+    ssoDomain: string | null
+    samlMetadataUrl: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["organization"]>
@@ -1607,6 +1779,10 @@ export interface OrganizationFieldRefs {
   readonly postMeetingEmail: Prisma.FieldRef<"Organization", 'Boolean'>
   readonly dailyDigest: Prisma.FieldRef<"Organization", 'Boolean'>
   readonly defaultTranscriptionLanguage: Prisma.FieldRef<"Organization", 'String'>
+  readonly botDisplayName: Prisma.FieldRef<"Organization", 'String'>
+  readonly ssoEnabled: Prisma.FieldRef<"Organization", 'Boolean'>
+  readonly ssoDomain: Prisma.FieldRef<"Organization", 'String'>
+  readonly samlMetadataUrl: Prisma.FieldRef<"Organization", 'String'>
   readonly createdAt: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Organization", 'DateTime'>
 }

@@ -4,11 +4,19 @@
 // Mirrors the modal AskAIPanel but renders inline (no modal chrome) and
 // fills the container it's embedded in.
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Bot, ExternalLink, Loader2, Send, Sparkles, User } from 'lucide-react'
 import { cn, formatDuration } from '@/lib/utils'
 import { useAIChat, type ChatMessage, type ChatSource } from '@/hooks/use-ai-chat'
+
+const SUGGESTED_PROMPTS = [
+  'What were the key decisions made?',
+  'List all open action items',
+  'Summarize the last 10 minutes',
+  'What questions went unanswered?',
+  'Who committed to what?',
+]
 
 type Props = {
   recordingId: string
@@ -16,30 +24,67 @@ type Props = {
 }
 
 export function InlineAskAI({ recordingId, recordingTitle }: Props) {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useAIChat({
-    api: '/api/ai/ask',
-    body: { recordingId },
-  })
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error, setInput } =
+    useAIChat({
+      api: '/api/ai/ask',
+      body: { recordingId },
+    })
 
   const bottomRef = useRef<HTMLDivElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  // Latch a prompt we want to send the moment `input` reflects it in state
+  // (setInput is async — calling requestSubmit too early sends an empty form).
+  const [pendingPrompt, setPendingPrompt] = useState<string | null>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // Fire the submit once React commits the prompt to `input`.
+  useEffect(() => {
+    if (pendingPrompt !== null && input === pendingPrompt) {
+      formRef.current?.requestSubmit()
+      setPendingPrompt(null)
+    }
+  }, [pendingPrompt, input])
+
+  function askPrompt(prompt: string) {
+    setInput(prompt)
+    setPendingPrompt(prompt)
+  }
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 sm:px-5 space-y-4">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="flex flex-col items-center py-10 text-center">
             <Sparkles className="mb-3 h-8 w-8 text-muted" />
             <p className="text-sm font-medium text-primary">
               Ask anything about this recording
             </p>
             <p className="mt-1 max-w-xs text-xs text-secondary">
-              Index the transcript first from the recording header, then ask follow-up questions about{' '}
-              <span className="font-medium">{recordingTitle}</span>.
+              Questions for{' '}
+              <span className="font-medium">{recordingTitle}</span> — pick a prompt to start.
             </p>
+
+            <div className="mt-5 flex w-full max-w-sm flex-col gap-2">
+              {SUGGESTED_PROMPTS.map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => askPrompt(p)}
+                  disabled={isLoading || pendingPrompt !== null}
+                  className={cn(
+                    'w-full rounded-full border border-[#CA2625]/25 bg-[#CA2625]/5 px-3.5 py-2 text-left text-xs font-medium',
+                    'text-[#CA2625] transition-colors hover:bg-[#CA2625]/10 hover:border-[#CA2625]/40',
+                    'dark:border-[#CA2625]/40 dark:bg-[#CA2625]/10 dark:text-[#ff8b8a] dark:hover:bg-[#CA2625]/20',
+                    'disabled:opacity-50 disabled:cursor-not-allowed',
+                  )}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -67,7 +112,7 @@ export function InlineAskAI({ recordingId, recordingTitle }: Props) {
       </div>
 
       <div className="border-t border-line px-4 py-3 sm:px-5">
-        <form onSubmit={handleSubmit}>
+        <form ref={formRef} data-ask-form onSubmit={handleSubmit}>
           <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2.5 shadow-sm transition-shadow focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-white/10 dark:bg-white/5 dark:focus-within:border-accent dark:focus-within:ring-accent/30">
             <input
               className="flex-1 bg-transparent text-sm text-primary placeholder:text-muted focus:outline-none"

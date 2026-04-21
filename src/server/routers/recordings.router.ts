@@ -139,7 +139,18 @@ export const recordingsRouter = router({
       if (input.source === RecordingSource.MEETING_BOT && input.meetingUrl) {
         try {
           const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/recall`
-          const botId = await deployBot(input.meetingUrl, recording.id, webhookUrl)
+          // Honor the org's custom bot display name so the participant list
+          // shows e.g. "Acme AI" instead of the hard-coded default.
+          const orgPrefs = await ctx.db.organization.findUnique({
+            where: { id: ctx.orgId },
+            select: { botDisplayName: true },
+          })
+          const botId = await deployBot(
+            input.meetingUrl,
+            recording.id,
+            webhookUrl,
+            orgPrefs?.botDisplayName ?? 'Kolasys AI',
+          )
           await ctx.db.recording.update({
             where: { id: recording.id },
             data: { botId, status: RecordingStatus.PROCESSING },

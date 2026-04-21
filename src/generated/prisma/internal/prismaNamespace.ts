@@ -1505,6 +1505,10 @@ export const OrganizationScalarFieldEnum = {
   postMeetingEmail: 'postMeetingEmail',
   dailyDigest: 'dailyDigest',
   defaultTranscriptionLanguage: 'defaultTranscriptionLanguage',
+  botDisplayName: 'botDisplayName',
+  ssoEnabled: 'ssoEnabled',
+  ssoDomain: 'ssoDomain',
+  samlMetadataUrl: 'samlMetadataUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -9,6 +9,8 @@ import { AudioRetentionToggle } from '@/components/audio-retention-toggle'
 import { PostMeetingEmailToggle } from '@/components/post-meeting-email-toggle'
 import { DailyDigestToggle } from '@/components/daily-digest-toggle'
 import { DefaultLanguageSelector } from '@/components/default-language-selector'
+import { BotDisplayNameInput } from '@/components/bot-display-name-input'
+import { SsoSettings } from '@/components/sso-settings'
 
 export const metadata = { title: 'Settings — Kolasys AI' }
 
@@ -30,6 +32,10 @@ export default async function SettingsPage() {
         postMeetingEmail: true,
         dailyDigest: true,
         defaultTranscriptionLanguage: true,
+        botDisplayName: true,
+        ssoEnabled: true,
+        ssoDomain: true,
+        samlMetadataUrl: true,
       },
     }),
   ])
@@ -97,6 +103,19 @@ export default async function SettingsPage() {
         {/* Daily digest */}
         <DailyDigestToggle
           initialDailyDigest={org?.dailyDigest ?? true}
+        />
+
+        {/* Recording capture — bot display name */}
+        <BotDisplayNameInput
+          initialBotDisplayName={org?.botDisplayName ?? 'Kolasys AI'}
+        />
+
+        {/* Single Sign-On (Enterprise) */}
+        <SsoSettings
+          plan={(org?.plan ?? 'FREE') as 'FREE' | 'PRO' | 'ENTERPRISE'}
+          initialEnabled={org?.ssoEnabled ?? false}
+          initialDomain={org?.ssoDomain ?? null}
+          initialMetadataUrl={org?.samlMetadataUrl ?? null}
         />
 
         {/* Default transcription language */}

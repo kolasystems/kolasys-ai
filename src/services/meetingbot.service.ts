@@ -37,13 +37,14 @@ async function recallFetch(path: string, init?: RequestInit) {
 export async function deployBot(
   meetingUrl: string,
   recordingId: string,
-  webhookUrl: string
+  webhookUrl: string,
+  botDisplayName: string = 'Kolasys AI'
 ): Promise<string> {
   const bot: RecallBot = await recallFetch('/bot/', {
     method: 'POST',
     body: JSON.stringify({
       meeting_url: meetingUrl,
-      bot_name: 'Kolasys AI',
+      bot_name: botDisplayName,
       transcription_options: { provider: 'default' },
       real_time_transcription: {
         destination_url: webhookUrl,

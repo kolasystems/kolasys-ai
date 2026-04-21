@@ -4,14 +4,14 @@
 
 import { useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { X, Upload, Mic, Video } from 'lucide-react'
+import { X, Upload, Mic, Monitor, Video } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
 import { trpc } from '@/lib/trpc'
 import { BrowserRecorder } from './browser-recorder'
 import { TRANSCRIPTION_LANGUAGES } from './default-language-selector'
 import { cn } from '@/lib/utils'
 
-type Tab = 'upload' | 'browser' | 'bot'
+type Tab = 'upload' | 'browser' | 'desktop' | 'bot'
 
 type Props = {
   open: boolean
@@ -210,6 +210,7 @@ export function NewRecordingModal({ open, onOpenChange }: Props) {
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'upload', label: 'Upload File', icon: <Upload className="h-4 w-4" /> },
     { id: 'browser', label: 'Record Now', icon: <Mic className="h-4 w-4" /> },
+    { id: 'desktop', label: 'Desktop', icon: <Monitor className="h-4 w-4" /> },
     { id: 'bot', label: 'Meeting Bot', icon: <Video className="h-4 w-4" /> },
   ]
 
@@ -284,6 +285,11 @@ export function NewRecordingModal({ open, onOpenChange }: Props) {
                 </button>
               ))}
             </div>
+            {tab === 'bot' && (
+              <p className="-mt-2 text-center text-[11px] text-neutral-500">
+                (visible to participants)
+              </p>
+            )}
 
             {/* Tab content */}
             {tab === 'upload' && (
@@ -353,6 +359,36 @@ export function NewRecordingModal({ open, onOpenChange }: Props) {
 
             {tab === 'browser' && (
               <BrowserRecorder onRecordingComplete={handleBrowserRecording} />
+            )}
+
+            {tab === 'desktop' && (
+              <div className="space-y-3">
+                <div className="flex flex-col items-center rounded-xl border border-neutral-200 bg-neutral-50 px-5 py-8 text-center">
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#CA2625]/10">
+                    <Monitor className="h-6 w-6 text-[#CA2625]" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-neutral-900">
+                      Record without a bot
+                    </h3>
+                    <span className="rounded-full bg-[#CA2625]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#CA2625]">
+                      Coming soon
+                    </span>
+                  </div>
+                  <p className="mt-2 max-w-sm text-xs leading-relaxed text-neutral-500">
+                    The Kolasys AI Mac desktop app captures system audio locally during any meeting —
+                    Zoom, Meet, Teams, a phone call — so{' '}
+                    <span className="font-medium text-neutral-700">no bot joins the call</span>.
+                    The audio never leaves your machine until you hit upload.
+                  </p>
+                  <a
+                    href="mailto:hi@kolasys.ai?subject=Desktop%20App%20Beta"
+                    className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#CA2625] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#b21f1f]"
+                  >
+                    Request beta access
+                  </a>
+                </div>
+              </div>
             )}
 
             {tab === 'bot' && (

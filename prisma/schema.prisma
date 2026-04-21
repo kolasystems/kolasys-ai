@@ -99,6 +99,15 @@ model Organization {
   // Default language passed to Whisper for new uploads. Uses ISO 639-1 codes
   // (e.g. "en", "es", "fr"). Use "auto" to let Whisper detect the language.
   defaultTranscriptionLanguage  String  @default("en")
+  // Recording capture — per-org name that the Recall.ai bot joins meetings
+  // under. Defaults to the product name; orgs can brand it (e.g. "Acme AI").
+  botDisplayName                String  @default("Kolasys AI")
+  // Single Sign-On (Enterprise) — SAML 2.0 config. When ssoEnabled is true
+  // and ssoDomain is set, sign-in attempts from that email domain are
+  // redirected through the customer's IdP (metadata at samlMetadataUrl).
+  ssoEnabled                    Boolean @default(false)
+  ssoDomain                     String?
+  samlMetadataUrl               String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
