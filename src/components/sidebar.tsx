@@ -217,26 +217,25 @@ export function CollapsibleSidebar() {
         />
       </nav>
 
-      {/* ── Bottom: theme toggle + avatar ───────────────────────────── */}
+      {/* ── Bottom: theme toggle ─────────────────────────────────────── */}
       <div
         className={cn(
           'flex border-t p-3',
           'border-neutral-100 dark:border-white/10',
-          collapsed ? 'flex-col items-center gap-3' : 'flex-col gap-3',
+          collapsed ? 'flex-col items-center' : 'flex-col',
         )}
       >
         <div className={collapsed ? '' : 'w-full'}>
           <DarkModeToggle compact={collapsed} />
         </div>
+      </div>
 
-        <div
-          className="inline-flex flex-shrink-0 rounded-full p-[2px]"
-          style={{ background: 'linear-gradient(135deg, #CA2625, #8B1A1A)' }}
-        >
-          <div className="rounded-full bg-white p-0.5 dark:bg-[#1A1A24]">
-            <UserButton appearance={{ elements: { userButtonAvatarBox: 'h-8 w-8' } }} />
-          </div>
-        </div>
+      {/* ── Bottom: user avatar ──────────────────────────────────────
+         Rendered bare — no gradient ring, no auxiliary wrappers — so the
+         Clerk button stays the width of its avatar rather than stretching
+         to fill the sidebar. */}
+      <div className="flex items-center justify-center border-t border-neutral-100 p-4 dark:border-white/10">
+        <UserButton appearance={{ elements: { userButtonAvatarBox: 'h-8 w-8' } }} />
       </div>
     </aside>
   )

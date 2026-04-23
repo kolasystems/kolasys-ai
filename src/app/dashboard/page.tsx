@@ -98,15 +98,20 @@ export default async function DashboardPage() {
           'rounded-b-2xl',
           'bg-gradient-to-br from-[#C9D8E8] via-[#D4C5B0] to-[#A8C4D4]',
           'dark:from-[#1A1A2E] dark:via-[#16213E] dark:to-[#0F3460]',
-          'px-4 pt-8 pb-10 sm:px-8 sm:pt-10 sm:pb-12',
+          'px-4 pb-10 sm:px-8 sm:pb-12',
         ].join(' ')}
       >
-        <h1 className="text-xl font-semibold text-neutral-800 dark:text-white/95 sm:text-2xl">
-          {greeting}, {firstName}!
-        </h1>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-white/70">
-          Here&apos;s your meeting intelligence for today.
-        </p>
+        {/* Inner content container — pt-8 gives the greeting breathing room
+            at the very top of the main content area (the banner is flush
+            against the top edge, so internal padding is the only margin). */}
+        <div className="pt-8 sm:pt-10">
+          <h1 className="text-xl font-semibold text-neutral-800 dark:text-white/95 sm:text-2xl">
+            {`${greeting}, ${firstName}!`}
+          </h1>
+          <p className="mt-1 text-sm text-neutral-600 dark:text-white/70">
+            Here&apos;s your meeting intelligence for today.
+          </p>
+        </div>
       </section>
 
       {/* Stuck recordings banner — only renders when there are any */}
