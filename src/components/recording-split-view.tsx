@@ -6,7 +6,7 @@
 // A sticky audio player lives at the bottom of the right pane.
 
 import { useRef, useState } from 'react'
-import { CheckSquare, FileText, Mic2, Search, Sparkles } from 'lucide-react'
+import { CheckSquare, FileText, Lightbulb, Mic2, Search, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { EditableActionItem } from './editable-action-item'
 import { EditableNoteSection } from './editable-note-section'
@@ -18,6 +18,7 @@ import { RecordingAudioPlayer } from './recording-audio-player'
 import { InlineAskAI } from './inline-ask-ai'
 import { MarkdownContent } from './markdown-content'
 import { RecordingKnowledgeChips } from './recording-knowledge-chips'
+import { AISuggestionsPanel } from './ai-suggestions-panel'
 
 // Plain-object shapes that travel across the RSC boundary.
 type Segment = {
@@ -70,7 +71,7 @@ type Props = {
   ready: boolean
 }
 
-type Tab = 'notes' | 'transcript' | 'ai'
+type Tab = 'notes' | 'transcript' | 'ai' | 'insights'
 
 // Solid note-section card surface — replaces the translucent `.glass` look
 // that was blending into the off-white page background in light mode.
@@ -105,9 +106,12 @@ export function RecordingSplitView({
   }
   const [findQuery, setFindQuery] = useState('')
 
-  // Right pane content: "Transcript" shows whenever tab != 'ai'.
-  // On desktop, notes stays visible on the left even when tab='transcript'.
+  // Right pane content: transcript by default; AI-chat and Insights each
+  // have their own active state. On desktop, notes stays visible on the
+  // left even when the right pane is showing transcript/ai/insights.
   const rightTabIsAI = tab === 'ai'
+  const rightTabIsInsights = tab === 'insights'
+  const rightTabIsTranscript = !rightTabIsAI && !rightTabIsInsights
 
   // Visibility flags for mobile single-panel mode.
   const showLeftOnMobile = tab === 'notes'
@@ -126,6 +130,11 @@ export function RecordingSplitView({
         <MobileTab active={tab === 'ai'} onClick={() => setTab('ai')} icon={<Sparkles className="h-3.5 w-3.5" />}>
           Ask AI
         </MobileTab>
+        {ready && (
+          <MobileTab active={tab === 'insights'} onClick={() => setTab('insights')} icon={<Lightbulb className="h-3.5 w-3.5" />}>
+            Insights
+          </MobileTab>
+        )}
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
@@ -252,7 +261,7 @@ export function RecordingSplitView({
           <div className="flex flex-col gap-2 border-b border-line px-4 py-3 sm:px-5">
             <div className="flex items-center gap-1">
               <PaneTab
-                active={!rightTabIsAI}
+                active={rightTabIsTranscript}
                 onClick={() => setTab('transcript')}
                 icon={<Mic2 className="h-3.5 w-3.5" />}
               >
@@ -265,9 +274,18 @@ export function RecordingSplitView({
               >
                 Ask AI
               </PaneTab>
+              {ready && (
+                <PaneTab
+                  active={rightTabIsInsights}
+                  onClick={() => setTab('insights')}
+                  icon={<Lightbulb className="h-3.5 w-3.5" />}
+                >
+                  Insights
+                </PaneTab>
+              )}
 
               {/* Name Speakers button (transcript tab only) */}
-              {!rightTabIsAI &&
+              {rightTabIsTranscript &&
                 transcript &&
                 transcript.uniqueSpeakerIds.length > 0 && (
                   <div className="ml-auto">
@@ -281,7 +299,7 @@ export function RecordingSplitView({
             </div>
 
             {/* Find-in-transcript input (UI only for now) */}
-            {!rightTabIsAI && transcript && (
+            {rightTabIsTranscript && transcript && (
               <div className="relative">
                 <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
                 <input
@@ -299,6 +317,8 @@ export function RecordingSplitView({
           <div className="flex-1 min-h-0 overflow-hidden">
             {rightTabIsAI ? (
               <InlineAskAI recordingId={recordingId} recordingTitle={recordingTitle} />
+            ) : rightTabIsInsights ? (
+              <AISuggestionsPanel recordingId={recordingId} />
             ) : transcript ? (
               <div className="h-full overflow-y-auto px-4 py-4 sm:px-5">
                 <TranscriptPaginated
