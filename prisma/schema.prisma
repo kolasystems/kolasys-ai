@@ -300,6 +300,11 @@ model NoteTemplate {
   prompt      String?  // high-level system prompt prepended to section instructions
   category    String?  // e.g. "Meeting", "Medical", "Sales"
   structure   Json     // array of { title, prompt } section definitions
+  // Auto-apply rules: Array<{ field: 'title'|'attendees', pattern: string
+  // (regex source), priority: number }>. Summarization worker picks the
+  // highest-priority template whose pattern matches the meeting title /
+  // attendee list. Null = template never auto-applies.
+  autoApplyRules Json?
   isDefault   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

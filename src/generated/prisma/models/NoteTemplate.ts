@@ -56,6 +56,7 @@ export type NoteTemplateCountAggregateOutputType = {
   prompt: number
   category: number
   structure: number
+  autoApplyRules: number
   isDefault: number
   createdAt: number
   updatedAt: number
@@ -95,6 +96,7 @@ export type NoteTemplateCountAggregateInputType = {
   prompt?: true
   category?: true
   structure?: true
+  autoApplyRules?: true
   isDefault?: true
   createdAt?: true
   updatedAt?: true
@@ -181,6 +183,7 @@ export type NoteTemplateGroupByOutputType = {
   prompt: string | null
   category: string | null
   structure: runtime.JsonValue
+  autoApplyRules: runtime.JsonValue | null
   isDefault: boolean
   createdAt: Date
   updatedAt: Date
@@ -215,6 +218,7 @@ export type NoteTemplateWhereInput = {
   prompt?: Prisma.StringNullableFilter<"NoteTemplate"> | string | null
   category?: Prisma.StringNullableFilter<"NoteTemplate"> | string | null
   structure?: Prisma.JsonFilter<"NoteTemplate">
+  autoApplyRules?: Prisma.JsonNullableFilter<"NoteTemplate">
   isDefault?: Prisma.BoolFilter<"NoteTemplate"> | boolean
   createdAt?: Prisma.DateTimeFilter<"NoteTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"NoteTemplate"> | Date | string
@@ -230,6 +234,7 @@ export type NoteTemplateOrderByWithRelationInput = {
   prompt?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   structure?: Prisma.SortOrder
+  autoApplyRules?: Prisma.SortOrderInput | Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -248,6 +253,7 @@ export type NoteTemplateWhereUniqueInput = Prisma.AtLeast<{
   prompt?: Prisma.StringNullableFilter<"NoteTemplate"> | string | null
   category?: Prisma.StringNullableFilter<"NoteTemplate"> | string | null
   structure?: Prisma.JsonFilter<"NoteTemplate">
+  autoApplyRules?: Prisma.JsonNullableFilter<"NoteTemplate">
   isDefault?: Prisma.BoolFilter<"NoteTemplate"> | boolean
   createdAt?: Prisma.DateTimeFilter<"NoteTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"NoteTemplate"> | Date | string
@@ -263,6 +269,7 @@ export type NoteTemplateOrderByWithAggregationInput = {
   prompt?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   structure?: Prisma.SortOrder
+  autoApplyRules?: Prisma.SortOrderInput | Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -282,6 +289,7 @@ export type NoteTemplateScalarWhereWithAggregatesInput = {
   prompt?: Prisma.StringNullableWithAggregatesFilter<"NoteTemplate"> | string | null
   category?: Prisma.StringNullableWithAggregatesFilter<"NoteTemplate"> | string | null
   structure?: Prisma.JsonWithAggregatesFilter<"NoteTemplate">
+  autoApplyRules?: Prisma.JsonNullableWithAggregatesFilter<"NoteTemplate">
   isDefault?: Prisma.BoolWithAggregatesFilter<"NoteTemplate"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"NoteTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"NoteTemplate"> | Date | string
@@ -294,6 +302,7 @@ export type NoteTemplateCreateInput = {
   prompt?: string | null
   category?: string | null
   structure: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -309,6 +318,7 @@ export type NoteTemplateUncheckedCreateInput = {
   prompt?: string | null
   category?: string | null
   structure: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -322,6 +332,7 @@ export type NoteTemplateUpdateInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   structure?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -337,6 +348,7 @@ export type NoteTemplateUncheckedUpdateInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   structure?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -351,6 +363,7 @@ export type NoteTemplateCreateManyInput = {
   prompt?: string | null
   category?: string | null
   structure: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -363,6 +376,7 @@ export type NoteTemplateUpdateManyMutationInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   structure?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -376,6 +390,7 @@ export type NoteTemplateUncheckedUpdateManyInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   structure?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -404,6 +419,7 @@ export type NoteTemplateCountOrderByAggregateInput = {
   prompt?: Prisma.SortOrder
   category?: Prisma.SortOrder
   structure?: Prisma.SortOrder
+  autoApplyRules?: Prisma.SortOrder
   isDefault?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -498,6 +514,7 @@ export type NoteTemplateCreateWithoutOrgInput = {
   prompt?: string | null
   category?: string | null
   structure: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -511,6 +528,7 @@ export type NoteTemplateUncheckedCreateWithoutOrgInput = {
   prompt?: string | null
   category?: string | null
   structure: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -554,6 +572,7 @@ export type NoteTemplateScalarWhereInput = {
   prompt?: Prisma.StringNullableFilter<"NoteTemplate"> | string | null
   category?: Prisma.StringNullableFilter<"NoteTemplate"> | string | null
   structure?: Prisma.JsonFilter<"NoteTemplate">
+  autoApplyRules?: Prisma.JsonNullableFilter<"NoteTemplate">
   isDefault?: Prisma.BoolFilter<"NoteTemplate"> | boolean
   createdAt?: Prisma.DateTimeFilter<"NoteTemplate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"NoteTemplate"> | Date | string
@@ -566,6 +585,7 @@ export type NoteTemplateCreateWithoutNotesInput = {
   prompt?: string | null
   category?: string | null
   structure: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -580,6 +600,7 @@ export type NoteTemplateUncheckedCreateWithoutNotesInput = {
   prompt?: string | null
   category?: string | null
   structure: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -608,6 +629,7 @@ export type NoteTemplateUpdateWithoutNotesInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   structure?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -622,6 +644,7 @@ export type NoteTemplateUncheckedUpdateWithoutNotesInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   structure?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -634,6 +657,7 @@ export type NoteTemplateCreateManyOrgInput = {
   prompt?: string | null
   category?: string | null
   structure: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -646,6 +670,7 @@ export type NoteTemplateUpdateWithoutOrgInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   structure?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -659,6 +684,7 @@ export type NoteTemplateUncheckedUpdateWithoutOrgInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   structure?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -672,6 +698,7 @@ export type NoteTemplateUncheckedUpdateManyWithoutOrgInput = {
   prompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   structure?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  autoApplyRules?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -716,6 +743,7 @@ export type NoteTemplateSelect<ExtArgs extends runtime.Types.Extensions.Internal
   prompt?: boolean
   category?: boolean
   structure?: boolean
+  autoApplyRules?: boolean
   isDefault?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -732,6 +760,7 @@ export type NoteTemplateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   prompt?: boolean
   category?: boolean
   structure?: boolean
+  autoApplyRules?: boolean
   isDefault?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -746,6 +775,7 @@ export type NoteTemplateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   prompt?: boolean
   category?: boolean
   structure?: boolean
+  autoApplyRules?: boolean
   isDefault?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -760,12 +790,13 @@ export type NoteTemplateSelectScalar = {
   prompt?: boolean
   category?: boolean
   structure?: boolean
+  autoApplyRules?: boolean
   isDefault?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type NoteTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "name" | "description" | "prompt" | "category" | "structure" | "isDefault" | "createdAt" | "updatedAt", ExtArgs["result"]["noteTemplate"]>
+export type NoteTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "name" | "description" | "prompt" | "category" | "structure" | "autoApplyRules" | "isDefault" | "createdAt" | "updatedAt", ExtArgs["result"]["noteTemplate"]>
 export type NoteTemplateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   org?: boolean | Prisma.NoteTemplate$orgArgs<ExtArgs>
   notes?: boolean | Prisma.NoteTemplate$notesArgs<ExtArgs>
@@ -792,6 +823,7 @@ export type $NoteTemplatePayload<ExtArgs extends runtime.Types.Extensions.Intern
     prompt: string | null
     category: string | null
     structure: runtime.JsonValue
+    autoApplyRules: runtime.JsonValue | null
     isDefault: boolean
     createdAt: Date
     updatedAt: Date
@@ -1227,6 +1259,7 @@ export interface NoteTemplateFieldRefs {
   readonly prompt: Prisma.FieldRef<"NoteTemplate", 'String'>
   readonly category: Prisma.FieldRef<"NoteTemplate", 'String'>
   readonly structure: Prisma.FieldRef<"NoteTemplate", 'Json'>
+  readonly autoApplyRules: Prisma.FieldRef<"NoteTemplate", 'Json'>
   readonly isDefault: Prisma.FieldRef<"NoteTemplate", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"NoteTemplate", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"NoteTemplate", 'DateTime'>

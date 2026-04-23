@@ -28,6 +28,7 @@ import { captureServerEvent } from '@/lib/posthog'
 import { sendExpoPush } from '@/services/push.service'
 import { extractKnowledge } from '@/services/knowledge.service'
 import { KnowledgeEntityType } from '@/generated/prisma/client'
+import { findBestTemplate } from '@/services/template-matcher.service'
 import { clerkClient } from '@clerk/nextjs/server'
 
 // ─── Priority mapping ────────────────────────────────────────────────────────
@@ -114,11 +115,27 @@ async function processSummarization(job: Job<SummarizationJobData>) {
   }
 
   // ── 4. Resolve template sections ──────────────────────────────────────────
+  // Explicit templateId from the job wins; otherwise we try to auto-apply a
+  // template whose regex rules match the meeting title. (Attendees list is
+  // empty for now — wire the diarization speaker labels in when we flesh
+  // out the attendee pipeline.)
   let sections: SectionDefinition[] | undefined
+  const autoTemplateId = await findBestTemplate(
+    recording.orgId,
+    recording.title,
+    [],
+  )
+  const effectiveTemplateId: string | null = templateId ?? autoTemplateId ?? null
 
-  if (templateId) {
+  if (autoTemplateId && !templateId) {
+    console.log(
+      `[summarization] Auto-applying template ${autoTemplateId} to recording ${recordingId}`,
+    )
+  }
+
+  if (effectiveTemplateId) {
     const template = await db.noteTemplate.findUnique({
-      where: { id: templateId },
+      where: { id: effectiveTemplateId },
       select: { structure: true },
     })
 
@@ -151,7 +168,7 @@ async function processSummarization(job: Job<SummarizationJobData>) {
       userId: recording.userId,
       title: recording.title,
       summary: summaryResult.summary,
-      templateId: templateId ?? null,
+      templateId: effectiveTemplateId,
     },
   })
 

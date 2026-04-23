@@ -255,6 +255,7 @@ export const NoteTemplateScalarFieldEnum = {
   prompt: 'prompt',
   category: 'category',
   structure: 'structure',
+  autoApplyRules: 'autoApplyRules',
   isDefault: 'isDefault',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

@@ -18,6 +18,12 @@ import { trpc } from '@/lib/trpc'
 
 type Section = { title: string; prompt: string }
 
+type AutoApplyRule = {
+  field: 'title' | 'attendees'
+  pattern: string
+  priority: number
+}
+
 type Template = {
   id: string
   name: string
@@ -25,6 +31,7 @@ type Template = {
   prompt: string | null
   category: string | null
   structure: unknown
+  autoApplyRules: unknown
   isDefault: boolean
   isGlobal: boolean
   orgId: string | null
@@ -42,10 +49,39 @@ function parseSections(structure: unknown): Section[] {
   })
 }
 
+function parseAutoApplyRules(json: unknown): AutoApplyRule[] {
+  if (!Array.isArray(json)) return []
+  return (json as unknown[]).flatMap((row) => {
+    if (!row || typeof row !== 'object') return []
+    const r = row as Record<string, unknown>
+    if (
+      (r.field === 'title' || r.field === 'attendees') &&
+      typeof r.pattern === 'string' &&
+      typeof r.priority === 'number'
+    ) {
+      return [r as AutoApplyRule]
+    }
+    return []
+  })
+}
+
 export function TemplatesManager() {
   const { data, isLoading, refetch } = trpc.templates.list.useQuery()
   const [editing, setEditing] = useState<Template | null>(null)
   const [creating, setCreating] = useState(false)
+  const [seedMessage, setSeedMessage] = useState<string | null>(null)
+
+  const seedMutation = trpc.templates.seedAutoApplyRules.useMutation({
+    onSuccess: (res) => {
+      setSeedMessage(
+        res.seeded === 0
+          ? 'Built-in rules already installed.'
+          : `Installed auto-apply rules on ${res.seeded} built-in template${res.seeded === 1 ? '' : 's'}.`,
+      )
+      refetch()
+    },
+    onError: (e) => setSeedMessage(e.message),
+  })
 
   const { globals, customs } = useMemo(() => {
     const globals: Template[] = []
@@ -67,6 +103,40 @@ export function TemplatesManager() {
 
   return (
     <div className="max-w-3xl space-y-8">
+      {/* Auto-apply seed banner */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 dark:border-white/10 dark:bg-white/5">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+            Auto-apply built-in rules
+          </p>
+          <p className="text-xs text-neutral-500 dark:text-gray-400">
+            Install regex triggers on Sales Call, 1:1 Meeting, and Daily Standup so
+            Kolasys AI picks the right template based on meeting title.
+          </p>
+          {seedMessage && (
+            <p className="mt-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+              {seedMessage}
+            </p>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setSeedMessage(null)
+            seedMutation.mutate()
+          }}
+          disabled={seedMutation.isPending}
+          className="flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-[#CA2625] px-3 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-[#b21f1f] disabled:opacity-60"
+        >
+          {seedMutation.isPending ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Sparkles className="h-3.5 w-3.5" />
+          )}
+          Install rules
+        </button>
+      </div>
+
       {/* Custom templates */}
       <section className="rounded-xl border border-neutral-200 bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-neutral-100 px-6 py-4">
@@ -238,6 +308,9 @@ function TemplateEditorModal({
   const [sections, setSections] = useState<Section[]>(
     template ? parseSections(template.structure) : [emptySection()]
   )
+  const [rules, setRules] = useState<AutoApplyRule[]>(
+    template ? parseAutoApplyRules(template.autoApplyRules) : [],
+  )
   const [error, setError] = useState<string | null>(null)
 
   // Reset form state when the modal opens or switches to a different template.
@@ -248,6 +321,7 @@ function TemplateEditorModal({
     setCategory(template?.category ?? '')
     setPrompt(template?.prompt ?? '')
     setSections(template ? parseSections(template.structure) : [emptySection()])
+    setRules(template ? parseAutoApplyRules(template.autoApplyRules) : [])
     setError(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, template?.id])
@@ -290,17 +364,32 @@ function TemplateEditorModal({
     if (cleaned.length === 0)
       return setError('Add at least one section with a title and prompt.')
 
+    // Clean rules — strip blanks, enforce priority range, max 10.
+    const cleanedRules = rules
+      .map((r) => ({
+        field: r.field,
+        pattern: r.pattern.trim(),
+        priority: Math.max(1, Math.min(10, Math.round(r.priority))),
+      }))
+      .filter((r) => r.pattern.length > 0)
+      .slice(0, 10)
+
     const payload = {
       name: name.trim(),
       description: description.trim() || undefined,
       category: category.trim() || undefined,
       prompt: prompt.trim() || undefined,
       structure: cleaned,
+      autoApplyRules: cleanedRules.length > 0 ? cleanedRules : null,
     }
     if (isEdit && template) {
       updateMutation.mutate({ id: template.id, ...payload })
     } else {
-      createMutation.mutate(payload)
+      // create() accepts autoApplyRules as an array only, no null.
+      createMutation.mutate({
+        ...payload,
+        autoApplyRules: cleanedRules.length > 0 ? cleanedRules : undefined,
+      })
     }
   }
 
@@ -442,6 +531,108 @@ function TemplateEditorModal({
                   </li>
                 ))}
               </ul>
+            </div>
+
+            {/* Auto-apply rules — regex triggers for auto-template selection */}
+            <div className="mt-6">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                  Auto-apply rules
+                </p>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setRules((prev) => [
+                      ...prev,
+                      { field: 'title', pattern: '', priority: 5 },
+                    ])
+                  }
+                  className="flex items-center gap-1 text-xs font-medium text-[#CA2625] hover:opacity-80"
+                >
+                  <Plus className="h-3 w-3" />
+                  Add rule
+                </button>
+              </div>
+
+              {rules.length === 0 ? (
+                <p className="rounded-lg border border-dashed border-neutral-200 px-3 py-4 text-center text-xs text-neutral-500 dark:border-white/10 dark:text-gray-400">
+                  No rules yet. Rules auto-apply this template when a new recording&apos;s
+                  title or attendees match a pattern.
+                </p>
+              ) : (
+                <ul className="space-y-2">
+                  {rules.map((rule, i) => (
+                    <li
+                      key={i}
+                      className="flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 p-2 dark:border-white/10 dark:bg-white/5"
+                    >
+                      <select
+                        value={rule.field}
+                        onChange={(e) =>
+                          setRules((prev) =>
+                            prev.map((r, idx) =>
+                              idx === i
+                                ? { ...r, field: e.target.value as 'title' | 'attendees' }
+                                : r,
+                            ),
+                          )
+                        }
+                        className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs dark:border-white/15 dark:bg-[#1A1A24] dark:text-white"
+                      >
+                        <option value="title">Title</option>
+                        <option value="attendees">Attendees</option>
+                      </select>
+                      <span className="text-xs text-neutral-500 dark:text-gray-400">matches</span>
+                      <input
+                        type="text"
+                        value={rule.pattern}
+                        onChange={(e) =>
+                          setRules((prev) =>
+                            prev.map((r, idx) =>
+                              idx === i ? { ...r, pattern: e.target.value } : r,
+                            ),
+                          )
+                        }
+                        placeholder="sales|demo|pitch"
+                        className="min-w-[140px] flex-1 rounded-md border border-neutral-300 bg-white px-2 py-1 font-mono text-xs dark:border-white/15 dark:bg-[#1A1A24] dark:text-white"
+                      />
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-neutral-500 dark:text-gray-400">priority</span>
+                        <input
+                          type="number"
+                          min={1}
+                          max={10}
+                          value={rule.priority}
+                          onChange={(e) =>
+                            setRules((prev) =>
+                              prev.map((r, idx) =>
+                                idx === i
+                                  ? { ...r, priority: Number(e.target.value) || 5 }
+                                  : r,
+                              ),
+                            )
+                          }
+                          className="w-14 rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs dark:border-white/15 dark:bg-[#1A1A24] dark:text-white"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setRules((prev) => prev.filter((_, idx) => idx !== i))
+                        }
+                        aria-label="Remove rule"
+                        className="flex-shrink-0 rounded p-1 text-neutral-400 hover:text-red-500"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <p className="mt-2 text-[11px] text-neutral-400 dark:text-gray-500">
+                Pattern is a case-insensitive regex (e.g. <code>1:1|check.in</code>).
+                Priority breaks ties when multiple templates match (1 = lowest, 10 = highest).
+              </p>
             </div>
 
             {error && (

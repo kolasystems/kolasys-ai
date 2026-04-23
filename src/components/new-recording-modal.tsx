@@ -2,14 +2,15 @@
 
 // Kolasys AI — New Recording modal (upload / browser record / meeting bot)
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { X, Upload, Mic, Monitor, Video } from 'lucide-react'
+import { X, Upload, Mic, Monitor, Video, Sparkles } from 'lucide-react'
 import { useDropzone } from 'react-dropzone'
 import { trpc } from '@/lib/trpc'
 import { BrowserRecorder } from './browser-recorder'
 import { TRANSCRIPTION_LANGUAGES } from './default-language-selector'
 import { cn } from '@/lib/utils'
+import { pickAutoApplyTemplate } from '@/lib/template-matcher'
 
 type Tab = 'upload' | 'browser' | 'desktop' | 'bot'
 
@@ -39,6 +40,18 @@ export function NewRecordingModal({ open, onOpenChange }: Props) {
   const createRecording = trpc.recordings.create.useMutation()
   const getUploadUrl = trpc.recordings.getUploadUrl.useMutation()
   const confirmUpload = trpc.recordings.confirmUpload.useMutation()
+
+  // Client-side auto-apply hint — runs the same matcher as the server worker
+  // against the title as the user types, so they can see which AI Skill will
+  // fire before the recording is even created.
+  const { data: templates } = trpc.templates.list.useQuery(undefined, {
+    enabled: open,
+    staleTime: 5 * 60 * 1000,
+  })
+  const matchedTemplate = useMemo(() => {
+    if (!title.trim() || !templates?.length) return null
+    return pickAutoApplyTemplate(templates, title, [])
+  }, [title, templates])
 
   const {
     getRootProps,
@@ -243,6 +256,14 @@ export function NewRecordingModal({ open, onOpenChange }: Props) {
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
               />
+              {matchedTemplate && (
+                <p className="mt-1.5 flex items-center gap-1.5 text-xs text-[#CA2625]">
+                  <Sparkles className="h-3 w-3" />
+                  <span>
+                    AI Skills: <strong className="font-semibold">{matchedTemplate.name}</strong> template will be used
+                  </span>
+                </p>
+              )}
             </div>
 
             {/* Language */}
