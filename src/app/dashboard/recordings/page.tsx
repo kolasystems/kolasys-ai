@@ -97,7 +97,7 @@ export default function RecordingsPage() {
           placeholder="Search meanings, not just titles — press Enter"
           value={rawQuery}
           onChange={(e) => setRawQuery(e.target.value)}
-          className="glass w-full py-2.5 pl-9 pr-9 text-sm text-primary placeholder:text-muted focus:outline-none"
+          className="glass min-h-[44px] w-full py-2.5 pl-9 pr-9 text-sm text-primary placeholder:text-muted focus:outline-none"
         />
         {rawQuery && (
           <button

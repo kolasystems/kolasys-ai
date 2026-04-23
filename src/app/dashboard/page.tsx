@@ -60,8 +60,8 @@ export default async function DashboardPage() {
         <StuckRecordingsBanner recordings={stuckRecordings} />
       </div>
 
-      {/* Stat cards */}
-      <div className="mt-5 grid grid-cols-1 gap-4 sm:mt-6 sm:grid-cols-2 xl:grid-cols-4">
+      {/* Stat cards — 2 cols on phones, 2 at sm, 4 at xl+ */}
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:mt-6 sm:gap-4 xl:grid-cols-4">
         <GradientStatCard
           variant="recordings"
           icon={Mic2}

@@ -1,26 +1,12 @@
-// Kolasys AI — Dashboard layout with redesigned glass sidebar + dark mode
+// Kolasys AI — Dashboard layout
+// Desktop (lg+): Fireflies-style CollapsibleSidebar on the left.
+// Mobile:        MobileNav top bar + slide-out drawer.
 
 import { redirect } from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
-import {
-  UserButton,
-  OrganizationSwitcher,
-  CreateOrganization,
-} from '@clerk/nextjs'
-import {
-  LayoutDashboard,
-  ListChecks,
-  Settings,
-  Sparkles,
-  Calendar,
-  Wand2,
-  BarChart2,
-  Users,
-  Mic2,
-} from 'lucide-react'
+import { CreateOrganization } from '@clerk/nextjs'
 import { MobileNav } from '@/components/mobile-nav'
-import { DashboardNavLink } from '@/components/dashboard-nav-link'
-import { DarkModeToggle } from '@/components/dark-mode-toggle'
+import { CollapsibleSidebar } from '@/components/sidebar'
 import { KolasysLogoMark } from '@/components/kolasys-logo'
 
 export default async function DashboardLayout({
@@ -56,93 +42,12 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex h-screen overflow-hidden bg-app">
-      {/* ── Desktop sidebar — only visible at lg (1024px+) ───────────────── */}
-      <aside className="hidden w-64 flex-shrink-0 flex-col border-r border-line bg-sidebar-gradient lg:flex">
-        {/* Brand — actual logo mark + wordmark */}
-        <div className="flex h-16 items-center gap-2.5 border-b border-line px-5">
-          <KolasysLogoMark size={28} className="text-black dark:text-white flex-shrink-0" />
-          <span className="text-sm font-semibold tracking-tight text-primary">
-            Kolasys <span style={{ color: '#CA2625' }}>AI</span>
-          </span>
-        </div>
+      {/* Desktop sidebar — Fireflies-style collapsible */}
+      <CollapsibleSidebar />
 
-        {/* Org switcher — avatar square styled as a gradient badge */}
-        <div className="border-b border-line px-4 py-3">
-          <OrganizationSwitcher
-            hidePersonal
-            afterCreateOrganizationUrl="/dashboard"
-            afterSelectOrganizationUrl="/dashboard"
-            appearance={{
-              elements: {
-                rootBox: 'w-full',
-                organizationSwitcherTrigger:
-                  'w-full rounded-lg px-2 py-1.5 text-sm hover:bg-[color-mix(in_srgb,var(--text-muted)_10%,transparent)] justify-start gap-2',
-                avatarBox:
-                  'w-7 h-7 rounded-lg text-white text-xs font-bold flex items-center justify-center',
-                organizationPreviewMainIdentifier: 'text-sm font-semibold text-primary',
-                organizationPreviewSecondaryIdentifier: 'text-xs text-secondary',
-              },
-            }}
-          />
-        </div>
-
-        {/* Nav */}
-        <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-          <DashboardNavLink href="/dashboard" icon={<LayoutDashboard className="h-4 w-4" />} exact>
-            Overview
-          </DashboardNavLink>
-          <DashboardNavLink href="/dashboard/recordings" icon={<Mic2 className="h-4 w-4" />}>
-            Recordings
-          </DashboardNavLink>
-          <DashboardNavLink href="/dashboard/action-items" icon={<ListChecks className="h-4 w-4" />}>
-            Action Items
-          </DashboardNavLink>
-          <DashboardNavLink href="/dashboard/analytics" icon={<BarChart2 className="h-4 w-4" />}>
-            Analytics
-          </DashboardNavLink>
-          <DashboardNavLink href="/dashboard/contacts" icon={<Users className="h-4 w-4" />}>
-            Contacts
-          </DashboardNavLink>
-          <DashboardNavLink href="/dashboard/search" icon={<Sparkles className="h-4 w-4" />}>
-            Ask AI
-          </DashboardNavLink>
-          <DashboardNavLink href="/dashboard/calendar" icon={<Calendar className="h-4 w-4" />}>
-            Calendar
-          </DashboardNavLink>
-          <DashboardNavLink href="/dashboard/settings" icon={<Settings className="h-4 w-4" />} exact>
-            Settings
-          </DashboardNavLink>
-          <DashboardNavLink href="/dashboard/settings/templates" icon={<Wand2 className="h-4 w-4" />}>
-            Templates
-          </DashboardNavLink>
-          <DashboardNavLink href="/dashboard/settings/integrations" icon={<Settings className="h-4 w-4" />}>
-            Integrations
-          </DashboardNavLink>
-        </nav>
-
-        {/* Dark mode toggle */}
-        <div className="border-t border-line p-3">
-          <DarkModeToggle />
-        </div>
-
-        {/* User avatar with gradient ring */}
-        <div className="border-t border-line p-4">
-          <div className="inline-flex rounded-full p-[2px]" style={{ background: 'linear-gradient(135deg, #CA2625, #8B1A1A)' }}>
-            <div className="rounded-full bg-surface p-0.5">
-              <UserButton appearance={{ elements: { userButtonAvatarBox: 'h-8 w-8' } }} />
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* ── Right-hand column: top bar + page content ────────────────────── */}
+      {/* Right-hand column: mobile top bar + scrollable content */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {/* Mobile / tablet top bar with hamburger (hidden at lg+) */}
         <MobileNav />
-
-        {/* Scrollable page content — explicit bg so the main panel reads as
-            a distinct surface (light: #F8F9FC, dark: #0F0F13) no matter what
-            the child page renders (or doesn't render) for its background. */}
         <main className="flex-1 overflow-y-auto bg-[#F8F9FC] dark:bg-[#0F0F13]">
           {children}
         </main>
