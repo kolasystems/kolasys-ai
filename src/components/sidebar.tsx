@@ -66,7 +66,11 @@ export function CollapsibleSidebar() {
   return (
     <aside
       className={cn(
-        'hidden flex-shrink-0 flex-col border-r border-line bg-sidebar-gradient lg:flex',
+        'hidden flex-shrink-0 flex-col border-r lg:flex',
+        // Subtle off-white in light mode so the sidebar reads a shade cooler
+        // than the main #F8F9FC content area. Dark mode keeps the gradient.
+        'bg-[#F7F8FA] dark:bg-sidebar-gradient',
+        'border-neutral-100 dark:border-white/10',
         collapsed ? 'w-16' : 'w-60',
         mounted && 'transition-[width] duration-200 ease-in-out',
       )}
@@ -74,7 +78,8 @@ export function CollapsibleSidebar() {
       {/* ── Brand + collapse toggle ─────────────────────────────────── */}
       <div
         className={cn(
-          'flex h-16 items-center border-b border-line',
+          'flex h-16 items-center border-b',
+          'border-neutral-100 dark:border-white/10',
           collapsed ? 'flex-col justify-center gap-1 px-0' : 'justify-between gap-2 px-4',
         )}
       >
@@ -82,10 +87,10 @@ export function CollapsibleSidebar() {
           type="button"
           onClick={toggle}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className="flex items-center gap-2 rounded-md p-1 transition-colors hover:bg-[color-mix(in_srgb,var(--text-muted)_10%,transparent)]"
+          className="flex items-center gap-2 rounded-md p-1 transition-colors hover:bg-[color-mix(in_srgb,var(--text-muted)_8%,transparent)]"
         >
           <KolasysLogoMark
-            size={collapsed ? 24 : 28}
+            size={collapsed ? 36 : 32}
             className="flex-shrink-0 text-black dark:text-white"
           />
           {!collapsed && (
@@ -100,11 +105,11 @@ export function CollapsibleSidebar() {
           onClick={toggle}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           className={cn(
-            'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-muted transition-colors hover:bg-[color-mix(in_srgb,var(--text-muted)_10%,transparent)] hover:text-primary',
+            'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-muted transition-colors hover:bg-[color-mix(in_srgb,var(--text-muted)_8%,transparent)] hover:text-primary',
             collapsed && 'mt-1',
           )}
         >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
         </button>
       </div>
 
@@ -145,32 +150,32 @@ export function CollapsibleSidebar() {
         {/* Group 1 — main */}
         <DashboardNavLink
           href="/dashboard"
-          icon={<LayoutDashboard className="h-4 w-4" />}
+          icon={<LayoutDashboard className="h-5 w-5" />}
           label="Overview"
           exact
           collapsed={collapsed}
         />
         <DashboardNavLink
           href="/dashboard/recordings"
-          icon={<Mic2 className="h-4 w-4" />}
+          icon={<Mic2 className="h-5 w-5" />}
           label="Recordings"
           collapsed={collapsed}
         />
         <DashboardNavLink
           href="/dashboard/action-items"
-          icon={<ListChecks className="h-4 w-4" />}
+          icon={<ListChecks className="h-5 w-5" />}
           label="Action Items"
           collapsed={collapsed}
         />
         <DashboardNavLink
           href="/dashboard/analytics"
-          icon={<BarChart2 className="h-4 w-4" />}
+          icon={<BarChart2 className="h-5 w-5" />}
           label="Analytics"
           collapsed={collapsed}
         />
         <DashboardNavLink
           href="/dashboard/contacts"
-          icon={<Users className="h-4 w-4" />}
+          icon={<Users className="h-5 w-5" />}
           label="Contacts"
           collapsed={collapsed}
         />
@@ -180,19 +185,19 @@ export function CollapsibleSidebar() {
         {/* Group 2 — AI / scheduling */}
         <DashboardNavLink
           href="/dashboard/search"
-          icon={<Sparkles className="h-4 w-4" />}
+          icon={<Sparkles className="h-5 w-5" />}
           label="Ask AI"
           collapsed={collapsed}
         />
         <DashboardNavLink
           href="/dashboard/calendar"
-          icon={<Calendar className="h-4 w-4" />}
+          icon={<Calendar className="h-5 w-5" />}
           label="Calendar"
           collapsed={collapsed}
         />
         <DashboardNavLink
           href="/dashboard/settings/templates"
-          icon={<Wand2 className="h-4 w-4" />}
+          icon={<Wand2 className="h-5 w-5" />}
           label="Templates"
           collapsed={collapsed}
         />
@@ -202,14 +207,14 @@ export function CollapsibleSidebar() {
         {/* Group 3 — admin */}
         <DashboardNavLink
           href="/dashboard/settings"
-          icon={<Settings className="h-4 w-4" />}
+          icon={<Settings className="h-5 w-5" />}
           label="Settings"
           exact
           collapsed={collapsed}
         />
         <DashboardNavLink
           href="/dashboard/settings/integrations"
-          icon={<Plug className="h-4 w-4" />}
+          icon={<Plug className="h-5 w-5" />}
           label="Integrations"
           collapsed={collapsed}
         />
