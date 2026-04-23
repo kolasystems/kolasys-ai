@@ -46,14 +46,16 @@ export function DashboardNavLink({
       aria-label={collapsed ? label : undefined}
       title={collapsed ? undefined : label}
       className={cn(
-        'relative flex min-h-[44px] items-center rounded-lg text-sm transition-all duration-200',
-        collapsed ? 'h-10 w-10 justify-center' : 'gap-3 px-3 py-2.5',
+        'relative flex items-center rounded-lg text-sm transition-all duration-200',
+        collapsed
+          ? 'h-10 w-10 justify-center'
+          : 'min-h-[40px] gap-3 px-3 py-2',
         active
           ? cn(ACTIVE_BG, 'font-medium text-[#CA2625]')
-          : 'font-medium text-secondary hover:bg-[color-mix(in_srgb,var(--text-muted)_8%,transparent)] hover:text-primary',
+          : 'font-medium text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white',
       )}
     >
-      <span className={cn(active ? 'text-[#CA2625]' : 'text-muted')}>{icon}</span>
+      <span className={cn('flex-shrink-0', active ? 'text-[#CA2625]' : 'text-neutral-500 dark:text-gray-400')}>{icon}</span>
       {!collapsed && <span>{label}</span>}
     </Link>
   )
