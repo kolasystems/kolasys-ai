@@ -25,6 +25,7 @@ import { postToSlack } from '@/services/integrations/slack.service'
 import { createNotionPage } from '@/services/integrations/notion.service'
 import { resend, FROM_EMAIL } from '@/lib/email'
 import { captureServerEvent } from '@/lib/posthog'
+import { sendExpoPush } from '@/services/push.service'
 import { clerkClient } from '@clerk/nextjs/server'
 
 // ─── Priority mapping ────────────────────────────────────────────────────────
@@ -242,6 +243,41 @@ async function processSummarization(job: Job<SummarizationJobData>) {
     where: { id: recordingId },
     data: { status: RecordingStatus.READY },
   })
+
+  // ── 8.5. Mobile push (Apple Watch Phase 2) ───────────────────────────────
+  // Fire-and-forget Expo push so the phone + watch light up the moment
+  // notes are ready. Body = 3-bullet wrist summary built from the note's
+  // top sections. Never fails the job — logs only.
+  try {
+    const orgWithToken = await db.organization.findFirst({
+      where: { id: recording.orgId },
+      select: { expoPushToken: true, name: true },
+    })
+
+    if (orgWithToken?.expoPushToken) {
+      const pushNote = await db.note.findFirst({
+        where: { recordingId },
+        include: { sections: { orderBy: { order: 'asc' }, take: 3 } },
+        orderBy: { createdAt: 'desc' },
+      })
+
+      const bullets =
+        pushNote?.sections
+          .slice(0, 3)
+          .map((s) => `• ${s.title}`)
+          .join('\n') ?? '• Notes are ready'
+
+      await sendExpoPush({
+        token: orgWithToken.expoPushToken,
+        title: `Notes ready: ${recording.title}`,
+        body: bullets,
+        data: { recordingId },
+      })
+    }
+  } catch (pushErr) {
+    console.error('[push] Failed to send push notification:', pushErr)
+    // Non-fatal — do not rethrow.
+  }
 
   // ── 9. Mark summarization job as COMPLETED ────────────────────────────────
   await db.processingJob.update({

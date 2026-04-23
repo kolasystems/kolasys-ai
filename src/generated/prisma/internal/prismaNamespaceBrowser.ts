@@ -100,6 +100,7 @@ export const OrganizationScalarFieldEnum = {
   ssoEnabled: 'ssoEnabled',
   ssoDomain: 'ssoDomain',
   samlMetadataUrl: 'samlMetadataUrl',
+  expoPushToken: 'expoPushToken',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

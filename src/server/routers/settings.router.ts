@@ -34,6 +34,20 @@ export const settingsRouter = router({
     }
   }),
 
+  // ── Register the Expo push token from the mobile app ─────────────────────
+  // The mobile app calls this on launch after resolving the device token.
+  // Used by the summarization worker to notify the watch/phone when notes
+  // are ready.
+  updatePushToken: orgProcedure
+    .input(z.object({ token: z.string().min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.organization.update({
+        where: { id: ctx.orgId },
+        data: { expoPushToken: input.token },
+      })
+      return { ok: true }
+    }),
+
   // ── Update org-level preferences ──────────────────────────────────────────
   updateOrgSettings: orgProcedure
     .input(
