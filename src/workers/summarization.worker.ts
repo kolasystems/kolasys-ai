@@ -26,6 +26,8 @@ import { createNotionPage } from '@/services/integrations/notion.service'
 import { resend, FROM_EMAIL } from '@/lib/email'
 import { captureServerEvent } from '@/lib/posthog'
 import { sendExpoPush } from '@/services/push.service'
+import { extractKnowledge } from '@/services/knowledge.service'
+import { KnowledgeEntityType } from '@/generated/prisma/client'
 import { clerkClient } from '@clerk/nextjs/server'
 
 // ─── Priority mapping ────────────────────────────────────────────────────────
@@ -277,6 +279,90 @@ async function processSummarization(job: Job<SummarizationJobData>) {
   } catch (pushErr) {
     console.error('[push] Failed to send push notification:', pushErr)
     // Non-fatal — do not rethrow.
+  }
+
+  // ── 8.6. Knowledge graph extraction ───────────────────────────────────────
+  // Haiku pulls people / topics / projects from the transcript. Each entity
+  // is upserted (normalized lowercase name per orgId+type) and linked to this
+  // recording. HTTP-mode Prisma → no batch upserts, so we loop sequentially.
+  // Non-fatal: log + continue on any failure so the main pipeline is safe.
+  try {
+    const transcriptRow = await db.transcript.findFirst({
+      where: { recordingId },
+      select: { text: true },
+    })
+
+    if (transcriptRow?.text) {
+      const extracted = await extractKnowledge(transcriptRow.text, recording.title)
+
+      type EntityInput = { type: KnowledgeEntityType; name: string }
+      const allEntities: EntityInput[] = [
+        ...extracted.people.map((name) => ({
+          type: KnowledgeEntityType.PERSON,
+          name: name.toLowerCase().trim(),
+        })),
+        ...extracted.topics.map((name) => ({
+          type: KnowledgeEntityType.TOPIC,
+          name: name.toLowerCase().trim(),
+        })),
+        ...extracted.projects.map((name) => ({
+          type: KnowledgeEntityType.PROJECT,
+          name: name.toLowerCase().trim(),
+        })),
+      ].filter((e) => e.name.length > 1)
+
+      for (const entity of allEntities) {
+        // Upsert entity — findFirst + create/update (HTTP mode).
+        const existing = await db.knowledgeEntity.findFirst({
+          where: { orgId: recording.orgId, type: entity.type, name: entity.name },
+          select: { id: true, mentions: true },
+        })
+
+        let entityId: string
+        if (existing) {
+          await db.knowledgeEntity.update({
+            where: { id: existing.id },
+            data: { mentions: existing.mentions + 1, lastSeen: new Date() },
+          })
+          entityId = existing.id
+        } else {
+          const created = await db.knowledgeEntity.create({
+            data: { orgId: recording.orgId, type: entity.type, name: entity.name, mentions: 1 },
+          })
+          entityId = created.id
+        }
+
+        // Upsert the link row.
+        const existingLink = await db.knowledgeEntityRecording.findFirst({
+          where: { entityId, recordingId },
+          select: { id: true, mentions: true },
+        })
+        if (existingLink) {
+          await db.knowledgeEntityRecording.update({
+            where: { id: existingLink.id },
+            data: { mentions: existingLink.mentions + 1 },
+          })
+        } else {
+          try {
+            await db.knowledgeEntityRecording.create({
+              data: { entityId, recordingId, mentions: 1 },
+            })
+          } catch {
+            // Race condition — another attempt created it first. Fine.
+          }
+        }
+      }
+
+      console.log(
+        `[summarization] Knowledge graph: +${allEntities.length} entities for ${recordingId}`,
+      )
+    }
+  } catch (knowledgeErr) {
+    console.error('[summarization] Knowledge extraction failed (non-fatal):', knowledgeErr)
+    Sentry.captureException(knowledgeErr, {
+      tags: { worker: 'summarization', phase: 'knowledge' },
+      extra: { recordingId },
+    })
   }
 
   // ── 9. Mark summarization job as COMPLETED ────────────────────────────────

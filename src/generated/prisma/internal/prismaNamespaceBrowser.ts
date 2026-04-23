@@ -64,7 +64,9 @@ export const ModelName = {
   NoteTemplate: 'NoteTemplate',
   ProcessingJob: 'ProcessingJob',
   ApiKey: 'ApiKey',
-  TranscriptEmbedding: 'TranscriptEmbedding'
+  TranscriptEmbedding: 'TranscriptEmbedding',
+  KnowledgeEntity: 'KnowledgeEntity',
+  KnowledgeEntityRecording: 'KnowledgeEntityRecording'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -305,6 +307,33 @@ export const TranscriptEmbeddingScalarFieldEnum = {
 } as const
 
 export type TranscriptEmbeddingScalarFieldEnum = (typeof TranscriptEmbeddingScalarFieldEnum)[keyof typeof TranscriptEmbeddingScalarFieldEnum]
+
+
+export const KnowledgeEntityScalarFieldEnum = {
+  id: 'id',
+  orgId: 'orgId',
+  type: 'type',
+  name: 'name',
+  aliases: 'aliases',
+  mentions: 'mentions',
+  lastSeen: 'lastSeen',
+  firstSeen: 'firstSeen',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KnowledgeEntityScalarFieldEnum = (typeof KnowledgeEntityScalarFieldEnum)[keyof typeof KnowledgeEntityScalarFieldEnum]
+
+
+export const KnowledgeEntityRecordingScalarFieldEnum = {
+  id: 'id',
+  entityId: 'entityId',
+  recordingId: 'recordingId',
+  mentions: 'mentions',
+  createdAt: 'createdAt'
+} as const
+
+export type KnowledgeEntityRecordingScalarFieldEnum = (typeof KnowledgeEntityRecordingScalarFieldEnum)[keyof typeof KnowledgeEntityRecordingScalarFieldEnum]
 
 
 export const SortOrder = {

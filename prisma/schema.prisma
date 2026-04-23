@@ -74,6 +74,12 @@ enum Priority {
   URGENT
 }
 
+enum KnowledgeEntityType {
+  PERSON
+  TOPIC
+  PROJECT
+}
+
 // ─── Models ───────────────────────────────────────────────────────────────────
 
 model Organization {
@@ -115,10 +121,11 @@ model Organization {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  members    OrgMember[]
-  recordings Recording[]
-  apiKeys    ApiKey[]
-  templates  NoteTemplate[]
+  members          OrgMember[]
+  recordings       Recording[]
+  apiKeys          ApiKey[]
+  templates        NoteTemplate[]
+  knowledgeEntities KnowledgeEntity[]
 }
 
 model OrgMember {
@@ -163,6 +170,7 @@ model Recording {
   notes        Note[]
   jobs         ProcessingJob[]
   speakerLabels SpeakerLabel[]
+  knowledgeLinks KnowledgeEntityRecording[]
 
   @@index([orgId, status])
   @@index([orgId, createdAt(sort: Desc)])
@@ -354,4 +362,46 @@ model TranscriptEmbedding {
 
   @@index([orgId], map: "idx_te_org")
   @@index([recordingId], map: "idx_te_recording")
+}
+
+// ─── Personal Knowledge Graph ─────────────────────────────────────────────
+//
+// KnowledgeEntity: a normalized person / topic / project extracted by Claude
+// from meeting transcripts. `name` is stored lowercase-trimmed so repeat
+// extractions collapse into a single row via the (orgId, type, name) unique.
+// `aliases` keeps the original cased variants we've seen.
+// KnowledgeEntityRecording: junction row linking an entity to every recording
+// it was mentioned in, with per-recording mention count for weighting.
+
+model KnowledgeEntity {
+  id        String              @id @default(cuid())
+  orgId     String
+  type      KnowledgeEntityType
+  name      String              // normalized lowercase
+  aliases   String[]            // alternate casings / variants
+  mentions  Int                 @default(1)
+  lastSeen  DateTime            @default(now())
+  firstSeen DateTime            @default(now())
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  org            Organization               @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  recordingLinks KnowledgeEntityRecording[]
+
+  @@unique([orgId, type, name])
+  @@index([orgId, type])
+}
+
+model KnowledgeEntityRecording {
+  id          String   @id @default(cuid())
+  entityId    String
+  recordingId String
+  mentions    Int      @default(1)
+  createdAt   DateTime @default(now())
+
+  entity    KnowledgeEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  recording Recording       @relation(fields: [recordingId], references: [id], onDelete: Cascade)
+
+  @@unique([entityId, recordingId])
+  @@index([recordingId])
 }

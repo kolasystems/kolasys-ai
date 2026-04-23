@@ -87,3 +87,13 @@ export type ApiKey = Prisma.ApiKeyModel
  * 
  */
 export type TranscriptEmbedding = Prisma.TranscriptEmbeddingModel
+/**
+ * Model KnowledgeEntity
+ * 
+ */
+export type KnowledgeEntity = Prisma.KnowledgeEntityModel
+/**
+ * Model KnowledgeEntityRecording
+ * 
+ */
+export type KnowledgeEntityRecording = Prisma.KnowledgeEntityRecordingModel

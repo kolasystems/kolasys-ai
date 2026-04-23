@@ -12,6 +12,7 @@ import {
 } from '@clerk/nextjs'
 import {
   BarChart2,
+  Brain,
   Calendar,
   ChevronLeft,
   ChevronRight,
@@ -178,6 +179,12 @@ export function CollapsibleSidebar() {
           href="/dashboard/contacts"
           icon={<Users className={ICON} strokeWidth={STROKE} />}
           label="Contacts"
+          collapsed={collapsed}
+        />
+        <DashboardNavLink
+          href="/dashboard/knowledge"
+          icon={<Brain className={ICON} strokeWidth={STROKE} />}
+          label="Knowledge"
           collapsed={collapsed}
         />
         <DashboardNavLink

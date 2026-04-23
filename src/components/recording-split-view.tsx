@@ -17,6 +17,7 @@ import { RefineSummaryButton } from './refine-summary-button'
 import { RecordingAudioPlayer } from './recording-audio-player'
 import { InlineAskAI } from './inline-ask-ai'
 import { MarkdownContent } from './markdown-content'
+import { RecordingKnowledgeChips } from './recording-knowledge-chips'
 
 // Plain-object shapes that travel across the RSC boundary.
 type Segment = {
@@ -228,6 +229,9 @@ export function RecordingSplitView({
                     </ul>
                   </div>
                 )}
+
+                {/* People / Topics / Projects extracted by the knowledge graph */}
+                {ready && <RecordingKnowledgeChips recordingId={recordingId} />}
               </div>
             )}
           </div>

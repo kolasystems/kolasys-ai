@@ -511,6 +511,23 @@ export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
   _max?: Prisma.NestedJsonNullableFilter<$PrismaModel>
 }
 
+export type EnumKnowledgeEntityTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.KnowledgeEntityType | Prisma.EnumKnowledgeEntityTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.KnowledgeEntityType[] | Prisma.ListEnumKnowledgeEntityTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.KnowledgeEntityType[] | Prisma.ListEnumKnowledgeEntityTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumKnowledgeEntityTypeFilter<$PrismaModel> | $Enums.KnowledgeEntityType
+}
+
+export type EnumKnowledgeEntityTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.KnowledgeEntityType | Prisma.EnumKnowledgeEntityTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.KnowledgeEntityType[] | Prisma.ListEnumKnowledgeEntityTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.KnowledgeEntityType[] | Prisma.ListEnumKnowledgeEntityTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumKnowledgeEntityTypeWithAggregatesFilter<$PrismaModel> | $Enums.KnowledgeEntityType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumKnowledgeEntityTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumKnowledgeEntityTypeFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -943,6 +960,23 @@ export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
   gt?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel>
   gte?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel>
   not?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel> | Prisma.JsonNullValueFilter
+}
+
+export type NestedEnumKnowledgeEntityTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.KnowledgeEntityType | Prisma.EnumKnowledgeEntityTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.KnowledgeEntityType[] | Prisma.ListEnumKnowledgeEntityTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.KnowledgeEntityType[] | Prisma.ListEnumKnowledgeEntityTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumKnowledgeEntityTypeFilter<$PrismaModel> | $Enums.KnowledgeEntityType
+}
+
+export type NestedEnumKnowledgeEntityTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.KnowledgeEntityType | Prisma.EnumKnowledgeEntityTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.KnowledgeEntityType[] | Prisma.ListEnumKnowledgeEntityTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.KnowledgeEntityType[] | Prisma.ListEnumKnowledgeEntityTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumKnowledgeEntityTypeWithAggregatesFilter<$PrismaModel> | $Enums.KnowledgeEntityType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumKnowledgeEntityTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumKnowledgeEntityTypeFilter<$PrismaModel>
 }
 
 

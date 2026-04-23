@@ -96,3 +96,12 @@ export const Priority = {
 } as const
 
 export type Priority = (typeof Priority)[keyof typeof Priority]
+
+
+export const KnowledgeEntityType = {
+  PERSON: 'PERSON',
+  TOPIC: 'TOPIC',
+  PROJECT: 'PROJECT'
+} as const
+
+export type KnowledgeEntityType = (typeof KnowledgeEntityType)[keyof typeof KnowledgeEntityType]

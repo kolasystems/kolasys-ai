@@ -298,6 +298,7 @@ export type OrganizationWhereInput = {
   recordings?: Prisma.RecordingListRelationFilter
   apiKeys?: Prisma.ApiKeyListRelationFilter
   templates?: Prisma.NoteTemplateListRelationFilter
+  knowledgeEntities?: Prisma.KnowledgeEntityListRelationFilter
 }
 
 export type OrganizationOrderByWithRelationInput = {
@@ -324,6 +325,7 @@ export type OrganizationOrderByWithRelationInput = {
   recordings?: Prisma.RecordingOrderByRelationAggregateInput
   apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
   templates?: Prisma.NoteTemplateOrderByRelationAggregateInput
+  knowledgeEntities?: Prisma.KnowledgeEntityOrderByRelationAggregateInput
 }
 
 export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -353,6 +355,7 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   recordings?: Prisma.RecordingListRelationFilter
   apiKeys?: Prisma.ApiKeyListRelationFilter
   templates?: Prisma.NoteTemplateListRelationFilter
+  knowledgeEntities?: Prisma.KnowledgeEntityListRelationFilter
 }, "id" | "slug" | "clerkOrgId">
 
 export type OrganizationOrderByWithAggregationInput = {
@@ -429,6 +432,7 @@ export type OrganizationCreateInput = {
   recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutOrgInput
   templates?: Prisma.NoteTemplateCreateNestedManyWithoutOrgInput
+  knowledgeEntities?: Prisma.KnowledgeEntityCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUncheckedCreateInput = {
@@ -455,6 +459,7 @@ export type OrganizationUncheckedCreateInput = {
   recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutOrgInput
   templates?: Prisma.NoteTemplateUncheckedCreateNestedManyWithoutOrgInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUncheckedCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUpdateInput = {
@@ -481,6 +486,7 @@ export type OrganizationUpdateInput = {
   recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutOrgNestedInput
   templates?: Prisma.NoteTemplateUpdateManyWithoutOrgNestedInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationUncheckedUpdateInput = {
@@ -507,6 +513,7 @@ export type OrganizationUncheckedUpdateInput = {
   recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutOrgNestedInput
   templates?: Prisma.NoteTemplateUncheckedUpdateManyWithoutOrgNestedInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUncheckedUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationCreateManyInput = {
@@ -729,6 +736,20 @@ export type OrganizationUpdateOneRequiredWithoutApiKeysNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutApiKeysInput, Prisma.OrganizationUpdateWithoutApiKeysInput>, Prisma.OrganizationUncheckedUpdateWithoutApiKeysInput>
 }
 
+export type OrganizationCreateNestedOneWithoutKnowledgeEntitiesInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutKnowledgeEntitiesInput, Prisma.OrganizationUncheckedCreateWithoutKnowledgeEntitiesInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutKnowledgeEntitiesInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutKnowledgeEntitiesNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutKnowledgeEntitiesInput, Prisma.OrganizationUncheckedCreateWithoutKnowledgeEntitiesInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutKnowledgeEntitiesInput
+  upsert?: Prisma.OrganizationUpsertWithoutKnowledgeEntitiesInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutKnowledgeEntitiesInput, Prisma.OrganizationUpdateWithoutKnowledgeEntitiesInput>, Prisma.OrganizationUncheckedUpdateWithoutKnowledgeEntitiesInput>
+}
+
 export type OrganizationCreateWithoutMembersInput = {
   id?: string
   name: string
@@ -752,6 +773,7 @@ export type OrganizationCreateWithoutMembersInput = {
   recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutOrgInput
   templates?: Prisma.NoteTemplateCreateNestedManyWithoutOrgInput
+  knowledgeEntities?: Prisma.KnowledgeEntityCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUncheckedCreateWithoutMembersInput = {
@@ -777,6 +799,7 @@ export type OrganizationUncheckedCreateWithoutMembersInput = {
   recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutOrgInput
   templates?: Prisma.NoteTemplateUncheckedCreateNestedManyWithoutOrgInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUncheckedCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationCreateOrConnectWithoutMembersInput = {
@@ -818,6 +841,7 @@ export type OrganizationUpdateWithoutMembersInput = {
   recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutOrgNestedInput
   templates?: Prisma.NoteTemplateUpdateManyWithoutOrgNestedInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutMembersInput = {
@@ -843,6 +867,7 @@ export type OrganizationUncheckedUpdateWithoutMembersInput = {
   recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutOrgNestedInput
   templates?: Prisma.NoteTemplateUncheckedUpdateManyWithoutOrgNestedInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUncheckedUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationCreateWithoutRecordingsInput = {
@@ -868,6 +893,7 @@ export type OrganizationCreateWithoutRecordingsInput = {
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutOrgInput
   templates?: Prisma.NoteTemplateCreateNestedManyWithoutOrgInput
+  knowledgeEntities?: Prisma.KnowledgeEntityCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUncheckedCreateWithoutRecordingsInput = {
@@ -893,6 +919,7 @@ export type OrganizationUncheckedCreateWithoutRecordingsInput = {
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutOrgInput
   templates?: Prisma.NoteTemplateUncheckedCreateNestedManyWithoutOrgInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUncheckedCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationCreateOrConnectWithoutRecordingsInput = {
@@ -934,6 +961,7 @@ export type OrganizationUpdateWithoutRecordingsInput = {
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutOrgNestedInput
   templates?: Prisma.NoteTemplateUpdateManyWithoutOrgNestedInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutRecordingsInput = {
@@ -959,6 +987,7 @@ export type OrganizationUncheckedUpdateWithoutRecordingsInput = {
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutOrgNestedInput
   templates?: Prisma.NoteTemplateUncheckedUpdateManyWithoutOrgNestedInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUncheckedUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationCreateWithoutTemplatesInput = {
@@ -984,6 +1013,7 @@ export type OrganizationCreateWithoutTemplatesInput = {
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
   recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutOrgInput
+  knowledgeEntities?: Prisma.KnowledgeEntityCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUncheckedCreateWithoutTemplatesInput = {
@@ -1009,6 +1039,7 @@ export type OrganizationUncheckedCreateWithoutTemplatesInput = {
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
   recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutOrgInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUncheckedCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationCreateOrConnectWithoutTemplatesInput = {
@@ -1050,6 +1081,7 @@ export type OrganizationUpdateWithoutTemplatesInput = {
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
   recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutOrgNestedInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
@@ -1075,6 +1107,7 @@ export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
   recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutOrgNestedInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUncheckedUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationCreateWithoutApiKeysInput = {
@@ -1100,6 +1133,7 @@ export type OrganizationCreateWithoutApiKeysInput = {
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
   recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
   templates?: Prisma.NoteTemplateCreateNestedManyWithoutOrgInput
+  knowledgeEntities?: Prisma.KnowledgeEntityCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUncheckedCreateWithoutApiKeysInput = {
@@ -1125,6 +1159,7 @@ export type OrganizationUncheckedCreateWithoutApiKeysInput = {
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
   recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
   templates?: Prisma.NoteTemplateUncheckedCreateNestedManyWithoutOrgInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUncheckedCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationCreateOrConnectWithoutApiKeysInput = {
@@ -1166,6 +1201,7 @@ export type OrganizationUpdateWithoutApiKeysInput = {
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
   recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
   templates?: Prisma.NoteTemplateUpdateManyWithoutOrgNestedInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
@@ -1191,6 +1227,127 @@ export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
   recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
   templates?: Prisma.NoteTemplateUncheckedUpdateManyWithoutOrgNestedInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUncheckedUpdateManyWithoutOrgNestedInput
+}
+
+export type OrganizationCreateWithoutKnowledgeEntitiesInput = {
+  id?: string
+  name: string
+  slug: string
+  plan?: $Enums.Plan
+  clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
+  dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
+  expoPushToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
+  recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutOrgInput
+  templates?: Prisma.NoteTemplateCreateNestedManyWithoutOrgInput
+}
+
+export type OrganizationUncheckedCreateWithoutKnowledgeEntitiesInput = {
+  id?: string
+  name: string
+  slug: string
+  plan?: $Enums.Plan
+  clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
+  dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
+  expoPushToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
+  recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutOrgInput
+  templates?: Prisma.NoteTemplateUncheckedCreateNestedManyWithoutOrgInput
+}
+
+export type OrganizationCreateOrConnectWithoutKnowledgeEntitiesInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutKnowledgeEntitiesInput, Prisma.OrganizationUncheckedCreateWithoutKnowledgeEntitiesInput>
+}
+
+export type OrganizationUpsertWithoutKnowledgeEntitiesInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutKnowledgeEntitiesInput, Prisma.OrganizationUncheckedUpdateWithoutKnowledgeEntitiesInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutKnowledgeEntitiesInput, Prisma.OrganizationUncheckedCreateWithoutKnowledgeEntitiesInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutKnowledgeEntitiesInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutKnowledgeEntitiesInput, Prisma.OrganizationUncheckedUpdateWithoutKnowledgeEntitiesInput>
+}
+
+export type OrganizationUpdateWithoutKnowledgeEntitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
+  recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutOrgNestedInput
+  templates?: Prisma.NoteTemplateUpdateManyWithoutOrgNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutKnowledgeEntitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
+  recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutOrgNestedInput
+  templates?: Prisma.NoteTemplateUncheckedUpdateManyWithoutOrgNestedInput
 }
 
 
@@ -1203,6 +1360,7 @@ export type OrganizationCountOutputType = {
   recordings: number
   apiKeys: number
   templates: number
+  knowledgeEntities: number
 }
 
 export type OrganizationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1210,6 +1368,7 @@ export type OrganizationCountOutputTypeSelect<ExtArgs extends runtime.Types.Exte
   recordings?: boolean | OrganizationCountOutputTypeCountRecordingsArgs
   apiKeys?: boolean | OrganizationCountOutputTypeCountApiKeysArgs
   templates?: boolean | OrganizationCountOutputTypeCountTemplatesArgs
+  knowledgeEntities?: boolean | OrganizationCountOutputTypeCountKnowledgeEntitiesArgs
 }
 
 /**
@@ -1250,6 +1409,13 @@ export type OrganizationCountOutputTypeCountTemplatesArgs<ExtArgs extends runtim
   where?: Prisma.NoteTemplateWhereInput
 }
 
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountKnowledgeEntitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.KnowledgeEntityWhereInput
+}
+
 
 export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1275,6 +1441,7 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   recordings?: boolean | Prisma.Organization$recordingsArgs<ExtArgs>
   apiKeys?: boolean | Prisma.Organization$apiKeysArgs<ExtArgs>
   templates?: boolean | Prisma.Organization$templatesArgs<ExtArgs>
+  knowledgeEntities?: boolean | Prisma.Organization$knowledgeEntitiesArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["organization"]>
 
@@ -1350,6 +1517,7 @@ export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.Interna
   recordings?: boolean | Prisma.Organization$recordingsArgs<ExtArgs>
   apiKeys?: boolean | Prisma.Organization$apiKeysArgs<ExtArgs>
   templates?: boolean | Prisma.Organization$templatesArgs<ExtArgs>
+  knowledgeEntities?: boolean | Prisma.Organization$knowledgeEntitiesArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1362,6 +1530,7 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     recordings: Prisma.$RecordingPayload<ExtArgs>[]
     apiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
     templates: Prisma.$NoteTemplatePayload<ExtArgs>[]
+    knowledgeEntities: Prisma.$KnowledgeEntityPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1781,6 +1950,7 @@ export interface Prisma__OrganizationClient<T, Null = never, ExtArgs extends run
   recordings<T extends Prisma.Organization$recordingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$recordingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecordingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   apiKeys<T extends Prisma.Organization$apiKeysArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$apiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   templates<T extends Prisma.Organization$templatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$templatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NoteTemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  knowledgeEntities<T extends Prisma.Organization$knowledgeEntitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$knowledgeEntitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KnowledgeEntityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2315,6 +2485,30 @@ export type Organization$templatesArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.NoteTemplateScalarFieldEnum | Prisma.NoteTemplateScalarFieldEnum[]
+}
+
+/**
+ * Organization.knowledgeEntities
+ */
+export type Organization$knowledgeEntitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the KnowledgeEntity
+   */
+  select?: Prisma.KnowledgeEntitySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the KnowledgeEntity
+   */
+  omit?: Prisma.KnowledgeEntityOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.KnowledgeEntityInclude<ExtArgs> | null
+  where?: Prisma.KnowledgeEntityWhereInput
+  orderBy?: Prisma.KnowledgeEntityOrderByWithRelationInput | Prisma.KnowledgeEntityOrderByWithRelationInput[]
+  cursor?: Prisma.KnowledgeEntityWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.KnowledgeEntityScalarFieldEnum | Prisma.KnowledgeEntityScalarFieldEnum[]
 }
 
 /**

@@ -397,7 +397,9 @@ export const ModelName = {
   NoteTemplate: 'NoteTemplate',
   ProcessingJob: 'ProcessingJob',
   ApiKey: 'ApiKey',
-  TranscriptEmbedding: 'TranscriptEmbedding'
+  TranscriptEmbedding: 'TranscriptEmbedding',
+  KnowledgeEntity: 'KnowledgeEntity',
+  KnowledgeEntityRecording: 'KnowledgeEntityRecording'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -413,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "organization" | "orgMember" | "recording" | "transcript" | "transcriptSegment" | "speakerLabel" | "note" | "noteSection" | "actionItem" | "noteComment" | "noteTemplate" | "processingJob" | "apiKey" | "transcriptEmbedding"
+    modelProps: "organization" | "orgMember" | "recording" | "transcript" | "transcriptSegment" | "speakerLabel" | "note" | "noteSection" | "actionItem" | "noteComment" | "noteTemplate" | "processingJob" | "apiKey" | "transcriptEmbedding" | "knowledgeEntity" | "knowledgeEntityRecording"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1453,6 +1455,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    KnowledgeEntity: {
+      payload: Prisma.$KnowledgeEntityPayload<ExtArgs>
+      fields: Prisma.KnowledgeEntityFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KnowledgeEntityFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KnowledgeEntityFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityPayload>
+        }
+        findFirst: {
+          args: Prisma.KnowledgeEntityFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KnowledgeEntityFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityPayload>
+        }
+        findMany: {
+          args: Prisma.KnowledgeEntityFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityPayload>[]
+        }
+        create: {
+          args: Prisma.KnowledgeEntityCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityPayload>
+        }
+        createMany: {
+          args: Prisma.KnowledgeEntityCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KnowledgeEntityCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityPayload>[]
+        }
+        delete: {
+          args: Prisma.KnowledgeEntityDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityPayload>
+        }
+        update: {
+          args: Prisma.KnowledgeEntityUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityPayload>
+        }
+        deleteMany: {
+          args: Prisma.KnowledgeEntityDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KnowledgeEntityUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KnowledgeEntityUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityPayload>[]
+        }
+        upsert: {
+          args: Prisma.KnowledgeEntityUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityPayload>
+        }
+        aggregate: {
+          args: Prisma.KnowledgeEntityAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKnowledgeEntity>
+        }
+        groupBy: {
+          args: Prisma.KnowledgeEntityGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KnowledgeEntityGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KnowledgeEntityCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KnowledgeEntityCountAggregateOutputType> | number
+        }
+      }
+    }
+    KnowledgeEntityRecording: {
+      payload: Prisma.$KnowledgeEntityRecordingPayload<ExtArgs>
+      fields: Prisma.KnowledgeEntityRecordingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KnowledgeEntityRecordingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityRecordingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KnowledgeEntityRecordingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityRecordingPayload>
+        }
+        findFirst: {
+          args: Prisma.KnowledgeEntityRecordingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityRecordingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KnowledgeEntityRecordingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityRecordingPayload>
+        }
+        findMany: {
+          args: Prisma.KnowledgeEntityRecordingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityRecordingPayload>[]
+        }
+        create: {
+          args: Prisma.KnowledgeEntityRecordingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityRecordingPayload>
+        }
+        createMany: {
+          args: Prisma.KnowledgeEntityRecordingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KnowledgeEntityRecordingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityRecordingPayload>[]
+        }
+        delete: {
+          args: Prisma.KnowledgeEntityRecordingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityRecordingPayload>
+        }
+        update: {
+          args: Prisma.KnowledgeEntityRecordingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityRecordingPayload>
+        }
+        deleteMany: {
+          args: Prisma.KnowledgeEntityRecordingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KnowledgeEntityRecordingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KnowledgeEntityRecordingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityRecordingPayload>[]
+        }
+        upsert: {
+          args: Prisma.KnowledgeEntityRecordingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeEntityRecordingPayload>
+        }
+        aggregate: {
+          args: Prisma.KnowledgeEntityRecordingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKnowledgeEntityRecording>
+        }
+        groupBy: {
+          args: Prisma.KnowledgeEntityRecordingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KnowledgeEntityRecordingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KnowledgeEntityRecordingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KnowledgeEntityRecordingCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1716,6 +1866,33 @@ export const TranscriptEmbeddingScalarFieldEnum = {
 export type TranscriptEmbeddingScalarFieldEnum = (typeof TranscriptEmbeddingScalarFieldEnum)[keyof typeof TranscriptEmbeddingScalarFieldEnum]
 
 
+export const KnowledgeEntityScalarFieldEnum = {
+  id: 'id',
+  orgId: 'orgId',
+  type: 'type',
+  name: 'name',
+  aliases: 'aliases',
+  mentions: 'mentions',
+  lastSeen: 'lastSeen',
+  firstSeen: 'firstSeen',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KnowledgeEntityScalarFieldEnum = (typeof KnowledgeEntityScalarFieldEnum)[keyof typeof KnowledgeEntityScalarFieldEnum]
+
+
+export const KnowledgeEntityRecordingScalarFieldEnum = {
+  id: 'id',
+  entityId: 'entityId',
+  recordingId: 'recordingId',
+  mentions: 'mentions',
+  createdAt: 'createdAt'
+} as const
+
+export type KnowledgeEntityRecordingScalarFieldEnum = (typeof KnowledgeEntityRecordingScalarFieldEnum)[keyof typeof KnowledgeEntityRecordingScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1972,6 +2149,20 @@ export type EnumJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 export type ListEnumJobStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'JobStatus[]'>
     
 
+
+/**
+ * Reference to a field of type 'KnowledgeEntityType'
+ */
+export type EnumKnowledgeEntityTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KnowledgeEntityType'>
+    
+
+
+/**
+ * Reference to a field of type 'KnowledgeEntityType[]'
+ */
+export type ListEnumKnowledgeEntityTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KnowledgeEntityType[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -2081,6 +2272,8 @@ export type GlobalOmitConfig = {
   processingJob?: Prisma.ProcessingJobOmit
   apiKey?: Prisma.ApiKeyOmit
   transcriptEmbedding?: Prisma.TranscriptEmbeddingOmit
+  knowledgeEntity?: Prisma.KnowledgeEntityOmit
+  knowledgeEntityRecording?: Prisma.KnowledgeEntityRecordingOmit
 }
 
 /* Types for Logging */
