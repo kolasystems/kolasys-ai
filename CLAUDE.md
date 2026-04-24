@@ -12,7 +12,7 @@
 
 ## 0. Project History (Day 1 → Today)
 
-**Last updated: 2026-04-07**
+**Last updated: 2026-04-24**
 
 ### How this project started
 
@@ -709,3 +709,51 @@ export default function SettingsScreen({
   navigation: NativeStackNavigationProp<SettingsStackParamList, 'SettingsMain'>
 }) { ... }
 ```
+
+---
+
+## 16. API / tRPC Reference
+
+### Mobile app confirmed procedure names (2026-04-24)
+
+The following procedure names were verified working from the iOS mobile app.
+They are listed verbatim to prevent the recurring mistake of guessing
+singular/plural or the wrong namespace.
+
+**CORRECT names:**
+
+| Name | Notes |
+|---|---|
+| `recordings.list` | Returns recordings with nested `actionItems[]` per recording |
+| `recordings.get` | Single recording by id |
+| `knowledge.getTopEntities` | Input: `{ limit: 50 }`. Types: `PERSON` \| `TOPIC` \| `PROJECT` |
+| `templates.list` | No input. Returns org + global templates |
+| `settings.updatePushToken` | Mutation. Input: `{ token }` (Expo push token) |
+
+**`ai.ask` is NOT a tRPC procedure** — Ask AI is a raw HTTP endpoint:
+- **Route:** `POST /api/ai/ask`
+- **Input body:** `{ messages: Array<{role:'user'|'assistant', content:string}>, recordingId?: string }`
+- **Response:** Server-Sent Events stream (`text/event-stream`) with three event types: `sources`, `text`, `done`
+- Mobile clients should call it via `fetch()` + a streaming SSE parser, not through the tRPC client
+
+**WRONG names that return 404 (do not use):**
+
+| Wrong | Correct |
+|---|---|
+| `actionItem.list` | **Does not exist.** Web's `/dashboard/action-items` is a server component that calls `db.actionItem.findMany()` directly. Mobile must extract `.actionItems[]` from each row of `recordings.list` |
+| `template.list` (singular) | `templates.list` (plural) |
+| `knowledge.list` | `knowledge.getTopEntities` |
+
+### KnowledgeEntity enum
+
+```prisma
+enum KnowledgeEntityType {
+  PERSON
+  TOPIC
+  PROJECT
+}
+```
+
+`COMPANY` does **not** exist despite being intuitive — use `PROJECT` for
+company-ish groupings (e.g. "Acme Corp" as a project/topic).
+
