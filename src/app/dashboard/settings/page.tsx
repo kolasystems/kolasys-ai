@@ -4,13 +4,14 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { db } from '@/lib/db'
-import { Building2, User, Key, CreditCard, Wand2, ArrowRight } from 'lucide-react'
+import { Building2, User, CreditCard, Wand2, ArrowRight } from 'lucide-react'
 import { AudioRetentionToggle } from '@/components/audio-retention-toggle'
 import { PostMeetingEmailToggle } from '@/components/post-meeting-email-toggle'
 import { DailyDigestToggle } from '@/components/daily-digest-toggle'
 import { DefaultLanguageSelector } from '@/components/default-language-selector'
 import { BotDisplayNameInput } from '@/components/bot-display-name-input'
 import { SsoSettings } from '@/components/sso-settings'
+import { ApiKeysSection } from '@/components/api-keys-section'
 
 export const metadata = { title: 'Settings — Kolasys AI' }
 
@@ -142,9 +143,11 @@ export default async function SettingsPage() {
           </div>
         </Link>
 
+        {/* API Keys — live */}
+        <ApiKeysSection />
+
         {/* Coming soon */}
         {[
-          { icon: <Key className="h-4 w-4 text-neutral-500 dark:text-gray-400" />, title: 'API Keys', note: 'Generate keys to access the Kolasys AI API.' },
           { icon: <CreditCard className="h-4 w-4 text-neutral-500 dark:text-gray-400" />, title: 'Billing', note: 'Manage your plan and payment method.' },
         ].map(({ icon, title, note }) => (
           <section

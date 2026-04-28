@@ -11,6 +11,7 @@ import { settingsRouter } from './routers/settings.router'
 import { analyticsRouter } from './routers/analytics.router'
 import { contactsRouter } from './routers/contacts.router'
 import { knowledgeRouter } from './routers/knowledge.router'
+import { apiKeysRouter } from './routers/apikeys.router'
 
 export const appRouter = router({
   recordings: recordingsRouter,
@@ -22,6 +23,7 @@ export const appRouter = router({
   analytics: analyticsRouter,
   contacts: contactsRouter,
   knowledge: knowledgeRouter,
+  apiKeys: apiKeysRouter,
 })
 
 export type AppRouter = typeof appRouter

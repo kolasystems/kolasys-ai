@@ -337,13 +337,21 @@ model ProcessingJob {
 }
 
 model ApiKey {
-  id        String       @id @default(cuid())
-  orgId     String
-  name      String
-  keyHash   String       @unique
-  lastUsed  DateTime?
-  expiresAt DateTime?
-  createdAt DateTime     @default(now())
+  id         String       @id @default(cuid())
+  orgId      String
+  name       String
+  // SHA-256 hash of the raw key. The raw key is shown to the user exactly
+  // once at creation time and never stored.
+  keyHash    String       @unique
+  // Last 4 chars of the raw key, displayed in the UI as `kol_…XXXX` so
+  // users can identify which key they're looking at without revealing it.
+  keyPreview String       @default("")
+  lastUsedAt DateTime?
+  // When non-null, the key has been revoked and authentication must reject
+  // it. Soft-delete instead of hard-delete so audit trails survive.
+  revokedAt  DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime     @default(now())
 
   org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
 

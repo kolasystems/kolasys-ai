@@ -8,6 +8,10 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)',
   '/pricing(.*)',
   '/api/webhooks/(.*)',
+  // Public REST API — bearer-token authenticated, not Clerk-session.
+  // The route handlers themselves call `authenticateApiKey` and return 401
+  // on missing/invalid tokens.
+  '/api/v1/(.*)',
   // tRPC routes handle their own auth via protectedProcedure / orgProcedure.
   // Letting the middleware redirect here produces a 302 → /sign-in response
   // that httpBatchStreamLink can't parse, causing "Stream closed before head
