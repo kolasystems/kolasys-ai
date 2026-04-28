@@ -28,6 +28,7 @@ enum RecordingSource {
   UPLOAD
   BROWSER
   MEETING_BOT
+  DESKTOP
 }
 
 enum RecordingStatus {

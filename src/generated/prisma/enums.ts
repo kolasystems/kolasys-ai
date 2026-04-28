@@ -30,7 +30,8 @@ export type MemberRole = (typeof MemberRole)[keyof typeof MemberRole]
 export const RecordingSource = {
   UPLOAD: 'UPLOAD',
   BROWSER: 'BROWSER',
-  MEETING_BOT: 'MEETING_BOT'
+  MEETING_BOT: 'MEETING_BOT',
+  DESKTOP: 'DESKTOP'
 } as const
 
 export type RecordingSource = (typeof RecordingSource)[keyof typeof RecordingSource]

@@ -1,8 +1,15 @@
-// Kolasys AI — Public REST API: list recordings for the authenticated org.
-// GET /api/v1/recordings — auth: `Authorization: Bearer kol_…`
+// Kolasys AI — Public REST API: list / create recordings.
+// Auth: `Authorization: Bearer kol_…`
+//
+// GET  /api/v1/recordings           — list recordings for the authenticated org
+// POST /api/v1/recordings           — create a recording + return a pre-signed
+//                                     S3 upload URL. Used by the Mac desktop
+//                                     app to stream local audio captures.
 
 import { db } from '@/lib/db'
 import { authenticateApiKey, unauthorizedResponse } from '@/lib/api-auth'
+import { generateRecordingKey, getSignedUploadUrl } from '@/lib/storage'
+import { RecordingSource, RecordingStatus } from '@/generated/prisma/client'
 
 export async function GET(request: Request) {
   const auth = await authenticateApiKey(request)
@@ -29,4 +36,69 @@ export async function GET(request: Request) {
   })
 
   return Response.json({ recordings })
+}
+
+type CreateBody = {
+  title?: string
+  durationSeconds?: number
+  language?: string
+  source?: string
+}
+
+export async function POST(request: Request) {
+  const auth = await authenticateApiKey(request)
+  if (!auth) return unauthorizedResponse()
+
+  let body: CreateBody = {}
+  try {
+    body = (await request.json()) as CreateBody
+  } catch {
+    return Response.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+
+  const title = (body.title ?? '').trim()
+  if (!title) {
+    return Response.json({ error: '`title` is required' }, { status: 400 })
+  }
+
+  // Source: caller may override (e.g. UPLOAD via a custom integration), but
+  // the default for this endpoint is DESKTOP because the Mac app is the
+  // primary consumer. Anything not in the enum falls back to DESKTOP.
+  const requested = (body.source ?? '').toUpperCase()
+  const source: RecordingSource =
+    requested in RecordingSource
+      ? (requested as RecordingSource)
+      : RecordingSource.DESKTOP
+
+  // RecordingStatus has no UPLOADING value — existing upload paths use
+  // PENDING during the create-then-PUT window. Worker only acts on the
+  // recording once /confirm flips it to PROCESSING.
+  const recording = await db.recording.create({
+    data: {
+      orgId: auth.orgId,
+      // No Clerk user on a bearer-authed call; attribute to the API key id
+      // so the audit trail still points back at "who/what" created it.
+      userId: `apikey:${auth.keyId}`,
+      title,
+      source,
+      status: RecordingStatus.PENDING,
+      duration: body.durationSeconds,
+    },
+    select: { id: true },
+  })
+
+  // m4a is the Mac app's native AVAudioRecorder format — fine default.
+  const s3Key = generateRecordingKey(auth.orgId, recording.id, 'm4a')
+  const uploadUrl = await getSignedUploadUrl(s3Key, 'audio/m4a')
+
+  await db.recording.update({
+    where: { id: recording.id },
+    data: { s3Key, s3Bucket: process.env.S3_BUCKET_NAME },
+  })
+
+  return Response.json({
+    recordingId: recording.id,
+    uploadUrl,
+    s3Key,
+  })
 }
