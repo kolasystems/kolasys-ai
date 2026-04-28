@@ -36,15 +36,31 @@ export const settingsRouter = router({
 
   // ── Register the Expo push token from the mobile app ─────────────────────
   // The mobile app calls this on launch after resolving the device token.
-  // Used by the summarization worker to notify the watch/phone when notes
-  // are ready.
+  // Stored per-member (orgId + Clerk userId) so each user's own iPhone +
+  // Apple Watch get pinged when their own recordings finish processing.
   updatePushToken: orgProcedure
     .input(z.object({ token: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.organization.update({
-        where: { id: ctx.orgId },
-        data: { expoPushToken: input.token },
+      // HTTP-mode Prisma has no upsert / no updateMany; use the @@unique
+      // (orgId, userId) lookup + branch sequentially.
+      const member = await ctx.db.orgMember.findFirst({
+        where: { orgId: ctx.orgId, userId: ctx.userId },
+        select: { id: true },
       })
+      if (member) {
+        await ctx.db.orgMember.update({
+          where: { id: member.id },
+          data: { expoPushToken: input.token },
+        })
+      } else {
+        await ctx.db.orgMember.create({
+          data: {
+            orgId: ctx.orgId,
+            userId: ctx.userId,
+            expoPushToken: input.token,
+          },
+        })
+      }
       return { ok: true }
     }),
 

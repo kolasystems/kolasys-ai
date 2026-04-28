@@ -102,7 +102,6 @@ export const OrganizationScalarFieldEnum = {
   ssoEnabled: 'ssoEnabled',
   ssoDomain: 'ssoDomain',
   samlMetadataUrl: 'samlMetadataUrl',
-  expoPushToken: 'expoPushToken',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -116,6 +115,7 @@ export const OrgMemberScalarFieldEnum = {
   userId: 'userId',
   role: 'role',
   googleRefreshToken: 'googleRefreshToken',
+  expoPushToken: 'expoPushToken',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

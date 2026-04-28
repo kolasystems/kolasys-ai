@@ -114,10 +114,6 @@ model Organization {
   ssoEnabled                    Boolean @default(false)
   ssoDomain                     String?
   samlMetadataUrl               String?
-  // Expo push token registered by the mobile app. The summarization worker
-  // sends a notification here the moment notes are ready; Apple Watch
-  // mirrors it. One token per org for now (last-registered wins).
-  expoPushToken                 String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
@@ -134,6 +130,10 @@ model OrgMember {
   userId             String     // Clerk user ID
   role               MemberRole @default(MEMBER)
   googleRefreshToken String?    // OAuth refresh token for Google Calendar
+  // Expo push token registered by the mobile app on launch. Per-member so
+  // each user's iPhone (and mirrored Apple Watch) gets its own ping when
+  // their own recordings finish summarization.
+  expoPushToken      String?
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
 

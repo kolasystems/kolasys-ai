@@ -41,7 +41,6 @@ export type OrganizationMinAggregateOutputType = {
   ssoEnabled: boolean | null
   ssoDomain: string | null
   samlMetadataUrl: string | null
-  expoPushToken: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -63,7 +62,6 @@ export type OrganizationMaxAggregateOutputType = {
   ssoEnabled: boolean | null
   ssoDomain: string | null
   samlMetadataUrl: string | null
-  expoPushToken: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -85,7 +83,6 @@ export type OrganizationCountAggregateOutputType = {
   ssoEnabled: number
   ssoDomain: number
   samlMetadataUrl: number
-  expoPushToken: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -109,7 +106,6 @@ export type OrganizationMinAggregateInputType = {
   ssoEnabled?: true
   ssoDomain?: true
   samlMetadataUrl?: true
-  expoPushToken?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -131,7 +127,6 @@ export type OrganizationMaxAggregateInputType = {
   ssoEnabled?: true
   ssoDomain?: true
   samlMetadataUrl?: true
-  expoPushToken?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -153,7 +148,6 @@ export type OrganizationCountAggregateInputType = {
   ssoEnabled?: true
   ssoDomain?: true
   samlMetadataUrl?: true
-  expoPushToken?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -248,7 +242,6 @@ export type OrganizationGroupByOutputType = {
   ssoEnabled: boolean
   ssoDomain: string | null
   samlMetadataUrl: string | null
-  expoPushToken: string | null
   createdAt: Date
   updatedAt: Date
   _count: OrganizationCountAggregateOutputType | null
@@ -291,7 +284,6 @@ export type OrganizationWhereInput = {
   ssoEnabled?: Prisma.BoolFilter<"Organization"> | boolean
   ssoDomain?: Prisma.StringNullableFilter<"Organization"> | string | null
   samlMetadataUrl?: Prisma.StringNullableFilter<"Organization"> | string | null
-  expoPushToken?: Prisma.StringNullableFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -318,7 +310,6 @@ export type OrganizationOrderByWithRelationInput = {
   ssoEnabled?: Prisma.SortOrder
   ssoDomain?: Prisma.SortOrderInput | Prisma.SortOrder
   samlMetadataUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  expoPushToken?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   members?: Prisma.OrgMemberOrderByRelationAggregateInput
@@ -348,7 +339,6 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   ssoEnabled?: Prisma.BoolFilter<"Organization"> | boolean
   ssoDomain?: Prisma.StringNullableFilter<"Organization"> | string | null
   samlMetadataUrl?: Prisma.StringNullableFilter<"Organization"> | string | null
-  expoPushToken?: Prisma.StringNullableFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -375,7 +365,6 @@ export type OrganizationOrderByWithAggregationInput = {
   ssoEnabled?: Prisma.SortOrder
   ssoDomain?: Prisma.SortOrderInput | Prisma.SortOrder
   samlMetadataUrl?: Prisma.SortOrderInput | Prisma.SortOrder
-  expoPushToken?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationCountOrderByAggregateInput
@@ -403,7 +392,6 @@ export type OrganizationScalarWhereWithAggregatesInput = {
   ssoEnabled?: Prisma.BoolWithAggregatesFilter<"Organization"> | boolean
   ssoDomain?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
   samlMetadataUrl?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
-  expoPushToken?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
 }
@@ -425,7 +413,6 @@ export type OrganizationCreateInput = {
   ssoEnabled?: boolean
   ssoDomain?: string | null
   samlMetadataUrl?: string | null
-  expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -452,7 +439,6 @@ export type OrganizationUncheckedCreateInput = {
   ssoEnabled?: boolean
   ssoDomain?: string | null
   samlMetadataUrl?: string | null
-  expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -479,7 +465,6 @@ export type OrganizationUpdateInput = {
   ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -506,7 +491,6 @@ export type OrganizationUncheckedUpdateInput = {
   ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -533,7 +517,6 @@ export type OrganizationCreateManyInput = {
   ssoEnabled?: boolean
   ssoDomain?: string | null
   samlMetadataUrl?: string | null
-  expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -555,7 +538,6 @@ export type OrganizationUpdateManyMutationInput = {
   ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -577,7 +559,6 @@ export type OrganizationUncheckedUpdateManyInput = {
   ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -599,7 +580,6 @@ export type OrganizationCountOrderByAggregateInput = {
   ssoEnabled?: Prisma.SortOrder
   ssoDomain?: Prisma.SortOrder
   samlMetadataUrl?: Prisma.SortOrder
-  expoPushToken?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -621,7 +601,6 @@ export type OrganizationMaxOrderByAggregateInput = {
   ssoEnabled?: Prisma.SortOrder
   ssoDomain?: Prisma.SortOrder
   samlMetadataUrl?: Prisma.SortOrder
-  expoPushToken?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -643,7 +622,6 @@ export type OrganizationMinOrderByAggregateInput = {
   ssoEnabled?: Prisma.SortOrder
   ssoDomain?: Prisma.SortOrder
   samlMetadataUrl?: Prisma.SortOrder
-  expoPushToken?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -767,7 +745,6 @@ export type OrganizationCreateWithoutMembersInput = {
   ssoEnabled?: boolean
   ssoDomain?: string | null
   samlMetadataUrl?: string | null
-  expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
@@ -793,7 +770,6 @@ export type OrganizationUncheckedCreateWithoutMembersInput = {
   ssoEnabled?: boolean
   ssoDomain?: string | null
   samlMetadataUrl?: string | null
-  expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
@@ -835,7 +811,6 @@ export type OrganizationUpdateWithoutMembersInput = {
   ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
@@ -861,7 +836,6 @@ export type OrganizationUncheckedUpdateWithoutMembersInput = {
   ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
@@ -887,7 +861,6 @@ export type OrganizationCreateWithoutRecordingsInput = {
   ssoEnabled?: boolean
   ssoDomain?: string | null
   samlMetadataUrl?: string | null
-  expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -913,7 +886,6 @@ export type OrganizationUncheckedCreateWithoutRecordingsInput = {
   ssoEnabled?: boolean
   ssoDomain?: string | null
   samlMetadataUrl?: string | null
-  expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -955,7 +927,6 @@ export type OrganizationUpdateWithoutRecordingsInput = {
   ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -981,7 +952,6 @@ export type OrganizationUncheckedUpdateWithoutRecordingsInput = {
   ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1007,7 +977,6 @@ export type OrganizationCreateWithoutTemplatesInput = {
   ssoEnabled?: boolean
   ssoDomain?: string | null
   samlMetadataUrl?: string | null
-  expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1033,7 +1002,6 @@ export type OrganizationUncheckedCreateWithoutTemplatesInput = {
   ssoEnabled?: boolean
   ssoDomain?: string | null
   samlMetadataUrl?: string | null
-  expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1075,7 +1043,6 @@ export type OrganizationUpdateWithoutTemplatesInput = {
   ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1101,7 +1068,6 @@ export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
   ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1127,7 +1093,6 @@ export type OrganizationCreateWithoutApiKeysInput = {
   ssoEnabled?: boolean
   ssoDomain?: string | null
   samlMetadataUrl?: string | null
-  expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1153,7 +1118,6 @@ export type OrganizationUncheckedCreateWithoutApiKeysInput = {
   ssoEnabled?: boolean
   ssoDomain?: string | null
   samlMetadataUrl?: string | null
-  expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1195,7 +1159,6 @@ export type OrganizationUpdateWithoutApiKeysInput = {
   ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1221,7 +1184,6 @@ export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
   ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1247,7 +1209,6 @@ export type OrganizationCreateWithoutKnowledgeEntitiesInput = {
   ssoEnabled?: boolean
   ssoDomain?: string | null
   samlMetadataUrl?: string | null
-  expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1273,7 +1234,6 @@ export type OrganizationUncheckedCreateWithoutKnowledgeEntitiesInput = {
   ssoEnabled?: boolean
   ssoDomain?: string | null
   samlMetadataUrl?: string | null
-  expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1315,7 +1275,6 @@ export type OrganizationUpdateWithoutKnowledgeEntitiesInput = {
   ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1341,7 +1300,6 @@ export type OrganizationUncheckedUpdateWithoutKnowledgeEntitiesInput = {
   ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1434,7 +1392,6 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   ssoEnabled?: boolean
   ssoDomain?: boolean
   samlMetadataUrl?: boolean
-  expoPushToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
@@ -1462,7 +1419,6 @@ export type OrganizationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   ssoEnabled?: boolean
   ssoDomain?: boolean
   samlMetadataUrl?: boolean
-  expoPushToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -1484,7 +1440,6 @@ export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   ssoEnabled?: boolean
   ssoDomain?: boolean
   samlMetadataUrl?: boolean
-  expoPushToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -1506,12 +1461,11 @@ export type OrganizationSelectScalar = {
   ssoEnabled?: boolean
   ssoDomain?: boolean
   samlMetadataUrl?: boolean
-  expoPushToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "dailyDigest" | "defaultTranscriptionLanguage" | "botDisplayName" | "ssoEnabled" | "ssoDomain" | "samlMetadataUrl" | "expoPushToken" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "dailyDigest" | "defaultTranscriptionLanguage" | "botDisplayName" | "ssoEnabled" | "ssoDomain" | "samlMetadataUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
 export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
   recordings?: boolean | Prisma.Organization$recordingsArgs<ExtArgs>
@@ -1549,7 +1503,6 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     ssoEnabled: boolean
     ssoDomain: string | null
     samlMetadataUrl: string | null
-    expoPushToken: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["organization"]>
@@ -1996,7 +1949,6 @@ export interface OrganizationFieldRefs {
   readonly ssoEnabled: Prisma.FieldRef<"Organization", 'Boolean'>
   readonly ssoDomain: Prisma.FieldRef<"Organization", 'String'>
   readonly samlMetadataUrl: Prisma.FieldRef<"Organization", 'String'>
-  readonly expoPushToken: Prisma.FieldRef<"Organization", 'String'>
   readonly createdAt: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Organization", 'DateTime'>
 }

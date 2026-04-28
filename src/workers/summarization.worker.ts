@@ -264,16 +264,17 @@ async function processSummarization(job: Job<SummarizationJobData>) {
   })
 
   // ── 8.5. Mobile push (Apple Watch Phase 2) ───────────────────────────────
-  // Fire-and-forget Expo push so the phone + watch light up the moment
-  // notes are ready. Body = 3-bullet wrist summary built from the note's
-  // top sections. Never fails the job — logs only.
+  // Fire-and-forget Expo push so only the recording's owner gets pinged on
+  // their iPhone + mirrored Apple Watch — not every member of the org.
+  // Body = 3-bullet wrist summary built from the note's top sections.
+  // Never fails the job — logs only.
   try {
-    const orgWithToken = await db.organization.findFirst({
-      where: { id: recording.orgId },
-      select: { expoPushToken: true, name: true },
+    const ownerMember = await db.orgMember.findFirst({
+      where: { orgId: recording.orgId, userId: recording.userId },
+      select: { expoPushToken: true },
     })
 
-    if (orgWithToken?.expoPushToken) {
+    if (ownerMember?.expoPushToken) {
       const pushNote = await db.note.findFirst({
         where: { recordingId },
         include: { sections: { orderBy: { order: 'asc' }, take: 3 } },
@@ -287,7 +288,7 @@ async function processSummarization(job: Job<SummarizationJobData>) {
           .join('\n') ?? '• Notes are ready'
 
       await sendExpoPush({
-        token: orgWithToken.expoPushToken,
+        token: ownerMember.expoPushToken,
         title: `Notes ready: ${recording.title}`,
         body: bullets,
         data: { recordingId },
