@@ -138,10 +138,9 @@ export async function createOrgPortalSession(
  */
 export function planForPriceId(
   priceId: string | null | undefined,
-): 'FREE' | 'PRO' | 'ENTERPRISE' {
+): 'FREE' | 'PRO' | 'TEAM' | 'ENTERPRISE' {
   if (!priceId) return 'FREE'
   if (priceId === PRICES.pro_monthly || priceId === PRICES.pro_yearly) return 'PRO'
-  // Team price maps to ENTERPRISE per the current schema (no TEAM enum value).
-  if (priceId === PRICES.team_monthly) return 'ENTERPRISE'
+  if (priceId === PRICES.team_monthly) return 'TEAM'
   return 'FREE'
 }

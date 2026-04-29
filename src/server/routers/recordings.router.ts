@@ -124,6 +124,50 @@ export const recordingsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // ── Plan + usage cap enforcement ──────────────────────────────────────
+      // Free tier (no active trial) is capped at 3 recordings per calendar
+      // month. Any plan can additionally have an admin-set per-org cap via
+      // `Organization.maxRecordingsPerMonth`; that overrides regardless of
+      // tier. Both checks count `Recording` rows created since the 1st.
+      const planCheck = await ctx.db.organization.findFirst({
+        where: { id: ctx.orgId },
+        select: {
+          plan: true,
+          trialEndsAt: true,
+          maxRecordingsPerMonth: true,
+        },
+      })
+      if (planCheck) {
+        const now = new Date()
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+        const trialActive =
+          planCheck.trialEndsAt !== null &&
+          planCheck.trialEndsAt.getTime() > now.getTime()
+
+        const FREE_MONTHLY_LIMIT = 3
+        const isFreeNoTrial = planCheck.plan === 'FREE' && !trialActive
+        const adminCap = planCheck.maxRecordingsPerMonth
+
+        if (isFreeNoTrial || adminCap > 0) {
+          const used = await ctx.db.recording.count({
+            where: { orgId: ctx.orgId, createdAt: { gte: monthStart } },
+          })
+          if (isFreeNoTrial && used >= FREE_MONTHLY_LIMIT) {
+            throw new TRPCError({
+              code: 'FORBIDDEN',
+              message:
+                'Free plan limit reached. Upgrade to Pro for unlimited recordings.',
+            })
+          }
+          if (adminCap > 0 && used >= adminCap) {
+            throw new TRPCError({
+              code: 'FORBIDDEN',
+              message: `Monthly recording limit (${adminCap}) reached for this organization.`,
+            })
+          }
+        }
+      }
+
       const recording = await ctx.db.recording.create({
         data: {
           orgId: ctx.orgId,

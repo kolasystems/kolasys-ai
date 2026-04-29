@@ -15,6 +15,7 @@ datasource db {
 enum Plan {
   FREE
   PRO
+  TEAM
   ENTERPRISE
 }
 

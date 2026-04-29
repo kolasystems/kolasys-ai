@@ -114,7 +114,8 @@ export default async function BillingPage({ searchParams }: Props) {
     where: { orgId: org.id, createdAt: { gte: monthStart } },
   })
 
-  const isPaid = org.plan === 'PRO' || org.plan === 'ENTERPRISE'
+  const isPaid =
+    org.plan === 'PRO' || org.plan === 'TEAM' || org.plan === 'ENTERPRISE'
   const trialActive =
     org.trialEndsAt !== null && org.trialEndsAt.getTime() > Date.now()
   const trialDaysLeft = trialActive

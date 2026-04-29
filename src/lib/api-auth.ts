@@ -28,6 +28,15 @@ export async function authenticateApiKey(request: Request): Promise<ApiKeyAuth |
   })
   if (!key) return null
 
+  // Suspension gate — same rule as `orgProcedure`. A suspended org's API
+  // key behaves as if it was revoked: returns null so callers fall
+  // through to a 401, with no leaking of the underlying reason.
+  const org = await db.organization.findFirst({
+    where: { id: key.orgId },
+    select: { suspended: true },
+  })
+  if (!org || org.suspended) return null
+
   // Fire-and-forget — don't block the response on the timestamp update.
   // (PrismaNeonHttp has no proper background queue, but Vercel keeps the
   // function alive long enough for the awaited Promise to resolve.)

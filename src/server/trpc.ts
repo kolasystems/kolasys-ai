@@ -80,6 +80,17 @@ export const orgProcedure = protectedProcedure.use(async ({ ctx, next }) => {
     }
   }
 
+  // ── Suspension gate ──────────────────────────────────────────────────────
+  // Hard stop for orgs flagged from /admin. Members can still sign in but
+  // every tRPC mutation/query bounces with a clear message. Lifting the
+  // suspension restores access on the next request.
+  if (org.suspended) {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'Your account has been suspended. Contact support@kolasys.ai.',
+    })
+  }
+
   // ── Resolve OrgMember ────────────────────────────────────────────────────
   const existingMember = await ctx.db.orgMember.findFirst({
     where: { orgId: org.id, userId: ctx.userId },

@@ -29,10 +29,11 @@ export const metadata = { title: 'Admin — Kolasys AI' }
 
 const BOOTSTRAP_EMAIL = 'paul@kolasystems.com'
 
-// Plan rotation. Schema enum: FREE / PRO / ENTERPRISE only — no TEAM.
+// Plan rotation: FREE → PRO → TEAM → ENTERPRISE → FREE.
 const PLAN_CYCLE: Record<Plan, Plan> = {
   [Plan.FREE]: Plan.PRO,
-  [Plan.PRO]: Plan.ENTERPRISE,
+  [Plan.PRO]: Plan.TEAM,
+  [Plan.TEAM]: Plan.ENTERPRISE,
   [Plan.ENTERPRISE]: Plan.FREE,
 }
 
@@ -870,7 +871,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     <button
                       type="submit"
                       className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-200"
-                      title="Click to cycle plan: FREE → PRO → ENTERPRISE → FREE"
+                      title="Click to cycle plan: FREE → PRO → TEAM → ENTERPRISE → FREE"
                     >
                       {r.plan}
                     </button>
