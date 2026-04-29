@@ -70,6 +70,51 @@ export async function POST(request: Request) {
       ? (requested as RecordingSource)
       : RecordingSource.DESKTOP
 
+  // ── Plan + usage cap enforcement ────────────────────────────────────────
+  // Mirrors the check in `recordings.create` (tRPC). FREE without an active
+  // trial is capped at 3 recordings/month; any admin-set
+  // maxRecordingsPerMonth on the org is enforced regardless of plan.
+  const planCheck = await db.organization.findFirst({
+    where: { id: auth.orgId },
+    select: { plan: true, trialEndsAt: true, maxRecordingsPerMonth: true },
+  })
+  if (planCheck) {
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    const trialActive =
+      planCheck.trialEndsAt !== null &&
+      planCheck.trialEndsAt.getTime() > now.getTime()
+
+    const FREE_MONTHLY_LIMIT = 3
+    const isFreeNoTrial = planCheck.plan === 'FREE' && !trialActive
+    const adminCap = planCheck.maxRecordingsPerMonth
+
+    if (isFreeNoTrial || adminCap > 0) {
+      const used = await db.recording.count({
+        where: { orgId: auth.orgId, createdAt: { gte: monthStart } },
+      })
+      if (isFreeNoTrial && used >= FREE_MONTHLY_LIMIT) {
+        return Response.json(
+          {
+            error: 'Free plan limit reached',
+            message:
+              'Free plan limit reached. Upgrade to Pro for unlimited recordings.',
+          },
+          { status: 403 },
+        )
+      }
+      if (adminCap > 0 && used >= adminCap) {
+        return Response.json(
+          {
+            error: 'Monthly recording cap reached',
+            message: `Monthly recording limit (${adminCap}) reached for this organization.`,
+          },
+          { status: 403 },
+        )
+      }
+    }
+  }
+
   // RecordingStatus has no UPLOADING value — existing upload paths use
   // PENDING during the create-then-PUT window. Worker only acts on the
   // recording once /confirm flips it to PROCESSING.
