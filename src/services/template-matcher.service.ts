@@ -3,8 +3,12 @@
 // The pure matcher lives in `@/lib/template-matcher` so it can be imported
 // from client components without dragging Prisma into the browser bundle.
 // This file adds a DB-backed convenience for the summarization worker.
-
-import 'server-only'
+//
+// NOTE: no `import 'server-only'` here. The summarization worker is a
+// standalone Node/tsx process — `server-only` throws unconditionally when
+// loaded outside a Next.js bundle, which crashed the Railway worker on
+// startup. Client safety is enforced by the lib/db import below (Prisma
+// can't run in a browser anyway), not by the marker package.
 
 import { db } from '@/lib/db'
 import {
