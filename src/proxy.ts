@@ -12,6 +12,10 @@ const isPublicRoute = createRouteMatcher([
   // The route handlers themselves call `authenticateApiKey` and return 401
   // on missing/invalid tokens.
   '/api/v1/(.*)',
+  // Stripe routes — webhook is signature-verified (no Clerk session
+  // possible from Stripe's IPs), checkout/portal handlers gate themselves
+  // via auth() and return 401 if missing.
+  '/api/stripe/(.*)',
   // tRPC routes handle their own auth via protectedProcedure / orgProcedure.
   // Letting the middleware redirect here produces a 302 → /sign-in response
   // that httpBatchStreamLink can't parse, causing "Stream closed before head

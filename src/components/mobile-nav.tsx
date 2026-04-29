@@ -19,6 +19,7 @@ import {
   BarChart2,
   Users,
   Brain,
+  CreditCard,
 } from 'lucide-react'
 import { UserButton, OrganizationSwitcher } from '@clerk/nextjs'
 import { cn } from '@/lib/utils'
@@ -35,6 +36,7 @@ const NAV_LINKS = [
   { href: '/dashboard/search', label: 'Ask AI', icon: Sparkles },
   { href: '/dashboard/calendar', label: 'Calendar', icon: Calendar },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings, exact: true },
+  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
   { href: '/dashboard/settings/templates', label: 'Templates', icon: Wand2 },
 ]
 

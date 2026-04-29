@@ -16,6 +16,7 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  CreditCard,
   LayoutDashboard,
   ListChecks,
   Mic2,
@@ -214,6 +215,12 @@ export function CollapsibleSidebar() {
           icon={<Settings className={ICON} strokeWidth={STROKE} />}
           label="Settings"
           exact
+          collapsed={collapsed}
+        />
+        <DashboardNavLink
+          href="/dashboard/billing"
+          icon={<CreditCard className={ICON} strokeWidth={STROKE} />}
+          label="Billing"
           collapsed={collapsed}
         />
         <DashboardNavLink

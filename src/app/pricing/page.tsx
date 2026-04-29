@@ -1,24 +1,47 @@
 // Kolasys AI — Public pricing page
-// No auth required. Accessible at /pricing.
+// No auth required. Accessible at /pricing. CTAs branch on auth state:
+// signed-out users go to /sign-up, signed-in users POST to Stripe Checkout.
 
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { auth } from '@clerk/nextjs/server'
 import { Check, Minus, Zap } from 'lucide-react'
 import { KolasysLogoMark } from '@/components/kolasys-logo'
+import { PricingCTA } from '@/components/pricing-cta'
+import { PRICES } from '@/lib/stripe'
 
 export const metadata: Metadata = {
   title: 'Pricing — Kolasys AI',
   description: 'Simple, transparent pricing. No AI credits. No hidden fees.',
 }
 
-const PLANS = [
+type Plan = {
+  name: string
+  price: string
+  period: string
+  description: string
+  cta: string
+  signupHref: string
+  fallbackHref?: string
+  priceId?: string | null
+  defaultSeats?: number
+  highlight: boolean
+  badge?: string
+  note?: string
+  trial?: boolean
+  features: { label: string; included: boolean }[]
+}
+
+const PLANS: Plan[] = [
   {
     name: 'Free',
     price: '$0',
     period: 'forever',
     description: 'Try Kolasys with no commitment.',
     cta: 'Get started free',
-    ctaHref: '/sign-up',
+    signupHref: '/sign-up',
+    fallbackHref: '/sign-up',
+    priceId: null,
     highlight: false,
     features: [
       { label: '300 minutes / month transcription', included: true },
@@ -34,13 +57,16 @@ const PLANS = [
   },
   {
     name: 'Pro',
-    price: '$12',
+    price: '$9.99',
     period: 'per month',
     description: 'Unlimited AI for solo professionals and consultants.',
     cta: 'Start Pro',
-    ctaHref: '/sign-up?plan=pro',
+    signupHref: '/sign-up?plan=pro',
+    priceId: PRICES.pro_monthly,
     highlight: true,
     badge: 'Most popular',
+    note: 'or $99/year (save 17%)',
+    trial: true,
     features: [
       { label: 'Unlimited transcription', included: true },
       { label: 'Unlimited AI summaries', included: true },
@@ -55,13 +81,16 @@ const PLANS = [
   },
   {
     name: 'Team',
-    price: '$10',
+    price: '$8.99',
     period: 'per seat / month',
     description: 'Shared workspace and admin controls for growing teams.',
     cta: 'Start Team trial',
-    ctaHref: '/sign-up?plan=team',
+    signupHref: '/sign-up?plan=team',
+    priceId: PRICES.team_monthly,
+    defaultSeats: 3,
     highlight: false,
-    note: 'Minimum 2 seats. Billed annually.',
+    note: 'Minimum 3 seats. Billed monthly.',
+    trial: true,
     features: [
       { label: 'Everything in Pro', included: true },
       { label: 'Shared workspace', included: true },
@@ -80,7 +109,9 @@ const PLANS = [
     period: '',
     description: 'Compliance, SSO, and white-glove onboarding for large orgs.',
     cta: 'Contact us',
-    ctaHref: 'mailto:hi@kolasys.ai?subject=Enterprise Plan',
+    signupHref: 'mailto:hi@kolasys.ai?subject=Enterprise Plan',
+    fallbackHref: 'mailto:hi@kolasys.ai?subject=Enterprise Plan',
+    priceId: null,
     highlight: false,
     features: [
       { label: 'Everything in Team', included: true },
@@ -123,7 +154,10 @@ const FAQS = [
   },
 ]
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const { userId } = await auth()
+  const signedIn = Boolean(userId)
+
   return (
     <div className="min-h-screen bg-[#F8F9FC] dark:bg-[#0F0F13]">
 
@@ -181,7 +215,7 @@ export default function PricingPage() {
                   : 'border-neutral-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#1A1A24]'
               }`}
             >
-              {plan.highlight && (
+              {plan.highlight && plan.badge && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <span className="rounded-full px-3 py-1 text-xs font-semibold text-white" style={{ backgroundColor: '#CA2625' }}>
                     {plan.badge}
@@ -199,6 +233,11 @@ export default function PricingPage() {
                 </div>
                 {plan.note && (
                   <p className="mt-1 text-xs text-neutral-400">{plan.note}</p>
+                )}
+                {plan.trial && (
+                  <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-[#CA2625]/20 bg-[#CA2625]/5 px-2 py-0.5 text-[11px] font-semibold text-[#CA2625]">
+                    14-day free trial included
+                  </span>
                 )}
                 <p className="mt-2 text-sm text-neutral-500 dark:text-gray-400">{plan.description}</p>
               </div>
@@ -218,17 +257,16 @@ export default function PricingPage() {
                 ))}
               </ul>
 
-              <Link
-                href={plan.ctaHref}
-                className={`block rounded-xl py-2.5 text-center text-sm font-semibold transition-opacity hover:opacity-90 ${
-                  plan.highlight
-                    ? 'text-white'
-                    : 'border border-neutral-200 bg-white text-neutral-900 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10'
-                }`}
-                style={plan.highlight ? { backgroundColor: '#CA2625' } : {}}
+              <PricingCTA
+                signedIn={signedIn}
+                priceId={plan.priceId}
+                seats={plan.defaultSeats}
+                signupHref={plan.signupHref}
+                fallbackHref={plan.fallbackHref}
+                highlight={plan.highlight}
               >
                 {plan.cta}
-              </Link>
+              </PricingCTA>
             </div>
           ))}
         </div>
