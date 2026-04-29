@@ -124,6 +124,14 @@ model Organization {
   // Usage cap. 0 = unlimited. Compared against the count of recordings the
   // org has created in the current calendar month.
   maxRecordingsPerMonth         Int       @default(0)
+  // Stripe linkage — set manually from /admin until the real billing flow
+  // ships. customerId is the source of truth; subscriptionId is informational.
+  stripeCustomerId              String?
+  stripeSubscriptionId          String?
+  // Hard suspension toggle. The visual flag is enforced in the admin UI;
+  // tRPC enforcement is intentionally separate (not in scope here).
+  suspended                     Boolean   @default(false)
+  suspendedReason               String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
@@ -447,4 +455,24 @@ model AdminUser {
   // bootstrap seed.
   addedBy   String?
   createdAt DateTime  @default(now())
+}
+
+// Append-only audit trail of every mutation performed via /admin.
+// Written to from inside each server action; never updated or deleted.
+model AdminAuditLog {
+  id          String   @id @default(cuid())
+  // Email of the admin who performed the action — captured at write time
+  // so the row stays meaningful even if the AdminUser is later removed.
+  adminEmail  String
+  // Short identifier for the action (e.g. "cyclePlan", "suspendOrg").
+  action      String
+  targetOrgId String?
+  targetEmail String?
+  // Free-form summary of what changed. Avoid dumping sensitive payloads
+  // (emailed bodies, full note text) — store length/counts instead.
+  details     String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@index([targetOrgId])
 }

@@ -55,6 +55,10 @@ export type OrganizationMinAggregateOutputType = {
   trialEndsAt: Date | null
   notes: string | null
   maxRecordingsPerMonth: number | null
+  stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
+  suspended: boolean | null
+  suspendedReason: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -80,6 +84,10 @@ export type OrganizationMaxAggregateOutputType = {
   trialEndsAt: Date | null
   notes: string | null
   maxRecordingsPerMonth: number | null
+  stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
+  suspended: boolean | null
+  suspendedReason: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -105,6 +113,10 @@ export type OrganizationCountAggregateOutputType = {
   trialEndsAt: number
   notes: number
   maxRecordingsPerMonth: number
+  stripeCustomerId: number
+  stripeSubscriptionId: number
+  suspended: number
+  suspendedReason: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -140,6 +152,10 @@ export type OrganizationMinAggregateInputType = {
   trialEndsAt?: true
   notes?: true
   maxRecordingsPerMonth?: true
+  stripeCustomerId?: true
+  stripeSubscriptionId?: true
+  suspended?: true
+  suspendedReason?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -165,6 +181,10 @@ export type OrganizationMaxAggregateInputType = {
   trialEndsAt?: true
   notes?: true
   maxRecordingsPerMonth?: true
+  stripeCustomerId?: true
+  stripeSubscriptionId?: true
+  suspended?: true
+  suspendedReason?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -190,6 +210,10 @@ export type OrganizationCountAggregateInputType = {
   trialEndsAt?: true
   notes?: true
   maxRecordingsPerMonth?: true
+  stripeCustomerId?: true
+  stripeSubscriptionId?: true
+  suspended?: true
+  suspendedReason?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -302,6 +326,10 @@ export type OrganizationGroupByOutputType = {
   trialEndsAt: Date | null
   notes: string | null
   maxRecordingsPerMonth: number
+  stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
+  suspended: boolean
+  suspendedReason: string | null
   createdAt: Date
   updatedAt: Date
   _count: OrganizationCountAggregateOutputType | null
@@ -350,6 +378,10 @@ export type OrganizationWhereInput = {
   trialEndsAt?: Prisma.DateTimeNullableFilter<"Organization"> | Date | string | null
   notes?: Prisma.StringNullableFilter<"Organization"> | string | null
   maxRecordingsPerMonth?: Prisma.IntFilter<"Organization"> | number
+  stripeCustomerId?: Prisma.StringNullableFilter<"Organization"> | string | null
+  stripeSubscriptionId?: Prisma.StringNullableFilter<"Organization"> | string | null
+  suspended?: Prisma.BoolFilter<"Organization"> | boolean
+  suspendedReason?: Prisma.StringNullableFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -380,6 +412,10 @@ export type OrganizationOrderByWithRelationInput = {
   trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   maxRecordingsPerMonth?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  suspended?: Prisma.SortOrder
+  suspendedReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   members?: Prisma.OrgMemberOrderByRelationAggregateInput
@@ -413,6 +449,10 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   trialEndsAt?: Prisma.DateTimeNullableFilter<"Organization"> | Date | string | null
   notes?: Prisma.StringNullableFilter<"Organization"> | string | null
   maxRecordingsPerMonth?: Prisma.IntFilter<"Organization"> | number
+  stripeCustomerId?: Prisma.StringNullableFilter<"Organization"> | string | null
+  stripeSubscriptionId?: Prisma.StringNullableFilter<"Organization"> | string | null
+  suspended?: Prisma.BoolFilter<"Organization"> | boolean
+  suspendedReason?: Prisma.StringNullableFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -443,6 +483,10 @@ export type OrganizationOrderByWithAggregationInput = {
   trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   maxRecordingsPerMonth?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  suspended?: Prisma.SortOrder
+  suspendedReason?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationCountOrderByAggregateInput
@@ -476,6 +520,10 @@ export type OrganizationScalarWhereWithAggregatesInput = {
   trialEndsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Organization"> | Date | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
   maxRecordingsPerMonth?: Prisma.IntWithAggregatesFilter<"Organization"> | number
+  stripeCustomerId?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
+  stripeSubscriptionId?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
+  suspended?: Prisma.BoolWithAggregatesFilter<"Organization"> | boolean
+  suspendedReason?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
 }
@@ -501,6 +549,10 @@ export type OrganizationCreateInput = {
   trialEndsAt?: Date | string | null
   notes?: string | null
   maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -531,6 +583,10 @@ export type OrganizationUncheckedCreateInput = {
   trialEndsAt?: Date | string | null
   notes?: string | null
   maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -561,6 +617,10 @@ export type OrganizationUpdateInput = {
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -591,6 +651,10 @@ export type OrganizationUncheckedUpdateInput = {
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -621,6 +685,10 @@ export type OrganizationCreateManyInput = {
   trialEndsAt?: Date | string | null
   notes?: string | null
   maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -646,6 +714,10 @@ export type OrganizationUpdateManyMutationInput = {
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -671,6 +743,10 @@ export type OrganizationUncheckedUpdateManyInput = {
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -696,6 +772,10 @@ export type OrganizationCountOrderByAggregateInput = {
   trialEndsAt?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   maxRecordingsPerMonth?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrder
+  suspended?: Prisma.SortOrder
+  suspendedReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -725,6 +805,10 @@ export type OrganizationMaxOrderByAggregateInput = {
   trialEndsAt?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   maxRecordingsPerMonth?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrder
+  suspended?: Prisma.SortOrder
+  suspendedReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -750,6 +834,10 @@ export type OrganizationMinOrderByAggregateInput = {
   trialEndsAt?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   maxRecordingsPerMonth?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrder
+  suspended?: Prisma.SortOrder
+  suspendedReason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -893,6 +981,10 @@ export type OrganizationCreateWithoutMembersInput = {
   trialEndsAt?: Date | string | null
   notes?: string | null
   maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
@@ -922,6 +1014,10 @@ export type OrganizationUncheckedCreateWithoutMembersInput = {
   trialEndsAt?: Date | string | null
   notes?: string | null
   maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
@@ -967,6 +1063,10 @@ export type OrganizationUpdateWithoutMembersInput = {
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
@@ -996,6 +1096,10 @@ export type OrganizationUncheckedUpdateWithoutMembersInput = {
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
@@ -1025,6 +1129,10 @@ export type OrganizationCreateWithoutRecordingsInput = {
   trialEndsAt?: Date | string | null
   notes?: string | null
   maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1054,6 +1162,10 @@ export type OrganizationUncheckedCreateWithoutRecordingsInput = {
   trialEndsAt?: Date | string | null
   notes?: string | null
   maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1099,6 +1211,10 @@ export type OrganizationUpdateWithoutRecordingsInput = {
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1128,6 +1244,10 @@ export type OrganizationUncheckedUpdateWithoutRecordingsInput = {
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1157,6 +1277,10 @@ export type OrganizationCreateWithoutTemplatesInput = {
   trialEndsAt?: Date | string | null
   notes?: string | null
   maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1186,6 +1310,10 @@ export type OrganizationUncheckedCreateWithoutTemplatesInput = {
   trialEndsAt?: Date | string | null
   notes?: string | null
   maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1231,6 +1359,10 @@ export type OrganizationUpdateWithoutTemplatesInput = {
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1260,6 +1392,10 @@ export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1289,6 +1425,10 @@ export type OrganizationCreateWithoutApiKeysInput = {
   trialEndsAt?: Date | string | null
   notes?: string | null
   maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1318,6 +1458,10 @@ export type OrganizationUncheckedCreateWithoutApiKeysInput = {
   trialEndsAt?: Date | string | null
   notes?: string | null
   maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1363,6 +1507,10 @@ export type OrganizationUpdateWithoutApiKeysInput = {
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1392,6 +1540,10 @@ export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1421,6 +1573,10 @@ export type OrganizationCreateWithoutKnowledgeEntitiesInput = {
   trialEndsAt?: Date | string | null
   notes?: string | null
   maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1450,6 +1606,10 @@ export type OrganizationUncheckedCreateWithoutKnowledgeEntitiesInput = {
   trialEndsAt?: Date | string | null
   notes?: string | null
   maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1495,6 +1655,10 @@ export type OrganizationUpdateWithoutKnowledgeEntitiesInput = {
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1524,6 +1688,10 @@ export type OrganizationUncheckedUpdateWithoutKnowledgeEntitiesInput = {
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1620,6 +1788,10 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   trialEndsAt?: boolean
   notes?: boolean
   maxRecordingsPerMonth?: boolean
+  stripeCustomerId?: boolean
+  stripeSubscriptionId?: boolean
+  suspended?: boolean
+  suspendedReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
@@ -1651,6 +1823,10 @@ export type OrganizationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   trialEndsAt?: boolean
   notes?: boolean
   maxRecordingsPerMonth?: boolean
+  stripeCustomerId?: boolean
+  stripeSubscriptionId?: boolean
+  suspended?: boolean
+  suspendedReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -1676,6 +1852,10 @@ export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   trialEndsAt?: boolean
   notes?: boolean
   maxRecordingsPerMonth?: boolean
+  stripeCustomerId?: boolean
+  stripeSubscriptionId?: boolean
+  suspended?: boolean
+  suspendedReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -1701,11 +1881,15 @@ export type OrganizationSelectScalar = {
   trialEndsAt?: boolean
   notes?: boolean
   maxRecordingsPerMonth?: boolean
+  stripeCustomerId?: boolean
+  stripeSubscriptionId?: boolean
+  suspended?: boolean
+  suspendedReason?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "dailyDigest" | "defaultTranscriptionLanguage" | "botDisplayName" | "ssoEnabled" | "ssoDomain" | "samlMetadataUrl" | "trialStartedAt" | "trialEndsAt" | "notes" | "maxRecordingsPerMonth" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "dailyDigest" | "defaultTranscriptionLanguage" | "botDisplayName" | "ssoEnabled" | "ssoDomain" | "samlMetadataUrl" | "trialStartedAt" | "trialEndsAt" | "notes" | "maxRecordingsPerMonth" | "stripeCustomerId" | "stripeSubscriptionId" | "suspended" | "suspendedReason" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
 export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
   recordings?: boolean | Prisma.Organization$recordingsArgs<ExtArgs>
@@ -1747,6 +1931,10 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     trialEndsAt: Date | null
     notes: string | null
     maxRecordingsPerMonth: number
+    stripeCustomerId: string | null
+    stripeSubscriptionId: string | null
+    suspended: boolean
+    suspendedReason: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["organization"]>
@@ -2197,6 +2385,10 @@ export interface OrganizationFieldRefs {
   readonly trialEndsAt: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly notes: Prisma.FieldRef<"Organization", 'String'>
   readonly maxRecordingsPerMonth: Prisma.FieldRef<"Organization", 'Int'>
+  readonly stripeCustomerId: Prisma.FieldRef<"Organization", 'String'>
+  readonly stripeSubscriptionId: Prisma.FieldRef<"Organization", 'String'>
+  readonly suspended: Prisma.FieldRef<"Organization", 'Boolean'>
+  readonly suspendedReason: Prisma.FieldRef<"Organization", 'String'>
   readonly createdAt: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Organization", 'DateTime'>
 }

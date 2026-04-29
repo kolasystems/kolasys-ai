@@ -67,7 +67,8 @@ export const ModelName = {
   TranscriptEmbedding: 'TranscriptEmbedding',
   KnowledgeEntity: 'KnowledgeEntity',
   KnowledgeEntityRecording: 'KnowledgeEntityRecording',
-  AdminUser: 'AdminUser'
+  AdminUser: 'AdminUser',
+  AdminAuditLog: 'AdminAuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -107,6 +108,10 @@ export const OrganizationScalarFieldEnum = {
   trialEndsAt: 'trialEndsAt',
   notes: 'notes',
   maxRecordingsPerMonth: 'maxRecordingsPerMonth',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  suspended: 'suspended',
+  suspendedReason: 'suspendedReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -353,6 +358,19 @@ export const AdminUserScalarFieldEnum = {
 } as const
 
 export type AdminUserScalarFieldEnum = (typeof AdminUserScalarFieldEnum)[keyof typeof AdminUserScalarFieldEnum]
+
+
+export const AdminAuditLogScalarFieldEnum = {
+  id: 'id',
+  adminEmail: 'adminEmail',
+  action: 'action',
+  targetOrgId: 'targetOrgId',
+  targetEmail: 'targetEmail',
+  details: 'details',
+  createdAt: 'createdAt'
+} as const
+
+export type AdminAuditLogScalarFieldEnum = (typeof AdminAuditLogScalarFieldEnum)[keyof typeof AdminAuditLogScalarFieldEnum]
 
 
 export const SortOrder = {

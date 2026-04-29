@@ -126,3 +126,8 @@ export type KnowledgeEntityRecording = Prisma.KnowledgeEntityRecordingModel
  * 
  */
 export type AdminUser = Prisma.AdminUserModel
+/**
+ * Model AdminAuditLog
+ * 
+ */
+export type AdminAuditLog = Prisma.AdminAuditLogModel

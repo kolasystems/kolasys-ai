@@ -74,6 +74,32 @@ function requireRole(ctx: AdminCtx, allowed: AdminRole[]): boolean {
   return allowed.includes(ctx.role)
 }
 
+/**
+ * Append-only audit row writer. Failures are logged but never block the
+ * caller — the user-facing mutation has already succeeded by the time we
+ * record it, so a flaky audit insert shouldn't surface as an action error.
+ */
+async function audit(
+  ctx: AdminCtx,
+  action: string,
+  fields: { targetOrgId?: string; targetEmail?: string; details?: string } = {},
+): Promise<void> {
+  if (!ctx) return
+  try {
+    await db.adminAuditLog.create({
+      data: {
+        adminEmail: ctx.email,
+        action,
+        targetOrgId: fields.targetOrgId ?? null,
+        targetEmail: fields.targetEmail ?? null,
+        details: fields.details ?? null,
+      },
+    })
+  } catch (err) {
+    console.error('[admin/audit] failed to write audit row:', err)
+  }
+}
+
 // ── Server actions ─────────────────────────────────────────────────────────
 
 async function cyclePlanAction(formData: FormData) {
@@ -88,9 +114,14 @@ async function cyclePlanAction(formData: FormData) {
     select: { plan: true },
   })
   if (!org) return
+  const next = PLAN_CYCLE[org.plan]
   await db.organization.update({
     where: { id: orgId },
-    data: { plan: PLAN_CYCLE[org.plan] },
+    data: { plan: next },
+  })
+  await audit(ctx, 'cyclePlan', {
+    targetOrgId: orgId,
+    details: `${org.plan} → ${next}`,
   })
   revalidatePath('/admin')
 }
@@ -108,12 +139,20 @@ async function addAdminAction(formData: FormData) {
       ? (roleRaw as AdminRole)
       : AdminRole.ADMIN
 
-  const existing = await db.adminUser.findFirst({ where: { email }, select: { id: true } })
+  const existing = await db.adminUser.findFirst({ where: { email }, select: { id: true, role: true } })
   if (existing) {
     await db.adminUser.update({ where: { id: existing.id }, data: { role } })
+    await audit(ctx, 'updateAdminRole', {
+      targetEmail: email,
+      details: `${existing.role} → ${role}`,
+    })
   } else {
     await db.adminUser.create({
       data: { email, role, addedBy: ctx!.email },
+    })
+    await audit(ctx, 'addAdmin', {
+      targetEmail: email,
+      details: `role=${role}`,
     })
   }
   revalidatePath('/admin')
@@ -130,7 +169,7 @@ async function removeAdminAction(formData: FormData) {
   if (id === ctx!.id) return
 
   // Refuse to delete the last SUPER_ADMIN.
-  const target = await db.adminUser.findFirst({ where: { id }, select: { role: true } })
+  const target = await db.adminUser.findFirst({ where: { id }, select: { email: true, role: true } })
   if (!target) return
   if (target.role === AdminRole.SUPER_ADMIN) {
     const superCount = await db.adminUser.count({ where: { role: AdminRole.SUPER_ADMIN } })
@@ -138,6 +177,10 @@ async function removeAdminAction(formData: FormData) {
   }
 
   await db.adminUser.delete({ where: { id } })
+  await audit(ctx, 'removeAdmin', {
+    targetEmail: target.email,
+    details: `role=${target.role}`,
+  })
   revalidatePath('/admin')
 }
 
@@ -155,6 +198,10 @@ async function setTrialAction(formData: FormData) {
   await db.organization.update({
     where: { id: orgId },
     data: { trialStartedAt: now, trialEndsAt: end },
+  })
+  await audit(ctx, 'setTrial', {
+    targetOrgId: orgId,
+    details: `${days}d, ends ${end.toISOString().slice(0, 10)}`,
   })
   revalidatePath('/admin')
 }
@@ -186,6 +233,10 @@ async function extendTrialAction(formData: FormData) {
       trialStartedAt: org.trialStartedAt ?? now,
     },
   })
+  await audit(ctx, 'extendTrial', {
+    targetOrgId: orgId,
+    details: `+${days}d, new end ${newEnd.toISOString().slice(0, 10)}`,
+  })
   revalidatePath('/admin')
 }
 
@@ -200,6 +251,7 @@ async function expireTrialAction(formData: FormData) {
     where: { id: orgId },
     data: { trialEndsAt: new Date() },
   })
+  await audit(ctx, 'expireTrial', { targetOrgId: orgId })
   revalidatePath('/admin')
 }
 
@@ -215,6 +267,10 @@ async function addOrgNoteAction(formData: FormData) {
     where: { id: orgId },
     data: { notes: notes || null },
   })
+  await audit(ctx, 'addOrgNote', {
+    targetOrgId: orgId,
+    details: `len=${notes.length}`,
+  })
   revalidatePath('/admin')
 }
 
@@ -228,9 +284,17 @@ async function setUsageLimitAction(formData: FormData) {
   if (!orgId || !Number.isFinite(raw) || raw < 0) return
 
   const limit = Math.min(Math.floor(raw), 1_000_000)
+  const before = await db.organization.findFirst({
+    where: { id: orgId },
+    select: { maxRecordingsPerMonth: true },
+  })
   await db.organization.update({
     where: { id: orgId },
     data: { maxRecordingsPerMonth: limit },
+  })
+  await audit(ctx, 'setUsageLimit', {
+    targetOrgId: orgId,
+    details: `${before?.maxRecordingsPerMonth ?? 0} → ${limit}`,
   })
   revalidatePath('/admin')
 }
@@ -304,9 +368,74 @@ async function sendOrgEmailAction(formData: FormData) {
     }
   }
 
+  await audit(ctx, 'sendOrgEmail', {
+    targetOrgId: orgId,
+    details: `recipients=${recipients.length}, sent=${sent}, failed=${failed}, msgLen=${message.length}`,
+  })
+
   redirect(
     `/admin?msgSent=${encodeURIComponent(orgId)}&sent=${sent}&failed=${failed}`,
   )
+}
+
+async function setStripeIdAction(formData: FormData) {
+  'use server'
+  const ctx = await resolveAdmin()
+  if (!requireRole(ctx, [AdminRole.SUPER_ADMIN, AdminRole.ADMIN])) return
+
+  const orgId = String(formData.get('orgId') ?? '')
+  if (!orgId) return
+  // Empty string clears the field. Trim whitespace; clamp to a sane length.
+  const customer = String(formData.get('stripeCustomerId') ?? '').trim().slice(0, 100)
+  const subscription = String(formData.get('stripeSubscriptionId') ?? '').trim().slice(0, 100)
+
+  await db.organization.update({
+    where: { id: orgId },
+    data: {
+      stripeCustomerId: customer || null,
+      stripeSubscriptionId: subscription || null,
+    },
+  })
+  await audit(ctx, 'setStripeId', {
+    targetOrgId: orgId,
+    details: `customer=${customer || '∅'}, subscription=${subscription || '∅'}`,
+  })
+  revalidatePath('/admin')
+}
+
+async function suspendOrgAction(formData: FormData) {
+  'use server'
+  const ctx = await resolveAdmin()
+  if (!requireRole(ctx, [AdminRole.SUPER_ADMIN, AdminRole.ADMIN])) return
+
+  const orgId = String(formData.get('orgId') ?? '')
+  if (!orgId) return
+  const reason = String(formData.get('reason') ?? '').trim().slice(0, 500)
+
+  await db.organization.update({
+    where: { id: orgId },
+    data: { suspended: true, suspendedReason: reason || null },
+  })
+  await audit(ctx, 'suspendOrg', {
+    targetOrgId: orgId,
+    details: reason || '(no reason given)',
+  })
+  revalidatePath('/admin')
+}
+
+async function unsuspendOrgAction(formData: FormData) {
+  'use server'
+  const ctx = await resolveAdmin()
+  if (!requireRole(ctx, [AdminRole.SUPER_ADMIN, AdminRole.ADMIN])) return
+
+  const orgId = String(formData.get('orgId') ?? '')
+  if (!orgId) return
+  await db.organization.update({
+    where: { id: orgId },
+    data: { suspended: false, suspendedReason: null },
+  })
+  await audit(ctx, 'unsuspendOrg', { targetOrgId: orgId })
+  revalidatePath('/admin')
 }
 
 // ── Formatters ─────────────────────────────────────────────────────────────
@@ -419,6 +548,10 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         trialEndsAt: true,
         notes: true,
         maxRecordingsPerMonth: true,
+        stripeCustomerId: true,
+        stripeSubscriptionId: true,
+        suspended: true,
+        suspendedReason: true,
       },
     }),
     db.recording.findMany({
@@ -448,6 +581,21 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
       select: { id: true, email: true, role: true, addedBy: true, createdAt: true },
     }),
   ])
+
+  const auditLog = await db.adminAuditLog.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+    select: {
+      id: true,
+      adminEmail: true,
+      action: true,
+      targetOrgId: true,
+      targetEmail: true,
+      details: true,
+      createdAt: true,
+    },
+  })
+  const orgNameById = Object.fromEntries(orgs.map((o) => [o.id, o.name]))
 
   // Per-org rollups + members
   const [memberCounts, allMembers] = await Promise.all([
@@ -686,17 +834,35 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           {rows.map((r) => (
             <article
               key={r.id}
-              className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm"
+              className={
+                'overflow-hidden rounded-lg border bg-white shadow-sm ' +
+                (r.suspended
+                  ? 'border-red-300 ring-1 ring-red-200'
+                  : 'border-neutral-200')
+              }
             >
               {/* Card header — name + badges */}
               <div className="flex flex-wrap items-start justify-between gap-3 border-b border-neutral-100 px-4 py-3">
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <h3 className="text-sm font-semibold text-neutral-900">{r.name}</h3>
+                    {r.suspended && (
+                      <span
+                        className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-white"
+                        title={r.suspendedReason ?? 'no reason given'}
+                      >
+                        Suspended
+                      </span>
+                    )}
                     <OrgStatusBadge status={r.status} />
                     <TrialBadge trial={r.trial} />
                   </div>
                   <p className="mt-0.5 font-mono text-[11px] text-neutral-400">{r.slug}</p>
+                  {r.suspended && r.suspendedReason && (
+                    <p className="mt-1 text-xs text-red-700">
+                      Reason: {r.suspendedReason}
+                    </p>
+                  )}
                 </div>
                 {canMutate && (
                   <form action={cyclePlanAction}>
@@ -838,6 +1004,90 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   </form>
                 )}
               </div>
+
+              {/* Billing — Stripe IDs */}
+              <div className="flex flex-wrap items-center gap-3 border-t border-neutral-100 px-4 py-2.5">
+                <span className="text-xs font-medium text-neutral-500">Billing:</span>
+                <span className="text-xs text-neutral-700">
+                  Customer:{' '}
+                  <code className="font-mono">
+                    {r.stripeCustomerId ?? 'No customer'}
+                  </code>
+                </span>
+                <span className="text-xs text-neutral-700">
+                  Subscription:{' '}
+                  <code className="font-mono">
+                    {r.stripeSubscriptionId ?? 'No subscription'}
+                  </code>
+                </span>
+                {canMutate && (
+                  <form
+                    action={setStripeIdAction}
+                    className="ml-auto flex flex-wrap items-center gap-2"
+                  >
+                    <input type="hidden" name="orgId" value={r.id} />
+                    <input
+                      type="text"
+                      name="stripeCustomerId"
+                      defaultValue={r.stripeCustomerId ?? ''}
+                      placeholder="cus_…"
+                      className="w-32 rounded-md border border-neutral-300 bg-white px-2 py-1 font-mono text-xs focus:border-[#CA2625] focus:outline-none focus:ring-2 focus:ring-[#CA2625]/20"
+                    />
+                    <input
+                      type="text"
+                      name="stripeSubscriptionId"
+                      defaultValue={r.stripeSubscriptionId ?? ''}
+                      placeholder="sub_…"
+                      className="w-32 rounded-md border border-neutral-300 bg-white px-2 py-1 font-mono text-xs focus:border-[#CA2625] focus:outline-none focus:ring-2 focus:ring-[#CA2625]/20"
+                    />
+                    <button
+                      type="submit"
+                      className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs font-semibold text-white hover:bg-neutral-700"
+                    >
+                      Save Stripe IDs
+                    </button>
+                  </form>
+                )}
+              </div>
+
+              {/* Suspend / Unsuspend */}
+              {canMutate && (
+                <div className="flex flex-wrap items-center gap-2 border-t border-neutral-100 px-4 py-2.5">
+                  <span className="text-xs font-medium text-neutral-500">
+                    Suspension:
+                  </span>
+                  {r.suspended ? (
+                    <form action={unsuspendOrgAction}>
+                      <input type="hidden" name="orgId" value={r.id} />
+                      <button
+                        type="submit"
+                        className="rounded-md bg-green-600 px-3 py-1 text-xs font-semibold text-white hover:bg-green-700"
+                      >
+                        Unsuspend
+                      </button>
+                    </form>
+                  ) : (
+                    <form
+                      action={suspendOrgAction}
+                      className="flex flex-wrap items-center gap-2"
+                    >
+                      <input type="hidden" name="orgId" value={r.id} />
+                      <input
+                        type="text"
+                        name="reason"
+                        placeholder="Reason (optional)"
+                        className="w-56 rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20"
+                      />
+                      <button
+                        type="submit"
+                        className="rounded-md bg-red-600 px-3 py-1 text-xs font-semibold text-white hover:bg-red-700"
+                      >
+                        Suspend
+                      </button>
+                    </form>
+                  )}
+                </div>
+              )}
 
               {/* Send message + Export */}
               <details className="border-t border-neutral-100">
@@ -989,6 +1239,63 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                   </td>
                 </tr>
               ))}
+            </tbody>
+          </table>
+        </section>
+
+        {/* Audit log */}
+        <section className="mt-8 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm">
+          <div className="border-b border-neutral-100 px-4 py-3">
+            <h2 className="text-sm font-semibold text-neutral-900">
+              Audit log (last {auditLog.length})
+            </h2>
+          </div>
+          <table className="w-full text-sm">
+            <thead className="bg-neutral-50 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600">
+              <tr>
+                <th className="px-4 py-3">When</th>
+                <th className="px-4 py-3">Admin</th>
+                <th className="px-4 py-3">Action</th>
+                <th className="px-4 py-3">Target</th>
+                <th className="px-4 py-3">Details</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-100">
+              {auditLog.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-4 py-6 text-center text-neutral-500">
+                    No audit entries yet.
+                  </td>
+                </tr>
+              )}
+              {auditLog.map((a) => {
+                const target =
+                  (a.targetOrgId && (orgNameById[a.targetOrgId] ?? a.targetOrgId)) ||
+                  a.targetEmail ||
+                  '—'
+                return (
+                  <tr key={a.id} className="hover:bg-neutral-50">
+                    <td
+                      className="whitespace-nowrap px-4 py-2 text-xs text-neutral-500"
+                      title={a.createdAt.toISOString()}
+                    >
+                      {relativeTime(a.createdAt)}
+                    </td>
+                    <td className="px-4 py-2 text-xs text-neutral-700">
+                      {a.adminEmail}
+                    </td>
+                    <td className="px-4 py-2 text-xs">
+                      <code className="rounded bg-neutral-100 px-1.5 py-0.5 font-mono text-[11px] text-neutral-700">
+                        {a.action}
+                      </code>
+                    </td>
+                    <td className="px-4 py-2 text-xs text-neutral-700">{target}</td>
+                    <td className="max-w-md truncate px-4 py-2 text-xs text-neutral-500">
+                      {a.details ?? '—'}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </section>
