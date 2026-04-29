@@ -106,6 +106,7 @@ export const OrganizationScalarFieldEnum = {
   trialStartedAt: 'trialStartedAt',
   trialEndsAt: 'trialEndsAt',
   notes: 'notes',
+  maxRecordingsPerMonth: 'maxRecordingsPerMonth',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

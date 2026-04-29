@@ -20,8 +20,18 @@ export type OrganizationModel = runtime.Types.Result.DefaultSelection<Prisma.$Or
 
 export type AggregateOrganization = {
   _count: OrganizationCountAggregateOutputType | null
+  _avg: OrganizationAvgAggregateOutputType | null
+  _sum: OrganizationSumAggregateOutputType | null
   _min: OrganizationMinAggregateOutputType | null
   _max: OrganizationMaxAggregateOutputType | null
+}
+
+export type OrganizationAvgAggregateOutputType = {
+  maxRecordingsPerMonth: number | null
+}
+
+export type OrganizationSumAggregateOutputType = {
+  maxRecordingsPerMonth: number | null
 }
 
 export type OrganizationMinAggregateOutputType = {
@@ -44,6 +54,7 @@ export type OrganizationMinAggregateOutputType = {
   trialStartedAt: Date | null
   trialEndsAt: Date | null
   notes: string | null
+  maxRecordingsPerMonth: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -68,6 +79,7 @@ export type OrganizationMaxAggregateOutputType = {
   trialStartedAt: Date | null
   trialEndsAt: Date | null
   notes: string | null
+  maxRecordingsPerMonth: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -92,11 +104,20 @@ export type OrganizationCountAggregateOutputType = {
   trialStartedAt: number
   trialEndsAt: number
   notes: number
+  maxRecordingsPerMonth: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type OrganizationAvgAggregateInputType = {
+  maxRecordingsPerMonth?: true
+}
+
+export type OrganizationSumAggregateInputType = {
+  maxRecordingsPerMonth?: true
+}
 
 export type OrganizationMinAggregateInputType = {
   id?: true
@@ -118,6 +139,7 @@ export type OrganizationMinAggregateInputType = {
   trialStartedAt?: true
   trialEndsAt?: true
   notes?: true
+  maxRecordingsPerMonth?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -142,6 +164,7 @@ export type OrganizationMaxAggregateInputType = {
   trialStartedAt?: true
   trialEndsAt?: true
   notes?: true
+  maxRecordingsPerMonth?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -166,6 +189,7 @@ export type OrganizationCountAggregateInputType = {
   trialStartedAt?: true
   trialEndsAt?: true
   notes?: true
+  maxRecordingsPerMonth?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -209,6 +233,18 @@ export type OrganizationAggregateArgs<ExtArgs extends runtime.Types.Extensions.I
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: OrganizationAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: OrganizationSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: OrganizationMinAggregateInputType
@@ -239,6 +275,8 @@ export type OrganizationGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   _count?: OrganizationCountAggregateInputType | true
+  _avg?: OrganizationAvgAggregateInputType
+  _sum?: OrganizationSumAggregateInputType
   _min?: OrganizationMinAggregateInputType
   _max?: OrganizationMaxAggregateInputType
 }
@@ -263,9 +301,12 @@ export type OrganizationGroupByOutputType = {
   trialStartedAt: Date | null
   trialEndsAt: Date | null
   notes: string | null
+  maxRecordingsPerMonth: number
   createdAt: Date
   updatedAt: Date
   _count: OrganizationCountAggregateOutputType | null
+  _avg: OrganizationAvgAggregateOutputType | null
+  _sum: OrganizationSumAggregateOutputType | null
   _min: OrganizationMinAggregateOutputType | null
   _max: OrganizationMaxAggregateOutputType | null
 }
@@ -308,6 +349,7 @@ export type OrganizationWhereInput = {
   trialStartedAt?: Prisma.DateTimeNullableFilter<"Organization"> | Date | string | null
   trialEndsAt?: Prisma.DateTimeNullableFilter<"Organization"> | Date | string | null
   notes?: Prisma.StringNullableFilter<"Organization"> | string | null
+  maxRecordingsPerMonth?: Prisma.IntFilter<"Organization"> | number
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -337,6 +379,7 @@ export type OrganizationOrderByWithRelationInput = {
   trialStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxRecordingsPerMonth?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   members?: Prisma.OrgMemberOrderByRelationAggregateInput
@@ -369,6 +412,7 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   trialStartedAt?: Prisma.DateTimeNullableFilter<"Organization"> | Date | string | null
   trialEndsAt?: Prisma.DateTimeNullableFilter<"Organization"> | Date | string | null
   notes?: Prisma.StringNullableFilter<"Organization"> | string | null
+  maxRecordingsPerMonth?: Prisma.IntFilter<"Organization"> | number
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -398,11 +442,14 @@ export type OrganizationOrderByWithAggregationInput = {
   trialStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  maxRecordingsPerMonth?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationCountOrderByAggregateInput
+  _avg?: Prisma.OrganizationAvgOrderByAggregateInput
   _max?: Prisma.OrganizationMaxOrderByAggregateInput
   _min?: Prisma.OrganizationMinOrderByAggregateInput
+  _sum?: Prisma.OrganizationSumOrderByAggregateInput
 }
 
 export type OrganizationScalarWhereWithAggregatesInput = {
@@ -428,6 +475,7 @@ export type OrganizationScalarWhereWithAggregatesInput = {
   trialStartedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Organization"> | Date | string | null
   trialEndsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Organization"> | Date | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
+  maxRecordingsPerMonth?: Prisma.IntWithAggregatesFilter<"Organization"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
 }
@@ -452,6 +500,7 @@ export type OrganizationCreateInput = {
   trialStartedAt?: Date | string | null
   trialEndsAt?: Date | string | null
   notes?: string | null
+  maxRecordingsPerMonth?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -481,6 +530,7 @@ export type OrganizationUncheckedCreateInput = {
   trialStartedAt?: Date | string | null
   trialEndsAt?: Date | string | null
   notes?: string | null
+  maxRecordingsPerMonth?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -510,6 +560,7 @@ export type OrganizationUpdateInput = {
   trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -539,6 +590,7 @@ export type OrganizationUncheckedUpdateInput = {
   trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -568,6 +620,7 @@ export type OrganizationCreateManyInput = {
   trialStartedAt?: Date | string | null
   trialEndsAt?: Date | string | null
   notes?: string | null
+  maxRecordingsPerMonth?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -592,6 +645,7 @@ export type OrganizationUpdateManyMutationInput = {
   trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -616,6 +670,7 @@ export type OrganizationUncheckedUpdateManyInput = {
   trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -640,8 +695,13 @@ export type OrganizationCountOrderByAggregateInput = {
   trialStartedAt?: Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  maxRecordingsPerMonth?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type OrganizationAvgOrderByAggregateInput = {
+  maxRecordingsPerMonth?: Prisma.SortOrder
 }
 
 export type OrganizationMaxOrderByAggregateInput = {
@@ -664,6 +724,7 @@ export type OrganizationMaxOrderByAggregateInput = {
   trialStartedAt?: Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  maxRecordingsPerMonth?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -688,8 +749,13 @@ export type OrganizationMinOrderByAggregateInput = {
   trialStartedAt?: Prisma.SortOrder
   trialEndsAt?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  maxRecordingsPerMonth?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type OrganizationSumOrderByAggregateInput = {
+  maxRecordingsPerMonth?: Prisma.SortOrder
 }
 
 export type OrganizationScalarRelationFilter = {
@@ -720,6 +786,14 @@ export type BoolFieldUpdateOperationsInput = {
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -818,6 +892,7 @@ export type OrganizationCreateWithoutMembersInput = {
   trialStartedAt?: Date | string | null
   trialEndsAt?: Date | string | null
   notes?: string | null
+  maxRecordingsPerMonth?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
@@ -846,6 +921,7 @@ export type OrganizationUncheckedCreateWithoutMembersInput = {
   trialStartedAt?: Date | string | null
   trialEndsAt?: Date | string | null
   notes?: string | null
+  maxRecordingsPerMonth?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
@@ -890,6 +966,7 @@ export type OrganizationUpdateWithoutMembersInput = {
   trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
@@ -918,6 +995,7 @@ export type OrganizationUncheckedUpdateWithoutMembersInput = {
   trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
@@ -946,6 +1024,7 @@ export type OrganizationCreateWithoutRecordingsInput = {
   trialStartedAt?: Date | string | null
   trialEndsAt?: Date | string | null
   notes?: string | null
+  maxRecordingsPerMonth?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -974,6 +1053,7 @@ export type OrganizationUncheckedCreateWithoutRecordingsInput = {
   trialStartedAt?: Date | string | null
   trialEndsAt?: Date | string | null
   notes?: string | null
+  maxRecordingsPerMonth?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1018,6 +1098,7 @@ export type OrganizationUpdateWithoutRecordingsInput = {
   trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1046,6 +1127,7 @@ export type OrganizationUncheckedUpdateWithoutRecordingsInput = {
   trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1074,6 +1156,7 @@ export type OrganizationCreateWithoutTemplatesInput = {
   trialStartedAt?: Date | string | null
   trialEndsAt?: Date | string | null
   notes?: string | null
+  maxRecordingsPerMonth?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1102,6 +1185,7 @@ export type OrganizationUncheckedCreateWithoutTemplatesInput = {
   trialStartedAt?: Date | string | null
   trialEndsAt?: Date | string | null
   notes?: string | null
+  maxRecordingsPerMonth?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1146,6 +1230,7 @@ export type OrganizationUpdateWithoutTemplatesInput = {
   trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1174,6 +1259,7 @@ export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
   trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1202,6 +1288,7 @@ export type OrganizationCreateWithoutApiKeysInput = {
   trialStartedAt?: Date | string | null
   trialEndsAt?: Date | string | null
   notes?: string | null
+  maxRecordingsPerMonth?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1230,6 +1317,7 @@ export type OrganizationUncheckedCreateWithoutApiKeysInput = {
   trialStartedAt?: Date | string | null
   trialEndsAt?: Date | string | null
   notes?: string | null
+  maxRecordingsPerMonth?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1274,6 +1362,7 @@ export type OrganizationUpdateWithoutApiKeysInput = {
   trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1302,6 +1391,7 @@ export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
   trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1330,6 +1420,7 @@ export type OrganizationCreateWithoutKnowledgeEntitiesInput = {
   trialStartedAt?: Date | string | null
   trialEndsAt?: Date | string | null
   notes?: string | null
+  maxRecordingsPerMonth?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1358,6 +1449,7 @@ export type OrganizationUncheckedCreateWithoutKnowledgeEntitiesInput = {
   trialStartedAt?: Date | string | null
   trialEndsAt?: Date | string | null
   notes?: string | null
+  maxRecordingsPerMonth?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1402,6 +1494,7 @@ export type OrganizationUpdateWithoutKnowledgeEntitiesInput = {
   trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1430,6 +1523,7 @@ export type OrganizationUncheckedUpdateWithoutKnowledgeEntitiesInput = {
   trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1525,6 +1619,7 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   trialStartedAt?: boolean
   trialEndsAt?: boolean
   notes?: boolean
+  maxRecordingsPerMonth?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
@@ -1555,6 +1650,7 @@ export type OrganizationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   trialStartedAt?: boolean
   trialEndsAt?: boolean
   notes?: boolean
+  maxRecordingsPerMonth?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -1579,6 +1675,7 @@ export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   trialStartedAt?: boolean
   trialEndsAt?: boolean
   notes?: boolean
+  maxRecordingsPerMonth?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -1603,11 +1700,12 @@ export type OrganizationSelectScalar = {
   trialStartedAt?: boolean
   trialEndsAt?: boolean
   notes?: boolean
+  maxRecordingsPerMonth?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "dailyDigest" | "defaultTranscriptionLanguage" | "botDisplayName" | "ssoEnabled" | "ssoDomain" | "samlMetadataUrl" | "trialStartedAt" | "trialEndsAt" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "dailyDigest" | "defaultTranscriptionLanguage" | "botDisplayName" | "ssoEnabled" | "ssoDomain" | "samlMetadataUrl" | "trialStartedAt" | "trialEndsAt" | "notes" | "maxRecordingsPerMonth" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
 export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
   recordings?: boolean | Prisma.Organization$recordingsArgs<ExtArgs>
@@ -1648,6 +1746,7 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     trialStartedAt: Date | null
     trialEndsAt: Date | null
     notes: string | null
+    maxRecordingsPerMonth: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["organization"]>
@@ -2097,6 +2196,7 @@ export interface OrganizationFieldRefs {
   readonly trialStartedAt: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly trialEndsAt: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly notes: Prisma.FieldRef<"Organization", 'String'>
+  readonly maxRecordingsPerMonth: Prisma.FieldRef<"Organization", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Organization", 'DateTime'>
 }

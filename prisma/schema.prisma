@@ -121,6 +121,9 @@ model Organization {
   trialEndsAt                   DateTime?
   // Free-form admin notes (only visible in /admin, never to the org itself).
   notes                         String?
+  // Usage cap. 0 = unlimited. Compared against the count of recordings the
+  // org has created in the current calendar month.
+  maxRecordingsPerMonth         Int       @default(0)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 

@@ -447,14 +447,6 @@ export type NoteSectionUncheckedUpdateManyWithoutNoteNestedInput = {
   deleteMany?: Prisma.NoteSectionScalarWhereInput | Prisma.NoteSectionScalarWhereInput[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type NoteSectionCreateWithoutNoteInput = {
   id?: string
   title: string

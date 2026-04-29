@@ -3,7 +3,7 @@
 // as SUPER_ADMIN on first hit when empty). Server component throughout —
 // the only client surface is the placeholder Transfer Ownership button.
 
-import { auth, currentUser } from '@clerk/nextjs/server'
+import { auth, currentUser, clerkClient } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
@@ -13,12 +13,16 @@ import {
   ChevronDown,
   Trash2,
   UserPlus,
+  Download,
+  Mail,
+  CheckCircle2,
 } from 'lucide-react'
 import { db } from '@/lib/db'
 import { summarizationQueue, transcriptionQueue } from '@/lib/queues'
 import { Plan, AdminRole } from '@/generated/prisma/client'
 import { KolasysLogoMark } from '@/components/kolasys-logo'
 import { TransferOwnershipButton } from '@/components/admin-transfer-ownership-button'
+import { resend, FROM_EMAIL } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Admin — Kolasys AI' }
@@ -214,6 +218,97 @@ async function addOrgNoteAction(formData: FormData) {
   revalidatePath('/admin')
 }
 
+async function setUsageLimitAction(formData: FormData) {
+  'use server'
+  const ctx = await resolveAdmin()
+  if (!requireRole(ctx, [AdminRole.SUPER_ADMIN, AdminRole.ADMIN])) return
+
+  const orgId = String(formData.get('orgId') ?? '')
+  const raw = Number(formData.get('maxRecordingsPerMonth') ?? 0)
+  if (!orgId || !Number.isFinite(raw) || raw < 0) return
+
+  const limit = Math.min(Math.floor(raw), 1_000_000)
+  await db.organization.update({
+    where: { id: orgId },
+    data: { maxRecordingsPerMonth: limit },
+  })
+  revalidatePath('/admin')
+}
+
+async function sendOrgEmailAction(formData: FormData) {
+  'use server'
+  const ctx = await resolveAdmin()
+  if (!requireRole(ctx, [AdminRole.SUPER_ADMIN, AdminRole.ADMIN])) {
+    redirect('/admin')
+  }
+
+  const orgId = String(formData.get('orgId') ?? '')
+  const message = String(formData.get('message') ?? '').trim().slice(0, 4000)
+  if (!orgId || !message) {
+    redirect(`/admin?emailErr=${encodeURIComponent(orgId)}&reason=missing`)
+  }
+
+  const org = await db.organization.findFirst({
+    where: { id: orgId },
+    select: { name: true },
+  })
+  if (!org) {
+    redirect(`/admin?emailErr=${encodeURIComponent(orgId)}&reason=notfound`)
+  }
+
+  const members = await db.orgMember.findMany({
+    where: { orgId },
+    select: { userId: true },
+  })
+
+  // Resolve emails via Clerk. Skip members with no usable email rather than
+  // failing the whole batch.
+  const client = await clerkClient()
+  const recipients: string[] = []
+  for (const m of members) {
+    try {
+      const u = await client.users.getUser(m.userId)
+      const primary =
+        u.primaryEmailAddressId
+          ? u.emailAddresses.find((e) => e.id === u.primaryEmailAddressId)?.emailAddress
+          : u.emailAddresses[0]?.emailAddress
+      if (primary) recipients.push(primary)
+    } catch (err) {
+      console.error(`[admin/email] Failed to resolve user ${m.userId}:`, err)
+    }
+  }
+
+  if (recipients.length === 0) {
+    redirect(`/admin?emailErr=${encodeURIComponent(orgId)}&reason=norecipients`)
+  }
+
+  let sent = 0
+  let failed = 0
+  for (const to of recipients) {
+    try {
+      const { error } = await resend.emails.send({
+        from: FROM_EMAIL,
+        to,
+        subject: 'Message from Kolasys AI',
+        text: `${message}\n\n— Kolasys AI Team\n(sent by ${ctx!.email})`,
+      })
+      if (error) {
+        console.error(`[admin/email] Resend error for ${to}:`, error)
+        failed++
+      } else {
+        sent++
+      }
+    } catch (err) {
+      console.error(`[admin/email] Send threw for ${to}:`, err)
+      failed++
+    }
+  }
+
+  redirect(
+    `/admin?msgSent=${encodeURIComponent(orgId)}&sent=${sent}&failed=${failed}`,
+  )
+}
+
 // ── Formatters ─────────────────────────────────────────────────────────────
 function fmtDuration(secs: number): string {
   if (!secs) return '0s'
@@ -276,7 +371,17 @@ const HEALTH_STYLE: Record<Health, { label: string; cls: string }> = {
 }
 
 // ── Page ───────────────────────────────────────────────────────────────────
-export default async function AdminPage() {
+type AdminPageProps = {
+  searchParams: Promise<{
+    msgSent?: string
+    sent?: string
+    failed?: string
+    emailErr?: string
+    reason?: string
+  }>
+}
+
+export default async function AdminPage({ searchParams }: AdminPageProps) {
   const { userId } = await auth()
   if (!userId) redirect('/sign-in')
 
@@ -286,9 +391,12 @@ export default async function AdminPage() {
   const isSuper = ctx.role === AdminRole.SUPER_ADMIN
   const canMutate = ctx.role === AdminRole.SUPER_ADMIN || ctx.role === AdminRole.ADMIN
 
+  const sp = await searchParams
+
   const now = new Date()
   const day = new Date(now.getTime() - 24 * 60 * 60 * 1000)
   const week = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
 
   const [
     orgs,
@@ -310,6 +418,7 @@ export default async function AdminPage() {
         trialStartedAt: true,
         trialEndsAt: true,
         notes: true,
+        maxRecordingsPerMonth: true,
       },
     }),
     db.recording.findMany({
@@ -364,10 +473,15 @@ export default async function AdminPage() {
         ? 'new'
         : 'inactive'
 
+    const recordingsThisMonth = orgRecs.filter(
+      (r) => r.createdAt >= monthStart,
+    ).length
+
     return {
       ...org,
       memberCount: memberCounts[i],
       recordingCount: orgRecs.length,
+      recordingsThisMonth,
       totalDuration,
       lastActive,
       status,
@@ -692,6 +806,111 @@ export default async function AdminPage() {
                 )}
               </details>
 
+              {/* Limits */}
+              <div className="flex flex-wrap items-center gap-3 border-t border-neutral-100 px-4 py-2.5">
+                <span className="text-xs font-medium text-neutral-500">Limits:</span>
+                <UsageMeter
+                  used={r.recordingsThisMonth}
+                  cap={r.maxRecordingsPerMonth}
+                />
+                {canMutate && (
+                  <form
+                    action={setUsageLimitAction}
+                    className="ml-auto flex items-center gap-2"
+                  >
+                    <input type="hidden" name="orgId" value={r.id} />
+                    <label className="text-xs text-neutral-500">
+                      Max recordings/month
+                    </label>
+                    <input
+                      type="number"
+                      name="maxRecordingsPerMonth"
+                      min={0}
+                      defaultValue={r.maxRecordingsPerMonth}
+                      className="w-20 rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs tabular-nums focus:border-[#CA2625] focus:outline-none focus:ring-2 focus:ring-[#CA2625]/20"
+                    />
+                    <button
+                      type="submit"
+                      className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs font-semibold text-white hover:bg-neutral-700"
+                    >
+                      Save
+                    </button>
+                  </form>
+                )}
+              </div>
+
+              {/* Send message + Export */}
+              <details className="border-t border-neutral-100">
+                <summary className="flex cursor-pointer items-center gap-2 px-4 py-2.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50">
+                  <ChevronDown className="h-3 w-3" />
+                  <Mail className="h-3 w-3" />
+                  Send message to members
+                </summary>
+                <div className="space-y-2 border-t border-neutral-100 bg-neutral-50 px-4 py-3">
+                  {/* Result banner from the last sendOrgEmailAction redirect */}
+                  {sp.msgSent === r.id && (
+                    <div className="flex items-center gap-2 rounded-md border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-800">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      Sent to {sp.sent ?? '0'} member(s).
+                      {Number(sp.failed ?? '0') > 0 && (
+                        <span className="text-amber-700">
+                          {' '}({sp.failed} failed)
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {sp.emailErr === r.id && (
+                    <div className="flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      Couldn&apos;t send: {sp.reason ?? 'unknown'}
+                    </div>
+                  )}
+                  {canMutate ? (
+                    <form action={sendOrgEmailAction} className="space-y-2">
+                      <input type="hidden" name="orgId" value={r.id} />
+                      <textarea
+                        name="message"
+                        required
+                        rows={4}
+                        placeholder={`Subject is fixed: "Message from Kolasys AI". Body goes here…`}
+                        className="w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm focus:border-[#CA2625] focus:outline-none focus:ring-2 focus:ring-[#CA2625]/20"
+                      />
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="submit"
+                          className="rounded-md bg-[#CA2625] px-3 py-1 text-xs font-semibold text-white hover:bg-[#b21f1f]"
+                        >
+                          Send to {r.memberCount} member
+                          {r.memberCount === 1 ? '' : 's'}
+                        </button>
+                        <span className="text-xs text-neutral-500">
+                          Emails resolved via Clerk; missing emails are skipped.
+                        </span>
+                      </div>
+                    </form>
+                  ) : (
+                    <p className="text-xs text-neutral-500">
+                      Read-only role — only ADMIN/SUPER_ADMIN can send.
+                    </p>
+                  )}
+                </div>
+              </details>
+
+              {/* Export data */}
+              <div className="flex items-center justify-between border-t border-neutral-100 px-4 py-2.5">
+                <span className="text-xs font-medium text-neutral-500">
+                  Data export
+                </span>
+                <a
+                  href={`/api/admin/export/${r.id}`}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200 bg-white px-2.5 py-1 text-xs font-semibold text-neutral-700 shadow-sm hover:bg-neutral-50"
+                  download
+                >
+                  <Download className="h-3 w-3" />
+                  Export data (JSON)
+                </a>
+              </div>
+
               {/* Members */}
               <details className="border-t border-neutral-100">
                 <summary className="flex cursor-pointer items-center gap-2 px-4 py-2.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50">
@@ -874,6 +1093,47 @@ function RecordingStatusBadge({ status }: { status: string }) {
   return (
     <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>
       {status}
+    </span>
+  )
+}
+
+function UsageMeter({ used, cap }: { used: number; cap: number }) {
+  if (cap === 0) {
+    return (
+      <span className="inline-flex items-center gap-2 text-xs text-neutral-700">
+        <span className="rounded-full bg-neutral-100 px-2 py-0.5 font-semibold text-neutral-600">
+          Unlimited
+        </span>
+        <span className="text-neutral-500">
+          {used} this month
+        </span>
+      </span>
+    )
+  }
+  const pct = Math.min(100, Math.round((used / cap) * 100))
+  const overLimit = used >= cap
+  const nearLimit = !overLimit && pct >= 80
+  const barCls = overLimit
+    ? 'bg-red-500'
+    : nearLimit
+      ? 'bg-amber-500'
+      : 'bg-green-500'
+  return (
+    <span className="inline-flex items-center gap-2 text-xs">
+      <span
+        className={`tabular-nums font-semibold ${
+          overLimit ? 'text-red-700' : nearLimit ? 'text-amber-700' : 'text-neutral-700'
+        }`}
+      >
+        {used} / {cap}
+      </span>
+      <span className="hidden h-1.5 w-24 overflow-hidden rounded-full bg-neutral-200 sm:inline-block">
+        <span
+          className={`block h-full ${barCls}`}
+          style={{ width: `${pct}%` }}
+        />
+      </span>
+      <span className="text-neutral-500">this month</span>
     </span>
   )
 }
