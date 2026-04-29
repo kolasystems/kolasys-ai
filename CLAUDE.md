@@ -6,7 +6,7 @@
 **Production:** https://app.kolasys.ai  
 **tRPC API:** `https://app.kolasys.ai/api/trpc`  
 **Mobile repo:** `~/Desktop/kolasys-ai-mobile` · `github.com/kolasystems/kolasys-ai-mobile`  
-**Last updated:** 2026-04-27
+**Last updated:** 2026-04-29
 
 ---
 
@@ -386,6 +386,11 @@ Geist — npm package, bundled (not Google Fonts). Pre-hydration dark mode scrip
 | word sync | Word-level audio sync — click word to seek audio (wordsJson on TranscriptSegment) |
 | `341e872` | Apple Watch Phase 2 — push token + Expo push on summarization complete |
 | `18ab7b8` | API keys — generate/revoke, REST v1 endpoints, Settings UI |
+| `1b56be1` | Admin portal v3 — admin management, trial controls, org notes, members viewer |
+| `5c78b22` | Admin portal phase 2 — usage limits, send email to org, export org data |
+| `fd6f396` | Admin portal phase 3 — stripe billing IDs, audit log, org suspension |
+| `9706898` | Fix: removed `import 'server-only'` from `template-matcher.service.ts` (was crashing the Railway summarization worker) |
+| `5997f2c` | Stripe billing — checkout, portal, webhook, billing page, updated pricing |
 
 ---
 
@@ -399,3 +404,207 @@ Geist — npm package, bundled (not Google Fonts). Pre-hydration dark mode scrip
 | tRPC root file | `src/server/root.ts` not `index.ts` — easy to confuse |
 | Clerk middleware public routes | Any new public route must be added to `src/proxy.ts` isPublicRoute array |
 | Worker NEXT_PUBLIC_APP_URL | Railway must have `https://app.kolasys.ai` — never localhost. Workers call tRPC to update status. |
+
+---
+
+## Admin Portal (April 29, 2026)
+
+`/admin` — internal cross-tenant dashboard. Hard-gated by the `AdminUser`
+table (Clerk session + email lookup). On first hit when the table is
+empty, `paul@kolasystems.com` is auto-seeded as `SUPER_ADMIN`.
+
+Built across three phases. **All 12 server actions write to
+`AdminAuditLog`** via a small `audit(ctx, action, fields)` helper that
+catches its own write failures so a flaky audit insert never breaks a
+successful mutation.
+
+### Phase 1 — Admin management + trial / notes / members
+- Admin Users panel: roster + add/remove forms (SUPER_ADMIN only).
+  Refuses to delete the last SUPER_ADMIN; can't remove self.
+- Trial controls per org card: Set 14d / Extend +7 / Expire (red),
+  with "X days left" / "Expired" / "No trial" badge.
+- Notes — collapsible, inline-editable textarea per org card.
+- Members panel — collapsible list of `OrgMember` rows + a placeholder
+  Transfer Ownership button (single tiny client component).
+
+### Phase 2 — Usage limits, email blast, JSON export
+- `Organization.maxRecordingsPerMonth` (0 = unlimited). Per-card usage
+  meter ("12 / 100 this month") with green/amber/red threshold.
+- Send Message to org — resolves every `OrgMember.userId` to a primary
+  email via `clerkClient().users.getUser()`, fans out via Resend with
+  subject `"Message from Kolasys AI"`. Per-card success/error banner
+  via redirect search params.
+- `GET /api/admin/export/[orgId]` — admin-gated JSON dump of org meta +
+  members + recordings (with transcripts, segments, notes, sections,
+  action items). Streamed as a `Content-Disposition: attachment`
+  download.
+
+### Phase 3 — Stripe billing fields, audit log, suspension
+- Per-card Billing row: read/write `stripeCustomerId` and
+  `stripeSubscriptionId` directly from the admin UI.
+- `Organization.suspended Boolean` + `suspendedReason String?`. Card
+  turns red-bordered with a SUSPENDED pill in the header. **Visual
+  only — `orgProcedure` and `/api/v1` do NOT yet enforce this. A
+  suspended org's users can still upload, transcribe, and use the app.**
+- Global Audit Log table at the bottom — last 50 entries with When /
+  Admin / Action (mono code badge) / Target (org name resolved when
+  `targetOrgId` is set) / Details. Note bodies and emailed message
+  payloads are recorded as `len=N` / `msgLen=N` to avoid leaking
+  sensitive content into the log.
+
+### Roles
+- `SUPER_ADMIN` — everything (incl. AdminUser CRUD)
+- `ADMIN` — every org-level mutation, no AdminUser CRUD
+- `SUPPORT` — read-only; mutating controls hidden or no-op
+
+### Files
+- `src/app/admin/page.tsx` — every section, every action, every helper
+- `src/app/api/admin/export/[orgId]/route.ts` — JSON export
+- `src/components/admin-transfer-ownership-button.tsx` — client placeholder
+
+---
+
+## Stripe Billing (April 29, 2026)
+
+End-to-end subscription billing — Checkout, Customer Portal, webhook,
+and an in-app billing page. **`stripe` v22.x installed.**
+
+### Files
+- `src/lib/stripe.ts` — lazy SDK singleton (Proxy defers
+  instantiation past the build's "collect page data" phase),
+  `PRICES` map, `ensureStripeCustomer`, `createOrgCheckoutSession`,
+  `createOrgPortalSession`, `planForPriceId`.
+- `src/app/api/stripe/checkout/route.ts` — POST, Clerk session.
+  Bootstraps the org row if missing, returns `{ url }`.
+- `src/app/api/stripe/portal/route.ts` — POST, Clerk session.
+  400 if no Stripe customer.
+- `src/app/api/stripe/webhook/route.ts` — POST, signature-verified
+  via `stripe-signature` + `STRIPE_WEBHOOK_SECRET`. Reads raw body
+  with `await request.text()`. Pages-Router `bodyParser: false`
+  config does nothing in App Router.
+- `src/server/routers/billing.router.ts` — `getSubscription` query,
+  `createCheckoutSession` + `createPortalSession` mutations.
+- `src/app/dashboard/billing/page.tsx` — current plan badge, trial
+  banner with days left, usage meter, Pro/Team upgrade cards on FREE
+  (with seat input for Team), Manage Subscription button on paid plans.
+
+### Env vars
+| Variable | Notes |
+|---|---|
+| `STRIPE_SECRET_KEY` | `sk_test_…` locally, `sk_live_…` on Vercel + Railway |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Reserved for future Stripe.js Elements use; not consumed by current code |
+| `STRIPE_WEBHOOK_SECRET` | Stripe Dashboard → Webhooks → endpoint signing secret |
+| `STRIPE_PRO_MONTHLY_PRICE_ID` | `price_1TReH9CSoXibpWfNkXad6PaK` (test) |
+| `STRIPE_PRO_YEARLY_PRICE_ID` | `price_1TReKGCSoXibpWfNx6C1HT1T` (test) |
+| `STRIPE_TEAM_MONTHLY_PRICE_ID` | `price_1TReOnCSoXibpWfNUod8NeTK` (test) |
+
+### Plans
+- **Pro** — $9.99/month or $99/year (save 17%). 14-day trial.
+- **Team** — $8.99/seat/month, min 3 seats. 14-day trial.
+- **Enterprise** — `mailto:` only.
+
+### Webhook events handled
+| Event | Behavior |
+|---|---|
+| `checkout.session.completed` | Reads `metadata.orgId`, retrieves the subscription, sets `stripeCustomerId` + `stripeSubscriptionId` + `plan` (via `planForPriceId`) + `trialStartedAt`/`trialEndsAt` |
+| `customer.subscription.updated` | Finds org by `stripeCustomerId`. Active or trialing → plan from price; anything else → drops to FREE. Trial end synced. |
+| `customer.subscription.deleted` | Sets plan = FREE, clears subscriptionId + trialEndsAt |
+| `invoice.payment_failed` | Logs to console for now (TODO: dunning email via Resend) |
+
+### Webhook setup
+Stripe Dashboard → Developers → Webhooks → Add endpoint
+- URL: `https://app.kolasys.ai/api/stripe/webhook`
+- Events: `checkout.session.completed`, `customer.subscription.updated`,
+  `customer.subscription.deleted`, `invoice.payment_failed`
+- Copy the signing secret into `STRIPE_WEBHOOK_SECRET`
+
+### Known issues / followups
+- **Team → ENTERPRISE in DB.** The `Plan` enum has no `TEAM` value, so
+  `planForPriceId` maps the Team monthly price to `ENTERPRISE`. This
+  conflates two distinct tiers. Follow-up: add `TEAM` to the enum,
+  update `planForPriceId`, and run `prisma db push`.
+- **`apiVersion: '2025-01-27.acacia'`** is older than Stripe v22's
+  pinned `'2026-04-22.dahlia'`. Per Stripe docs we suppress the
+  literal-narrowing error with `@ts-expect-error`. If the account is
+  upgraded, drop the suppression and switch to `'2026-04-22.dahlia'`.
+- **`bodyParser: false` is App-Router-irrelevant.** `await request.text()`
+  is sufficient for `stripe.webhooks.constructEvent`.
+- **Suspended orgs can still pay.** Billing flow doesn't gate against
+  `Organization.suspended`. Same gap as the rest of the app.
+
+---
+
+## Railway Workers — operational notes (April 29, 2026)
+
+- Both workers (`transcription` + `summarization`) **migrated to US
+  East (Virginia)** for proximity to Neon.
+- **Account upgraded to Hobby plan** so the workers can run 24/7
+  without the free-tier sleep timeout.
+- **Summarization worker crash root-caused.** Symptom: worker died
+  on startup with `"You're importing a component that needs
+  server-only..."` and 5 jobs piled up in `summarizationQueue.waiting`
+  while `active=0`. Cause: `import 'server-only'` in
+  `src/services/template-matcher.service.ts` — added defensively when
+  auto-apply templates shipped, but the package throws unconditionally
+  outside a Next.js bundle. **Fixed in `9706898`** by removing the
+  marker; client safety is enforced anyway because the file imports
+  `@/lib/db` (Prisma is Node-only). Verified locally with
+  `npx tsx -e "import('./src/workers/summarization.worker.ts')"`.
+
+### Worker health visibility
+- Heartbeat: each worker logs `[<name>] alive — processed N jobs,
+  last job: <id>` every 60 s. Gaps >60 s = the worker is hung in a
+  Claude/Whisper call or has crashed silently.
+- The /admin Worker Health card pulls `getJobCounts()` from BullMQ
+  live on every page load. `Healthy` = waiting≤5 + failed≤10,
+  `Degraded` = waiting>5, `Down` = failed>10.
+
+---
+
+## Schema changes (April 29, 2026)
+
+Pushed via `npx prisma db push` (no formal migrations — Neon
+schema-first workflow).
+
+### New enum
+```prisma
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  SUPPORT
+}
+```
+
+### New models
+```prisma
+model AdminUser {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  role      AdminRole @default(ADMIN)
+  addedBy   String?
+  createdAt DateTime  @default(now())
+}
+
+model AdminAuditLog {
+  id          String   @id @default(cuid())
+  adminEmail  String
+  action      String
+  targetOrgId String?
+  targetEmail String?
+  details     String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@index([targetOrgId])
+}
+```
+
+### New `Organization` columns
+- `trialStartedAt DateTime?`
+- `trialEndsAt DateTime?`
+- `notes String?`
+- `maxRecordingsPerMonth Int @default(0)` (0 = unlimited)
+- `stripeCustomerId String?`
+- `stripeSubscriptionId String?`
+- `suspended Boolean @default(false)`
+- `suspendedReason String?`
