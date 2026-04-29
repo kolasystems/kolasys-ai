@@ -1,46 +1,89 @@
-// Kolasys AI — Internal admin dashboard. Hard-gated to paul@kolasystems.com
-// because it shows cross-tenant data (every org's stats). Anyone else lands
-// on the regular dashboard.
+// Kolasys AI — Internal admin dashboard.
+// Access controlled by the `AdminUser` table (seeded with paul@kolasystems.com
+// as SUPER_ADMIN on first hit when empty). Server component throughout —
+// the only client surface is the placeholder Transfer Ownership button.
 
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
-import { RefreshCcw, AlertTriangle } from 'lucide-react'
+import {
+  RefreshCcw,
+  AlertTriangle,
+  ChevronDown,
+  Trash2,
+  UserPlus,
+} from 'lucide-react'
 import { db } from '@/lib/db'
 import { summarizationQueue, transcriptionQueue } from '@/lib/queues'
-import { Plan } from '@/generated/prisma/client'
+import { Plan, AdminRole } from '@/generated/prisma/client'
 import { KolasysLogoMark } from '@/components/kolasys-logo'
+import { TransferOwnershipButton } from '@/components/admin-transfer-ownership-button'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Admin — Kolasys AI' }
 
-const ADMIN_EMAIL = 'paul@kolasystems.com'
+const BOOTSTRAP_EMAIL = 'paul@kolasystems.com'
 
-// Plan rotation. Schema has FREE/PRO/ENTERPRISE only — no TEAM — so the
-// "FREE → PRO → TEAM → FREE" cycle in the spec maps to the real enum here.
+// Plan rotation. Schema enum: FREE / PRO / ENTERPRISE only — no TEAM.
 const PLAN_CYCLE: Record<Plan, Plan> = {
   [Plan.FREE]: Plan.PRO,
   [Plan.PRO]: Plan.ENTERPRISE,
   [Plan.ENTERPRISE]: Plan.FREE,
 }
 
-// ── Server action: cycle an org's plan ─────────────────────────────────────
+// ── Auth resolution ────────────────────────────────────────────────────────
+type AdminCtx = { email: string; role: AdminRole; id: string } | null
+
+/**
+ * Look up the current Clerk user in AdminUser. On first ever call (table
+ * empty) seed paul@kolasystems.com as SUPER_ADMIN so the portal has at
+ * least one super admin.
+ */
+async function resolveAdmin(): Promise<AdminCtx> {
+  const user = await currentUser()
+  if (!user) return null
+
+  const total = await db.adminUser.count()
+  if (total === 0) {
+    try {
+      await db.adminUser.create({
+        data: { email: BOOTSTRAP_EMAIL, role: AdminRole.SUPER_ADMIN, addedBy: 'system' },
+      })
+    } catch {
+      // race — another request seeded first; fine.
+    }
+  }
+
+  for (const e of user.emailAddresses) {
+    const match = await db.adminUser.findFirst({
+      where: { email: e.emailAddress.toLowerCase() },
+      select: { id: true, email: true, role: true },
+    })
+    if (match) return match
+  }
+  return null
+}
+
+function requireRole(ctx: AdminCtx, allowed: AdminRole[]): boolean {
+  if (!ctx) return false
+  return allowed.includes(ctx.role)
+}
+
+// ── Server actions ─────────────────────────────────────────────────────────
+
 async function cyclePlanAction(formData: FormData) {
   'use server'
+  const ctx = await resolveAdmin()
+  if (!requireRole(ctx, [AdminRole.SUPER_ADMIN, AdminRole.ADMIN])) return
+
   const orgId = String(formData.get('orgId') ?? '')
   if (!orgId) return
-
-  // Re-check admin gate inside the action — never trust the form.
-  const user = await currentUser()
-  if (!isAdmin(user)) return
-
   const org = await db.organization.findFirst({
     where: { id: orgId },
     select: { plan: true },
   })
   if (!org) return
-
   await db.organization.update({
     where: { id: orgId },
     data: { plan: PLAN_CYCLE[org.plan] },
@@ -48,11 +91,127 @@ async function cyclePlanAction(formData: FormData) {
   revalidatePath('/admin')
 }
 
-function isAdmin(user: Awaited<ReturnType<typeof currentUser>>): boolean {
-  if (!user) return false
-  return user.emailAddresses.some(
-    (e) => e.emailAddress.toLowerCase() === ADMIN_EMAIL,
-  )
+async function addAdminAction(formData: FormData) {
+  'use server'
+  const ctx = await resolveAdmin()
+  if (!requireRole(ctx, [AdminRole.SUPER_ADMIN])) return
+
+  const email = String(formData.get('email') ?? '').trim().toLowerCase()
+  const roleRaw = String(formData.get('role') ?? '').toUpperCase()
+  if (!email || !email.includes('@')) return
+  const role: AdminRole =
+    roleRaw === 'ADMIN' || roleRaw === 'SUPPORT' || roleRaw === 'SUPER_ADMIN'
+      ? (roleRaw as AdminRole)
+      : AdminRole.ADMIN
+
+  const existing = await db.adminUser.findFirst({ where: { email }, select: { id: true } })
+  if (existing) {
+    await db.adminUser.update({ where: { id: existing.id }, data: { role } })
+  } else {
+    await db.adminUser.create({
+      data: { email, role, addedBy: ctx!.email },
+    })
+  }
+  revalidatePath('/admin')
+}
+
+async function removeAdminAction(formData: FormData) {
+  'use server'
+  const ctx = await resolveAdmin()
+  if (!requireRole(ctx, [AdminRole.SUPER_ADMIN])) return
+
+  const id = String(formData.get('id') ?? '')
+  if (!id) return
+  // Never remove yourself.
+  if (id === ctx!.id) return
+
+  // Refuse to delete the last SUPER_ADMIN.
+  const target = await db.adminUser.findFirst({ where: { id }, select: { role: true } })
+  if (!target) return
+  if (target.role === AdminRole.SUPER_ADMIN) {
+    const superCount = await db.adminUser.count({ where: { role: AdminRole.SUPER_ADMIN } })
+    if (superCount <= 1) return
+  }
+
+  await db.adminUser.delete({ where: { id } })
+  revalidatePath('/admin')
+}
+
+async function setTrialAction(formData: FormData) {
+  'use server'
+  const ctx = await resolveAdmin()
+  if (!requireRole(ctx, [AdminRole.SUPER_ADMIN, AdminRole.ADMIN])) return
+
+  const orgId = String(formData.get('orgId') ?? '')
+  const days = Number(formData.get('days') ?? 14)
+  if (!orgId || !Number.isFinite(days) || days <= 0) return
+
+  const now = new Date()
+  const end = new Date(now.getTime() + days * 24 * 60 * 60 * 1000)
+  await db.organization.update({
+    where: { id: orgId },
+    data: { trialStartedAt: now, trialEndsAt: end },
+  })
+  revalidatePath('/admin')
+}
+
+async function extendTrialAction(formData: FormData) {
+  'use server'
+  const ctx = await resolveAdmin()
+  if (!requireRole(ctx, [AdminRole.SUPER_ADMIN, AdminRole.ADMIN])) return
+
+  const orgId = String(formData.get('orgId') ?? '')
+  const days = Number(formData.get('days') ?? 7)
+  if (!orgId || !Number.isFinite(days) || days <= 0) return
+
+  const org = await db.organization.findFirst({
+    where: { id: orgId },
+    select: { trialEndsAt: true, trialStartedAt: true },
+  })
+  if (!org) return
+
+  const now = new Date()
+  // If no trial yet (or expired), base extension off "now"; otherwise extend.
+  const base =
+    org.trialEndsAt && org.trialEndsAt > now ? org.trialEndsAt : now
+  const newEnd = new Date(base.getTime() + days * 24 * 60 * 60 * 1000)
+  await db.organization.update({
+    where: { id: orgId },
+    data: {
+      trialEndsAt: newEnd,
+      trialStartedAt: org.trialStartedAt ?? now,
+    },
+  })
+  revalidatePath('/admin')
+}
+
+async function expireTrialAction(formData: FormData) {
+  'use server'
+  const ctx = await resolveAdmin()
+  if (!requireRole(ctx, [AdminRole.SUPER_ADMIN, AdminRole.ADMIN])) return
+
+  const orgId = String(formData.get('orgId') ?? '')
+  if (!orgId) return
+  await db.organization.update({
+    where: { id: orgId },
+    data: { trialEndsAt: new Date() },
+  })
+  revalidatePath('/admin')
+}
+
+async function addOrgNoteAction(formData: FormData) {
+  'use server'
+  const ctx = await resolveAdmin()
+  if (!requireRole(ctx, [AdminRole.SUPER_ADMIN, AdminRole.ADMIN])) return
+
+  const orgId = String(formData.get('orgId') ?? '')
+  const notes = String(formData.get('notes') ?? '').slice(0, 4000)
+  if (!orgId) return
+  await db.organization.update({
+    where: { id: orgId },
+    data: { notes: notes || null },
+  })
+  revalidatePath('/admin')
 }
 
 // ── Formatters ─────────────────────────────────────────────────────────────
@@ -82,7 +241,20 @@ function relativeTime(d: Date | null): string {
   return fmtDate(d)
 }
 
-// ── Queue health classification ────────────────────────────────────────────
+// ── Trial classification ───────────────────────────────────────────────────
+type TrialStatus =
+  | { kind: 'none' }
+  | { kind: 'active'; daysLeft: number }
+  | { kind: 'expired' }
+
+function classifyTrial(end: Date | null): TrialStatus {
+  if (!end) return { kind: 'none' }
+  const ms = end.getTime() - Date.now()
+  if (ms <= 0) return { kind: 'expired' }
+  return { kind: 'active', daysLeft: Math.max(1, Math.ceil(ms / (24 * 60 * 60 * 1000))) }
+}
+
+// ── Queue health ───────────────────────────────────────────────────────────
 type QueueCounts = {
   waiting: number
   active: number
@@ -91,14 +263,12 @@ type QueueCounts = {
   delayed: number
   paused: number
 }
-
 type Health = 'healthy' | 'degraded' | 'down'
 function classifyHealth(c: QueueCounts): Health {
   if (c.failed > 10) return 'down'
   if (c.waiting > 5) return 'degraded'
   return 'healthy'
 }
-
 const HEALTH_STYLE: Record<Health, { label: string; cls: string }> = {
   healthy: { label: 'Healthy', cls: 'bg-green-100 text-green-800 border-green-200' },
   degraded: { label: 'Degraded', cls: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
@@ -110,15 +280,16 @@ export default async function AdminPage() {
   const { userId } = await auth()
   if (!userId) redirect('/sign-in')
 
-  const user = await currentUser()
-  if (!isAdmin(user)) redirect('/dashboard')
+  const ctx = await resolveAdmin()
+  if (!ctx) redirect('/dashboard')
+
+  const isSuper = ctx.role === AdminRole.SUPER_ADMIN
+  const canMutate = ctx.role === AdminRole.SUPER_ADMIN || ctx.role === AdminRole.ADMIN
 
   const now = new Date()
   const day = new Date(now.getTime() - 24 * 60 * 60 * 1000)
   const week = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-  const month = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
 
-  // ── Cross-tenant queries (parallel) ──────────────────────────────────────
   const [
     orgs,
     allRecordings,
@@ -126,10 +297,20 @@ export default async function AdminPage() {
     recentRecordings,
     sumCounts,
     trCounts,
+    admins,
   ] = await Promise.all([
     db.organization.findMany({
       orderBy: { createdAt: 'desc' },
-      select: { id: true, name: true, slug: true, plan: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        plan: true,
+        createdAt: true,
+        trialStartedAt: true,
+        trialEndsAt: true,
+        notes: true,
+      },
     }),
     db.recording.findMany({
       select: { orgId: true, duration: true, createdAt: true, status: true },
@@ -153,12 +334,21 @@ export default async function AdminPage() {
     transcriptionQueue.getJobCounts(
       'waiting', 'active', 'delayed', 'failed', 'completed', 'paused',
     ) as Promise<QueueCounts>,
+    db.adminUser.findMany({
+      orderBy: [{ role: 'asc' }, { createdAt: 'asc' }],
+      select: { id: true, email: true, role: true, addedBy: true, createdAt: true },
+    }),
   ])
 
-  // ── Per-org rollups ──────────────────────────────────────────────────────
-  const memberCounts = await Promise.all(
-    orgs.map((o) => db.orgMember.count({ where: { orgId: o.id } })),
-  )
+  // Per-org rollups + members
+  const [memberCounts, allMembers] = await Promise.all([
+    Promise.all(orgs.map((o) => db.orgMember.count({ where: { orgId: o.id } }))),
+    db.orgMember.findMany({
+      where: { orgId: { in: orgs.map((o) => o.id) } },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, orgId: true, userId: true, role: true, createdAt: true },
+    }),
+  ])
 
   const rows = orgs.map((org, i) => {
     const orgRecs = allRecordings.filter((r) => r.orgId === org.id)
@@ -168,12 +358,11 @@ export default async function AdminPage() {
       return acc
     }, null)
     const recentRec = orgRecs.some((r) => r.createdAt >= week)
-    const status: 'active' | 'new' | 'inactive' =
-      recentRec
-        ? 'active'
-        : orgRecs.length === 0 && org.createdAt >= week
-          ? 'new'
-          : 'inactive'
+    const status: 'active' | 'new' | 'inactive' = recentRec
+      ? 'active'
+      : orgRecs.length === 0 && org.createdAt >= week
+        ? 'new'
+        : 'inactive'
 
     return {
       ...org,
@@ -182,16 +371,17 @@ export default async function AdminPage() {
       totalDuration,
       lastActive,
       status,
+      members: allMembers.filter((m) => m.orgId === org.id),
+      trial: classifyTrial(org.trialEndsAt),
     }
   })
 
-  // ── Top stats ────────────────────────────────────────────────────────────
+  // Top stats
   const totalOrgs = rows.length
   const totalUsers = memberCounts.reduce((s, n) => s + n, 0)
   const totalRecordings = allRecordings.length
   const totalSeconds = allRecordings.reduce((s, r) => s + (r.duration ?? 0), 0)
   const totalMinutes = Math.round(totalSeconds / 60)
-
   const orgsWithRecsLast24h = new Set(
     allRecordings.filter((r) => r.createdAt >= day).map((r) => r.orgId),
   ).size
@@ -199,13 +389,11 @@ export default async function AdminPage() {
   const avgRecordingSeconds =
     totalRecordings > 0 ? Math.round(totalSeconds / totalRecordings) : 0
 
-  // ── System banner ────────────────────────────────────────────────────────
   const stuckJobs = sumCounts.waiting + trCounts.waiting
   const showBanner = failedRecordingCount > 0 || stuckJobs > 5
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      {/* System banner */}
       {showBanner && (
         <div className="border-b border-red-200 bg-red-50">
           <div className="mx-auto flex max-w-6xl items-center gap-3 px-8 py-2.5">
@@ -228,7 +416,8 @@ export default async function AdminPage() {
                 <span style={{ color: '#CA2625' }}>Kolasys AI</span> Admin
               </h1>
               <p className="mt-0.5 text-sm text-neutral-500">
-                Internal cross-tenant overview · signed in as {ADMIN_EMAIL}
+                Signed in as {ctx.email}{' '}
+                <RoleBadge role={ctx.role} />
               </p>
             </div>
           </div>
@@ -247,7 +436,101 @@ export default async function AdminPage() {
           </div>
         </header>
 
-        {/* Top-level stats — 8 cards, 4-col on desktop, 2-col on mobile */}
+        {/* Admin Users panel */}
+        <section className="mb-8 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3">
+            <h2 className="text-sm font-semibold text-neutral-900">
+              Admin users ({admins.length})
+            </h2>
+            {!isSuper && (
+              <span className="text-xs text-neutral-500">
+                Only SUPER_ADMINs can manage admins
+              </span>
+            )}
+          </div>
+          <table className="w-full text-sm">
+            <thead className="bg-neutral-50 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600">
+              <tr>
+                <th className="px-4 py-3">Email</th>
+                <th className="px-4 py-3">Role</th>
+                <th className="px-4 py-3">Added by</th>
+                <th className="px-4 py-3">Added</th>
+                <th className="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-100">
+              {admins.map((a) => (
+                <tr key={a.id} className="hover:bg-neutral-50">
+                  <td className="px-4 py-3 font-medium text-neutral-900">{a.email}</td>
+                  <td className="px-4 py-3">
+                    <RoleBadge role={a.role} />
+                  </td>
+                  <td className="px-4 py-3 text-neutral-500">{a.addedBy ?? '—'}</td>
+                  <td className="px-4 py-3 text-neutral-500">{fmtDate(a.createdAt)}</td>
+                  <td className="px-4 py-3 text-right">
+                    {isSuper && a.id !== ctx.id ? (
+                      <form action={removeAdminAction} className="inline">
+                        <input type="hidden" name="id" value={a.id} />
+                        <button
+                          type="submit"
+                          className="inline-flex items-center gap-1 rounded-md border border-neutral-200 bg-white px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 hover:border-red-200"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                          Remove
+                        </button>
+                      </form>
+                    ) : (
+                      <span className="text-xs text-neutral-400">
+                        {a.id === ctx.id ? 'You' : '—'}
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {isSuper && (
+            <form
+              action={addAdminAction}
+              className="flex flex-wrap items-end gap-2 border-t border-neutral-100 bg-neutral-50 px-4 py-3"
+            >
+              <div className="flex-1">
+                <label className="mb-1 block text-xs font-medium text-neutral-600">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="new-admin@example.com"
+                  className="w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm focus:border-[#CA2625] focus:outline-none focus:ring-2 focus:ring-[#CA2625]/20"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-neutral-600">
+                  Role
+                </label>
+                <select
+                  name="role"
+                  defaultValue="ADMIN"
+                  className="rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm focus:border-[#CA2625] focus:outline-none focus:ring-2 focus:ring-[#CA2625]/20"
+                >
+                  <option value="ADMIN">ADMIN</option>
+                  <option value="SUPPORT">SUPPORT</option>
+                </select>
+              </div>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-1.5 rounded-md bg-[#CA2625] px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-[#b21f1f]"
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+                Add admin
+              </button>
+            </form>
+          )}
+        </section>
+
+        {/* Top-level stats — 8 cards */}
         <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Stat label="Organizations" value={totalOrgs.toLocaleString()} />
           <Stat label="Users" value={totalUsers.toLocaleString()} />
@@ -260,10 +543,7 @@ export default async function AdminPage() {
             value={failedRecordingCount.toLocaleString()}
             tone={failedRecordingCount > 0 ? 'warn' : 'default'}
           />
-          <Stat
-            label="Avg length"
-            value={fmtDuration(avgRecordingSeconds)}
-          />
+          <Stat label="Avg length" value={fmtDuration(avgRecordingSeconds)} />
         </div>
 
         {/* Worker health */}
@@ -277,72 +557,175 @@ export default async function AdminPage() {
           </div>
         </section>
 
-        {/* Orgs table */}
-        <section className="mb-8 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm">
-          <div className="border-b border-neutral-100 px-4 py-3">
-            <h2 className="text-sm font-semibold text-neutral-900">
-              Organizations ({rows.length})
-            </h2>
-          </div>
-          <table className="w-full text-sm">
-            <thead className="bg-neutral-50 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600">
-              <tr>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Plan</th>
-                <th className="px-4 py-3 text-right">Members</th>
-                <th className="px-4 py-3 text-right">Recordings</th>
-                <th className="px-4 py-3 text-right">Duration</th>
-                <th className="px-4 py-3">Last active</th>
-                <th className="px-4 py-3">Created</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100">
-              {rows.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="px-4 py-6 text-center text-neutral-500">
-                    No organizations yet.
-                  </td>
-                </tr>
-              )}
-              {rows.map((r) => (
-                <tr key={r.id} className="hover:bg-neutral-50">
-                  <td className="px-4 py-3">
-                    <div className="font-medium text-neutral-900">{r.name}</div>
-                    <div className="font-mono text-xs text-neutral-400">{r.slug}</div>
-                  </td>
-                  <td className="px-4 py-3">
+        {/* Org cards */}
+        <section className="mb-8 space-y-3">
+          <h2 className="text-sm font-semibold text-neutral-900">
+            Organizations ({rows.length})
+          </h2>
+
+          {rows.length === 0 && (
+            <p className="rounded-lg border border-neutral-200 bg-white p-6 text-center text-sm text-neutral-500 shadow-sm">
+              No organizations yet.
+            </p>
+          )}
+
+          {rows.map((r) => (
+            <article
+              key={r.id}
+              className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm"
+            >
+              {/* Card header — name + badges */}
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-neutral-100 px-4 py-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-neutral-900">{r.name}</h3>
                     <OrgStatusBadge status={r.status} />
-                  </td>
-                  <td className="px-4 py-3">
-                    <form action={cyclePlanAction}>
-                      <input type="hidden" name="orgId" value={r.id} />
-                      <button
-                        type="submit"
-                        className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-200"
-                        title="Click to cycle plan: FREE → PRO → ENTERPRISE → FREE"
-                      >
-                        {r.plan}
-                      </button>
-                    </form>
-                  </td>
-                  <td className="px-4 py-3 text-right tabular-nums text-neutral-700">
-                    {r.memberCount}
-                  </td>
-                  <td className="px-4 py-3 text-right tabular-nums text-neutral-700">
-                    {r.recordingCount}
-                  </td>
-                  <td className="px-4 py-3 text-right tabular-nums text-neutral-700">
-                    {fmtDuration(r.totalDuration)}
-                  </td>
-                  <td className="px-4 py-3 text-neutral-500" title={r.lastActive?.toISOString() ?? ''}>
-                    {relativeTime(r.lastActive)}
-                  </td>
-                  <td className="px-4 py-3 text-neutral-500">{fmtDate(r.createdAt)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <TrialBadge trial={r.trial} />
+                  </div>
+                  <p className="mt-0.5 font-mono text-[11px] text-neutral-400">{r.slug}</p>
+                </div>
+                {canMutate && (
+                  <form action={cyclePlanAction}>
+                    <input type="hidden" name="orgId" value={r.id} />
+                    <button
+                      type="submit"
+                      className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-200"
+                      title="Click to cycle plan: FREE → PRO → ENTERPRISE → FREE"
+                    >
+                      {r.plan}
+                    </button>
+                  </form>
+                )}
+              </div>
+
+              {/* Stats grid */}
+              <dl className="grid grid-cols-2 gap-px bg-neutral-100 sm:grid-cols-5">
+                <Cell label="Members" value={String(r.memberCount)} />
+                <Cell label="Recordings" value={String(r.recordingCount)} />
+                <Cell label="Duration" value={fmtDuration(r.totalDuration)} />
+                <Cell label="Last active" value={relativeTime(r.lastActive)} />
+                <Cell label="Created" value={fmtDate(r.createdAt)} />
+              </dl>
+
+              {/* Trial controls */}
+              {canMutate && (
+                <div className="flex flex-wrap items-center gap-2 border-t border-neutral-100 px-4 py-2.5">
+                  <span className="text-xs font-medium text-neutral-500">Trial:</span>
+                  <form action={setTrialAction}>
+                    <input type="hidden" name="orgId" value={r.id} />
+                    <input type="hidden" name="days" value="14" />
+                    <button
+                      type="submit"
+                      className="rounded-md border border-neutral-200 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
+                    >
+                      Set 14d
+                    </button>
+                  </form>
+                  <form action={extendTrialAction}>
+                    <input type="hidden" name="orgId" value={r.id} />
+                    <input type="hidden" name="days" value="7" />
+                    <button
+                      type="submit"
+                      className="rounded-md border border-neutral-200 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
+                    >
+                      Extend +7
+                    </button>
+                  </form>
+                  <form action={expireTrialAction}>
+                    <input type="hidden" name="orgId" value={r.id} />
+                    <button
+                      type="submit"
+                      className="rounded-md border border-red-200 bg-white px-2.5 py-1 text-xs font-medium text-red-700 hover:bg-red-50"
+                    >
+                      Expire
+                    </button>
+                  </form>
+                  {r.trialEndsAt && (
+                    <span
+                      className="text-xs text-neutral-500"
+                      title={r.trialEndsAt.toISOString()}
+                    >
+                      ends {fmtDate(r.trialEndsAt)}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Notes — inline editable */}
+              <details className="border-t border-neutral-100">
+                <summary className="flex cursor-pointer items-center gap-2 px-4 py-2.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50">
+                  <ChevronDown className="h-3 w-3" />
+                  Notes{' '}
+                  {r.notes ? (
+                    <span className="ml-1 truncate text-neutral-500">
+                      — {r.notes.slice(0, 80)}
+                      {r.notes.length > 80 && '…'}
+                    </span>
+                  ) : (
+                    <span className="ml-1 text-neutral-400">— none</span>
+                  )}
+                </summary>
+                {canMutate ? (
+                  <form
+                    action={addOrgNoteAction}
+                    className="space-y-2 border-t border-neutral-100 bg-neutral-50 px-4 py-3"
+                  >
+                    <input type="hidden" name="orgId" value={r.id} />
+                    <textarea
+                      name="notes"
+                      defaultValue={r.notes ?? ''}
+                      rows={3}
+                      placeholder="Internal notes about this org…"
+                      className="w-full rounded-md border border-neutral-300 bg-white px-2 py-1.5 text-sm focus:border-[#CA2625] focus:outline-none focus:ring-2 focus:ring-[#CA2625]/20"
+                    />
+                    <button
+                      type="submit"
+                      className="rounded-md bg-[#CA2625] px-3 py-1 text-xs font-semibold text-white hover:bg-[#b21f1f]"
+                    >
+                      Save notes
+                    </button>
+                  </form>
+                ) : (
+                  <p className="border-t border-neutral-100 bg-neutral-50 px-4 py-3 text-xs text-neutral-500">
+                    {r.notes || 'No notes — read-only role.'}
+                  </p>
+                )}
+              </details>
+
+              {/* Members */}
+              <details className="border-t border-neutral-100">
+                <summary className="flex cursor-pointer items-center gap-2 px-4 py-2.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50">
+                  <ChevronDown className="h-3 w-3" />
+                  Members ({r.memberCount})
+                </summary>
+                <div className="border-t border-neutral-100 bg-neutral-50 px-4 py-3">
+                  {r.members.length === 0 ? (
+                    <p className="text-xs text-neutral-500">No members.</p>
+                  ) : (
+                    <ul className="space-y-1.5">
+                      {r.members.map((m) => (
+                        <li
+                          key={m.id}
+                          className="flex flex-wrap items-center gap-2 text-xs text-neutral-700"
+                        >
+                          <span className="font-mono">{m.userId}</span>
+                          <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-neutral-600 ring-1 ring-neutral-200">
+                            {m.role}
+                          </span>
+                          <span className="text-neutral-400">
+                            joined {fmtDate(m.createdAt)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <div className="mt-3">
+                    <TransferOwnershipButton orgName={r.name} />
+                  </div>
+                </div>
+              </details>
+            </article>
+          ))}
         </section>
 
         {/* Recent recordings */}
@@ -395,7 +778,7 @@ export default async function AdminPage() {
   )
 }
 
-// ── Sub-components (server-only — plain rendering) ─────────────────────────
+// ── Sub-components ─────────────────────────────────────────────────────────
 
 function Stat({
   label,
@@ -430,16 +813,50 @@ function Stat({
   )
 }
 
+function Cell({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-white p-3">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">
+        {label}
+      </p>
+      <p className="mt-0.5 text-sm font-medium tabular-nums text-neutral-900">
+        {value}
+      </p>
+    </div>
+  )
+}
+
 function OrgStatusBadge({ status }: { status: 'active' | 'new' | 'inactive' }) {
   const map = {
     active: 'bg-green-100 text-green-800',
     new: 'bg-blue-100 text-blue-800',
     inactive: 'bg-neutral-100 text-neutral-600',
   }
-  const label = status[0].toUpperCase() + status.slice(1)
   return (
     <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${map[status]}`}>
-      {label}
+      {status[0].toUpperCase() + status.slice(1)}
+    </span>
+  )
+}
+
+function TrialBadge({ trial }: { trial: TrialStatus }) {
+  if (trial.kind === 'none') {
+    return (
+      <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-neutral-500">
+        No trial
+      </span>
+    )
+  }
+  if (trial.kind === 'expired') {
+    return (
+      <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-800">
+        Expired
+      </span>
+    )
+  }
+  return (
+    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-800">
+      {trial.daysLeft}d left
     </span>
   )
 }
@@ -457,6 +874,21 @@ function RecordingStatusBadge({ status }: { status: string }) {
   return (
     <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>
       {status}
+    </span>
+  )
+}
+
+function RoleBadge({ role }: { role: AdminRole }) {
+  const map: Record<AdminRole, string> = {
+    SUPER_ADMIN: 'bg-[#CA2625]/10 text-[#CA2625]',
+    ADMIN: 'bg-blue-100 text-blue-800',
+    SUPPORT: 'bg-neutral-100 text-neutral-700',
+  }
+  return (
+    <span
+      className={`ml-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${map[role]}`}
+    >
+      {role.replace('_', ' ')}
     </span>
   )
 }

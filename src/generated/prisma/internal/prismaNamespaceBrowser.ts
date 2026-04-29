@@ -66,7 +66,8 @@ export const ModelName = {
   ApiKey: 'ApiKey',
   TranscriptEmbedding: 'TranscriptEmbedding',
   KnowledgeEntity: 'KnowledgeEntity',
-  KnowledgeEntityRecording: 'KnowledgeEntityRecording'
+  KnowledgeEntityRecording: 'KnowledgeEntityRecording',
+  AdminUser: 'AdminUser'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -102,6 +103,9 @@ export const OrganizationScalarFieldEnum = {
   ssoEnabled: 'ssoEnabled',
   ssoDomain: 'ssoDomain',
   samlMetadataUrl: 'samlMetadataUrl',
+  trialStartedAt: 'trialStartedAt',
+  trialEndsAt: 'trialEndsAt',
+  notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -337,6 +341,17 @@ export const KnowledgeEntityRecordingScalarFieldEnum = {
 } as const
 
 export type KnowledgeEntityRecordingScalarFieldEnum = (typeof KnowledgeEntityRecordingScalarFieldEnum)[keyof typeof KnowledgeEntityRecordingScalarFieldEnum]
+
+
+export const AdminUserScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  role: 'role',
+  addedBy: 'addedBy',
+  createdAt: 'createdAt'
+} as const
+
+export type AdminUserScalarFieldEnum = (typeof AdminUserScalarFieldEnum)[keyof typeof AdminUserScalarFieldEnum]
 
 
 export const SortOrder = {

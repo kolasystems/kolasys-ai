@@ -799,10 +799,6 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type RecordingCreateNestedOneWithoutTranscriptInput = {
   create?: Prisma.XOR<Prisma.RecordingCreateWithoutTranscriptInput, Prisma.RecordingUncheckedCreateWithoutTranscriptInput>
   connectOrCreate?: Prisma.RecordingCreateOrConnectWithoutTranscriptInput

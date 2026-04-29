@@ -106,3 +106,12 @@ export const KnowledgeEntityType = {
 } as const
 
 export type KnowledgeEntityType = (typeof KnowledgeEntityType)[keyof typeof KnowledgeEntityType]
+
+
+export const AdminRole = {
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  ADMIN: 'ADMIN',
+  SUPPORT: 'SUPPORT'
+} as const
+
+export type AdminRole = (typeof AdminRole)[keyof typeof AdminRole]

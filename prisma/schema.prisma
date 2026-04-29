@@ -115,6 +115,12 @@ model Organization {
   ssoEnabled                    Boolean @default(false)
   ssoDomain                     String?
   samlMetadataUrl               String?
+  // Trial tracking — managed via the /admin portal. trialStartedAt records
+  // when the trial began, trialEndsAt is the cutoff. Both null = no trial.
+  trialStartedAt                DateTime?
+  trialEndsAt                   DateTime?
+  // Free-form admin notes (only visible in /admin, never to the org itself).
+  notes                         String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
@@ -418,4 +424,24 @@ model KnowledgeEntityRecording {
 
   @@unique([entityId, recordingId])
   @@index([recordingId])
+}
+
+// ── Admin portal access control ──────────────────────────────────────────────
+// Users in this table can sign into /admin (gated by Clerk first, then by
+// their email's presence here). Role determines what they can do once in.
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  SUPPORT
+}
+
+model AdminUser {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  role      AdminRole @default(ADMIN)
+  // Email of the SUPER_ADMIN who added this row, or "system" for the
+  // bootstrap seed.
+  addedBy   String?
+  createdAt DateTime  @default(now())
 }
