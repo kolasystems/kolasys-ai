@@ -17,7 +17,12 @@ type UploadState =
   | { kind: 'error'; message: string }
   | { kind: 'done' }
 
-const ACCEPT = 'audio/*,video/*'
+// Audio-only — explicit extensions plus the MIME wildcard so iOS Safari
+// surfaces Voice Memos in the share-picker alongside Files. `.caf` is the
+// Core Audio Format Voice Memos uses natively; `.mp4` covers the
+// audio-only mp4 container used when memos are exported. Dropping
+// `video/*` removes the "Take Video" affordance from iOS.
+const ACCEPT = 'audio/*,.m4a,.mp3,.wav,.aac,.ogg,.flac,.mp4,.caf'
 const MAX_SIZE = 500 * 1024 * 1024 // 500 MB
 
 function defaultTitleFor(file: File): string {
@@ -110,10 +115,11 @@ export function QuickVoiceUploadButton() {
         type="button"
         onClick={pickFile}
         disabled={inFlight}
+        title="Upload audio or Voice Memo"
         className="flex min-h-[44px] items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2 text-sm font-medium text-primary shadow-sm transition-colors hover:bg-[color-mix(in_srgb,var(--text-muted)_8%,transparent)] disabled:cursor-not-allowed disabled:opacity-60"
       >
         <Upload className="h-4 w-4" />
-        Upload
+        Upload audio or Voice Memo
       </button>
 
       <UploadStatus state={state} onDismiss={() => setState({ kind: 'idle' })} />

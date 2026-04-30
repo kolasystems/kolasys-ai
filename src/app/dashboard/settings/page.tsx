@@ -146,28 +146,24 @@ export default async function SettingsPage() {
         {/* API Keys — live */}
         <ApiKeysSection />
 
-        {/* Coming soon */}
-        {[
-          { icon: <CreditCard className="h-4 w-4 text-neutral-500 dark:text-gray-400" />, title: 'Billing', note: 'Manage your plan and payment method.' },
-        ].map(({ icon, title, note }) => (
-          <section
-            key={title}
-            className="rounded-xl border border-neutral-200 bg-white opacity-60 shadow-sm dark:border-white/10 dark:bg-[#1A1A24]"
-          >
-            <div className="flex items-center justify-between px-6 py-4">
-              <div className="flex items-center gap-3">
-                {icon}
-                <div>
-                  <p className="text-sm font-semibold text-neutral-900 dark:text-white">{title}</p>
-                  <p className="text-xs text-neutral-500 dark:text-gray-400">{note}</p>
-                </div>
+        {/* Billing — live */}
+        <Link
+          href="/dashboard/billing"
+          className="block rounded-xl border border-neutral-200 bg-white shadow-sm transition-colors hover:border-brand-300 hover:bg-brand-50/30 dark:border-white/10 dark:bg-[#1A1A24] dark:hover:border-accent/50 dark:hover:bg-accent/10"
+        >
+          <div className="flex items-center justify-between px-6 py-4">
+            <div className="flex items-center gap-3">
+              <CreditCard className="h-4 w-4 text-brand-600 dark:text-accent" />
+              <div>
+                <p className="text-sm font-semibold text-neutral-900 dark:text-white">Billing</p>
+                <p className="text-xs text-neutral-500 dark:text-gray-400">
+                  Manage your plan and payment method.
+                </p>
               </div>
-              <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-500 dark:bg-white/10 dark:text-gray-300">
-                Coming soon
-              </span>
             </div>
-          </section>
-        ))}
+            <ArrowRight className="h-4 w-4 text-neutral-400 dark:text-gray-500" />
+          </div>
+        </Link>
       </div>
     </div>
   )
