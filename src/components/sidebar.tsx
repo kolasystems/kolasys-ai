@@ -21,6 +21,7 @@ import {
   ListChecks,
   Mic2,
   Plug,
+  Scissors,
   Settings,
   Sparkles,
   Users,
@@ -198,6 +199,12 @@ export function CollapsibleSidebar() {
         <div className="my-1 w-full border-t border-neutral-100 dark:border-white/10" aria-hidden />
 
         {/* Group 3 — scheduling + admin */}
+        <DashboardNavLink
+          href="/dashboard/soundbites"
+          icon={<Scissors className={ICON} strokeWidth={STROKE} />}
+          label="Soundbites"
+          collapsed={collapsed}
+        />
         <DashboardNavLink
           href="/dashboard/calendar"
           icon={<Calendar className={ICON} strokeWidth={STROKE} />}

@@ -20,6 +20,7 @@ import {
   Users,
   Brain,
   CreditCard,
+  Scissors,
 } from 'lucide-react'
 import { UserButton, OrganizationSwitcher } from '@clerk/nextjs'
 import { cn } from '@/lib/utils'
@@ -34,6 +35,7 @@ const NAV_LINKS = [
   { href: '/dashboard/contacts', label: 'Contacts', icon: Users },
   { href: '/dashboard/knowledge', label: 'Knowledge', icon: Brain },
   { href: '/dashboard/search', label: 'Ask AI', icon: Sparkles },
+  { href: '/dashboard/soundbites', label: 'Soundbites', icon: Scissors },
   { href: '/dashboard/calendar', label: 'Calendar', icon: Calendar },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings, exact: true },
   { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },

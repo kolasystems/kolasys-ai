@@ -401,7 +401,9 @@ export const ModelName = {
   KnowledgeEntity: 'KnowledgeEntity',
   KnowledgeEntityRecording: 'KnowledgeEntityRecording',
   AdminUser: 'AdminUser',
-  AdminAuditLog: 'AdminAuditLog'
+  AdminAuditLog: 'AdminAuditLog',
+  Soundbite: 'Soundbite',
+  WebPushSubscription: 'WebPushSubscription'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -417,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "organization" | "orgMember" | "recording" | "transcript" | "transcriptSegment" | "speakerLabel" | "note" | "noteSection" | "actionItem" | "noteComment" | "noteTemplate" | "processingJob" | "apiKey" | "transcriptEmbedding" | "knowledgeEntity" | "knowledgeEntityRecording" | "adminUser" | "adminAuditLog"
+    modelProps: "organization" | "orgMember" | "recording" | "transcript" | "transcriptSegment" | "speakerLabel" | "note" | "noteSection" | "actionItem" | "noteComment" | "noteTemplate" | "processingJob" | "apiKey" | "transcriptEmbedding" | "knowledgeEntity" | "knowledgeEntityRecording" | "adminUser" | "adminAuditLog" | "soundbite" | "webPushSubscription"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1753,6 +1755,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Soundbite: {
+      payload: Prisma.$SoundbitePayload<ExtArgs>
+      fields: Prisma.SoundbiteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SoundbiteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SoundbitePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SoundbiteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SoundbitePayload>
+        }
+        findFirst: {
+          args: Prisma.SoundbiteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SoundbitePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SoundbiteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SoundbitePayload>
+        }
+        findMany: {
+          args: Prisma.SoundbiteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SoundbitePayload>[]
+        }
+        create: {
+          args: Prisma.SoundbiteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SoundbitePayload>
+        }
+        createMany: {
+          args: Prisma.SoundbiteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SoundbiteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SoundbitePayload>[]
+        }
+        delete: {
+          args: Prisma.SoundbiteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SoundbitePayload>
+        }
+        update: {
+          args: Prisma.SoundbiteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SoundbitePayload>
+        }
+        deleteMany: {
+          args: Prisma.SoundbiteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SoundbiteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SoundbiteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SoundbitePayload>[]
+        }
+        upsert: {
+          args: Prisma.SoundbiteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SoundbitePayload>
+        }
+        aggregate: {
+          args: Prisma.SoundbiteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSoundbite>
+        }
+        groupBy: {
+          args: Prisma.SoundbiteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SoundbiteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SoundbiteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SoundbiteCountAggregateOutputType> | number
+        }
+      }
+    }
+    WebPushSubscription: {
+      payload: Prisma.$WebPushSubscriptionPayload<ExtArgs>
+      fields: Prisma.WebPushSubscriptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WebPushSubscriptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WebPushSubscriptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>
+        }
+        findFirst: {
+          args: Prisma.WebPushSubscriptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WebPushSubscriptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>
+        }
+        findMany: {
+          args: Prisma.WebPushSubscriptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>[]
+        }
+        create: {
+          args: Prisma.WebPushSubscriptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>
+        }
+        createMany: {
+          args: Prisma.WebPushSubscriptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WebPushSubscriptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>[]
+        }
+        delete: {
+          args: Prisma.WebPushSubscriptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>
+        }
+        update: {
+          args: Prisma.WebPushSubscriptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.WebPushSubscriptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WebPushSubscriptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WebPushSubscriptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>[]
+        }
+        upsert: {
+          args: Prisma.WebPushSubscriptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WebPushSubscriptionPayload>
+        }
+        aggregate: {
+          args: Prisma.WebPushSubscriptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWebPushSubscription>
+        }
+        groupBy: {
+          args: Prisma.WebPushSubscriptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WebPushSubscriptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WebPushSubscriptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WebPushSubscriptionCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1857,6 +2007,8 @@ export const RecordingScalarFieldEnum = {
   scheduledAt: 'scheduledAt',
   startedAt: 'startedAt',
   endedAt: 'endedAt',
+  isPublic: 'isPublic',
+  publicSlug: 'publicSlug',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2076,6 +2228,32 @@ export const AdminAuditLogScalarFieldEnum = {
 } as const
 
 export type AdminAuditLogScalarFieldEnum = (typeof AdminAuditLogScalarFieldEnum)[keyof typeof AdminAuditLogScalarFieldEnum]
+
+
+export const SoundbiteScalarFieldEnum = {
+  id: 'id',
+  recordingId: 'recordingId',
+  orgId: 'orgId',
+  title: 'title',
+  startSeconds: 'startSeconds',
+  endSeconds: 'endSeconds',
+  transcript: 'transcript',
+  createdAt: 'createdAt'
+} as const
+
+export type SoundbiteScalarFieldEnum = (typeof SoundbiteScalarFieldEnum)[keyof typeof SoundbiteScalarFieldEnum]
+
+
+export const WebPushSubscriptionScalarFieldEnum = {
+  id: 'id',
+  orgMemberId: 'orgMemberId',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  createdAt: 'createdAt'
+} as const
+
+export type WebPushSubscriptionScalarFieldEnum = (typeof WebPushSubscriptionScalarFieldEnum)[keyof typeof WebPushSubscriptionScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2475,6 +2653,8 @@ export type GlobalOmitConfig = {
   knowledgeEntityRecording?: Prisma.KnowledgeEntityRecordingOmit
   adminUser?: Prisma.AdminUserOmit
   adminAuditLog?: Prisma.AdminAuditLogOmit
+  soundbite?: Prisma.SoundbiteOmit
+  webPushSubscription?: Prisma.WebPushSubscriptionOmit
 }
 
 /* Types for Logging */

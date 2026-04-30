@@ -55,6 +55,8 @@ export type RecordingMinAggregateOutputType = {
   scheduledAt: Date | null
   startedAt: Date | null
   endedAt: Date | null
+  isPublic: boolean | null
+  publicSlug: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -78,6 +80,8 @@ export type RecordingMaxAggregateOutputType = {
   scheduledAt: Date | null
   startedAt: Date | null
   endedAt: Date | null
+  isPublic: boolean | null
+  publicSlug: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -101,6 +105,8 @@ export type RecordingCountAggregateOutputType = {
   scheduledAt: number
   startedAt: number
   endedAt: number
+  isPublic: number
+  publicSlug: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -136,6 +142,8 @@ export type RecordingMinAggregateInputType = {
   scheduledAt?: true
   startedAt?: true
   endedAt?: true
+  isPublic?: true
+  publicSlug?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -159,6 +167,8 @@ export type RecordingMaxAggregateInputType = {
   scheduledAt?: true
   startedAt?: true
   endedAt?: true
+  isPublic?: true
+  publicSlug?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -182,6 +192,8 @@ export type RecordingCountAggregateInputType = {
   scheduledAt?: true
   startedAt?: true
   endedAt?: true
+  isPublic?: true
+  publicSlug?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -292,6 +304,8 @@ export type RecordingGroupByOutputType = {
   scheduledAt: Date | null
   startedAt: Date | null
   endedAt: Date | null
+  isPublic: boolean
+  publicSlug: string | null
   createdAt: Date
   updatedAt: Date
   _count: RecordingCountAggregateOutputType | null
@@ -338,6 +352,8 @@ export type RecordingWhereInput = {
   scheduledAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
+  isPublic?: Prisma.BoolFilter<"Recording"> | boolean
+  publicSlug?: Prisma.StringNullableFilter<"Recording"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   org?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -346,6 +362,7 @@ export type RecordingWhereInput = {
   jobs?: Prisma.ProcessingJobListRelationFilter
   speakerLabels?: Prisma.SpeakerLabelListRelationFilter
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingListRelationFilter
+  soundbites?: Prisma.SoundbiteListRelationFilter
 }
 
 export type RecordingOrderByWithRelationInput = {
@@ -367,6 +384,8 @@ export type RecordingOrderByWithRelationInput = {
   scheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  publicSlug?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   org?: Prisma.OrganizationOrderByWithRelationInput
@@ -375,10 +394,12 @@ export type RecordingOrderByWithRelationInput = {
   jobs?: Prisma.ProcessingJobOrderByRelationAggregateInput
   speakerLabels?: Prisma.SpeakerLabelOrderByRelationAggregateInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingOrderByRelationAggregateInput
+  soundbites?: Prisma.SoundbiteOrderByRelationAggregateInput
 }
 
 export type RecordingWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  publicSlug?: string
   AND?: Prisma.RecordingWhereInput | Prisma.RecordingWhereInput[]
   OR?: Prisma.RecordingWhereInput[]
   NOT?: Prisma.RecordingWhereInput | Prisma.RecordingWhereInput[]
@@ -399,6 +420,7 @@ export type RecordingWhereUniqueInput = Prisma.AtLeast<{
   scheduledAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
+  isPublic?: Prisma.BoolFilter<"Recording"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   org?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -407,7 +429,8 @@ export type RecordingWhereUniqueInput = Prisma.AtLeast<{
   jobs?: Prisma.ProcessingJobListRelationFilter
   speakerLabels?: Prisma.SpeakerLabelListRelationFilter
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingListRelationFilter
-}, "id">
+  soundbites?: Prisma.SoundbiteListRelationFilter
+}, "id" | "publicSlug">
 
 export type RecordingOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -428,6 +451,8 @@ export type RecordingOrderByWithAggregationInput = {
   scheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  publicSlug?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.RecordingCountOrderByAggregateInput
@@ -459,6 +484,8 @@ export type RecordingScalarWhereWithAggregatesInput = {
   scheduledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Recording"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Recording"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Recording"> | Date | string | null
+  isPublic?: Prisma.BoolWithAggregatesFilter<"Recording"> | boolean
+  publicSlug?: Prisma.StringNullableWithAggregatesFilter<"Recording"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Recording"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Recording"> | Date | string
 }
@@ -481,6 +508,8 @@ export type RecordingCreateInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -489,6 +518,7 @@ export type RecordingCreateInput = {
   jobs?: Prisma.ProcessingJobCreateNestedManyWithoutRecordingInput
   speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateInput = {
@@ -510,6 +540,8 @@ export type RecordingUncheckedCreateInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -517,6 +549,7 @@ export type RecordingUncheckedCreateInput = {
   jobs?: Prisma.ProcessingJobUncheckedCreateNestedManyWithoutRecordingInput
   speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUpdateInput = {
@@ -537,6 +570,8 @@ export type RecordingUpdateInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -545,6 +580,7 @@ export type RecordingUpdateInput = {
   jobs?: Prisma.ProcessingJobUpdateManyWithoutRecordingNestedInput
   speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateInput = {
@@ -566,6 +602,8 @@ export type RecordingUncheckedUpdateInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -573,6 +611,7 @@ export type RecordingUncheckedUpdateInput = {
   jobs?: Prisma.ProcessingJobUncheckedUpdateManyWithoutRecordingNestedInput
   speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateManyInput = {
@@ -594,6 +633,8 @@ export type RecordingCreateManyInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -616,6 +657,8 @@ export type RecordingUpdateManyMutationInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -639,6 +682,8 @@ export type RecordingUncheckedUpdateManyInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -672,6 +717,8 @@ export type RecordingCountOrderByAggregateInput = {
   scheduledAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  publicSlug?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -700,6 +747,8 @@ export type RecordingMaxOrderByAggregateInput = {
   scheduledAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  publicSlug?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -723,6 +772,8 @@ export type RecordingMinOrderByAggregateInput = {
   scheduledAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
+  isPublic?: Prisma.SortOrder
+  publicSlug?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -869,6 +920,20 @@ export type RecordingUpdateOneRequiredWithoutKnowledgeLinksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RecordingUpdateToOneWithWhereWithoutKnowledgeLinksInput, Prisma.RecordingUpdateWithoutKnowledgeLinksInput>, Prisma.RecordingUncheckedUpdateWithoutKnowledgeLinksInput>
 }
 
+export type RecordingCreateNestedOneWithoutSoundbitesInput = {
+  create?: Prisma.XOR<Prisma.RecordingCreateWithoutSoundbitesInput, Prisma.RecordingUncheckedCreateWithoutSoundbitesInput>
+  connectOrCreate?: Prisma.RecordingCreateOrConnectWithoutSoundbitesInput
+  connect?: Prisma.RecordingWhereUniqueInput
+}
+
+export type RecordingUpdateOneRequiredWithoutSoundbitesNestedInput = {
+  create?: Prisma.XOR<Prisma.RecordingCreateWithoutSoundbitesInput, Prisma.RecordingUncheckedCreateWithoutSoundbitesInput>
+  connectOrCreate?: Prisma.RecordingCreateOrConnectWithoutSoundbitesInput
+  upsert?: Prisma.RecordingUpsertWithoutSoundbitesInput
+  connect?: Prisma.RecordingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RecordingUpdateToOneWithWhereWithoutSoundbitesInput, Prisma.RecordingUpdateWithoutSoundbitesInput>, Prisma.RecordingUncheckedUpdateWithoutSoundbitesInput>
+}
+
 export type RecordingCreateWithoutOrgInput = {
   id?: string
   userId: string
@@ -887,6 +952,8 @@ export type RecordingCreateWithoutOrgInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptCreateNestedOneWithoutRecordingInput
@@ -894,6 +961,7 @@ export type RecordingCreateWithoutOrgInput = {
   jobs?: Prisma.ProcessingJobCreateNestedManyWithoutRecordingInput
   speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutOrgInput = {
@@ -914,6 +982,8 @@ export type RecordingUncheckedCreateWithoutOrgInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -921,6 +991,7 @@ export type RecordingUncheckedCreateWithoutOrgInput = {
   jobs?: Prisma.ProcessingJobUncheckedCreateNestedManyWithoutRecordingInput
   speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutOrgInput = {
@@ -971,6 +1042,8 @@ export type RecordingScalarWhereInput = {
   scheduledAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
   startedAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
+  isPublic?: Prisma.BoolFilter<"Recording"> | boolean
+  publicSlug?: Prisma.StringNullableFilter<"Recording"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
 }
@@ -993,6 +1066,8 @@ export type RecordingCreateWithoutTranscriptInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1000,6 +1075,7 @@ export type RecordingCreateWithoutTranscriptInput = {
   jobs?: Prisma.ProcessingJobCreateNestedManyWithoutRecordingInput
   speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutTranscriptInput = {
@@ -1021,12 +1097,15 @@ export type RecordingUncheckedCreateWithoutTranscriptInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutRecordingInput
   jobs?: Prisma.ProcessingJobUncheckedCreateNestedManyWithoutRecordingInput
   speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutTranscriptInput = {
@@ -1063,6 +1142,8 @@ export type RecordingUpdateWithoutTranscriptInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1070,6 +1151,7 @@ export type RecordingUpdateWithoutTranscriptInput = {
   jobs?: Prisma.ProcessingJobUpdateManyWithoutRecordingNestedInput
   speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutTranscriptInput = {
@@ -1091,12 +1173,15 @@ export type RecordingUncheckedUpdateWithoutTranscriptInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NoteUncheckedUpdateManyWithoutRecordingNestedInput
   jobs?: Prisma.ProcessingJobUncheckedUpdateManyWithoutRecordingNestedInput
   speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateWithoutSpeakerLabelsInput = {
@@ -1117,6 +1202,8 @@ export type RecordingCreateWithoutSpeakerLabelsInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1124,6 +1211,7 @@ export type RecordingCreateWithoutSpeakerLabelsInput = {
   notes?: Prisma.NoteCreateNestedManyWithoutRecordingInput
   jobs?: Prisma.ProcessingJobCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutSpeakerLabelsInput = {
@@ -1145,12 +1233,15 @@ export type RecordingUncheckedCreateWithoutSpeakerLabelsInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutRecordingInput
   jobs?: Prisma.ProcessingJobUncheckedCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutSpeakerLabelsInput = {
@@ -1187,6 +1278,8 @@ export type RecordingUpdateWithoutSpeakerLabelsInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1194,6 +1287,7 @@ export type RecordingUpdateWithoutSpeakerLabelsInput = {
   notes?: Prisma.NoteUpdateManyWithoutRecordingNestedInput
   jobs?: Prisma.ProcessingJobUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutSpeakerLabelsInput = {
@@ -1215,12 +1309,15 @@ export type RecordingUncheckedUpdateWithoutSpeakerLabelsInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutRecordingNestedInput
   jobs?: Prisma.ProcessingJobUncheckedUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateWithoutNotesInput = {
@@ -1241,6 +1338,8 @@ export type RecordingCreateWithoutNotesInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1248,6 +1347,7 @@ export type RecordingCreateWithoutNotesInput = {
   jobs?: Prisma.ProcessingJobCreateNestedManyWithoutRecordingInput
   speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutNotesInput = {
@@ -1269,12 +1369,15 @@ export type RecordingUncheckedCreateWithoutNotesInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
   jobs?: Prisma.ProcessingJobUncheckedCreateNestedManyWithoutRecordingInput
   speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutNotesInput = {
@@ -1311,6 +1414,8 @@ export type RecordingUpdateWithoutNotesInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1318,6 +1423,7 @@ export type RecordingUpdateWithoutNotesInput = {
   jobs?: Prisma.ProcessingJobUpdateManyWithoutRecordingNestedInput
   speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutNotesInput = {
@@ -1339,12 +1445,15 @@ export type RecordingUncheckedUpdateWithoutNotesInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
   jobs?: Prisma.ProcessingJobUncheckedUpdateManyWithoutRecordingNestedInput
   speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateWithoutJobsInput = {
@@ -1365,6 +1474,8 @@ export type RecordingCreateWithoutJobsInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1372,6 +1483,7 @@ export type RecordingCreateWithoutJobsInput = {
   notes?: Prisma.NoteCreateNestedManyWithoutRecordingInput
   speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutJobsInput = {
@@ -1393,12 +1505,15 @@ export type RecordingUncheckedCreateWithoutJobsInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutRecordingInput
   speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutJobsInput = {
@@ -1435,6 +1550,8 @@ export type RecordingUpdateWithoutJobsInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1442,6 +1559,7 @@ export type RecordingUpdateWithoutJobsInput = {
   notes?: Prisma.NoteUpdateManyWithoutRecordingNestedInput
   speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutJobsInput = {
@@ -1463,12 +1581,15 @@ export type RecordingUncheckedUpdateWithoutJobsInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutRecordingNestedInput
   speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateWithoutKnowledgeLinksInput = {
@@ -1489,6 +1610,8 @@ export type RecordingCreateWithoutKnowledgeLinksInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1496,6 +1619,7 @@ export type RecordingCreateWithoutKnowledgeLinksInput = {
   notes?: Prisma.NoteCreateNestedManyWithoutRecordingInput
   jobs?: Prisma.ProcessingJobCreateNestedManyWithoutRecordingInput
   speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutKnowledgeLinksInput = {
@@ -1517,12 +1641,15 @@ export type RecordingUncheckedCreateWithoutKnowledgeLinksInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutRecordingInput
   jobs?: Prisma.ProcessingJobUncheckedCreateNestedManyWithoutRecordingInput
   speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutKnowledgeLinksInput = {
@@ -1559,6 +1686,8 @@ export type RecordingUpdateWithoutKnowledgeLinksInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1566,6 +1695,7 @@ export type RecordingUpdateWithoutKnowledgeLinksInput = {
   notes?: Prisma.NoteUpdateManyWithoutRecordingNestedInput
   jobs?: Prisma.ProcessingJobUpdateManyWithoutRecordingNestedInput
   speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutKnowledgeLinksInput = {
@@ -1587,12 +1717,151 @@ export type RecordingUncheckedUpdateWithoutKnowledgeLinksInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
   notes?: Prisma.NoteUncheckedUpdateManyWithoutRecordingNestedInput
   jobs?: Prisma.ProcessingJobUncheckedUpdateManyWithoutRecordingNestedInput
   speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
+}
+
+export type RecordingCreateWithoutSoundbitesInput = {
+  id?: string
+  userId: string
+  title: string
+  description?: string | null
+  source: $Enums.RecordingSource
+  status?: $Enums.RecordingStatus
+  platform?: $Enums.MeetingPlatform | null
+  meetingUrl?: string | null
+  botId?: string | null
+  s3Key?: string | null
+  s3Bucket?: string | null
+  duration?: number | null
+  fileSize?: number | null
+  mimeType?: string | null
+  scheduledAt?: Date | string | null
+  startedAt?: Date | string | null
+  endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
+  transcript?: Prisma.TranscriptCreateNestedOneWithoutRecordingInput
+  notes?: Prisma.NoteCreateNestedManyWithoutRecordingInput
+  jobs?: Prisma.ProcessingJobCreateNestedManyWithoutRecordingInput
+  speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
+  knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
+}
+
+export type RecordingUncheckedCreateWithoutSoundbitesInput = {
+  id?: string
+  orgId: string
+  userId: string
+  title: string
+  description?: string | null
+  source: $Enums.RecordingSource
+  status?: $Enums.RecordingStatus
+  platform?: $Enums.MeetingPlatform | null
+  meetingUrl?: string | null
+  botId?: string | null
+  s3Key?: string | null
+  s3Bucket?: string | null
+  duration?: number | null
+  fileSize?: number | null
+  mimeType?: string | null
+  scheduledAt?: Date | string | null
+  startedAt?: Date | string | null
+  endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
+  notes?: Prisma.NoteUncheckedCreateNestedManyWithoutRecordingInput
+  jobs?: Prisma.ProcessingJobUncheckedCreateNestedManyWithoutRecordingInput
+  speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
+  knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
+}
+
+export type RecordingCreateOrConnectWithoutSoundbitesInput = {
+  where: Prisma.RecordingWhereUniqueInput
+  create: Prisma.XOR<Prisma.RecordingCreateWithoutSoundbitesInput, Prisma.RecordingUncheckedCreateWithoutSoundbitesInput>
+}
+
+export type RecordingUpsertWithoutSoundbitesInput = {
+  update: Prisma.XOR<Prisma.RecordingUpdateWithoutSoundbitesInput, Prisma.RecordingUncheckedUpdateWithoutSoundbitesInput>
+  create: Prisma.XOR<Prisma.RecordingCreateWithoutSoundbitesInput, Prisma.RecordingUncheckedCreateWithoutSoundbitesInput>
+  where?: Prisma.RecordingWhereInput
+}
+
+export type RecordingUpdateToOneWithWhereWithoutSoundbitesInput = {
+  where?: Prisma.RecordingWhereInput
+  data: Prisma.XOR<Prisma.RecordingUpdateWithoutSoundbitesInput, Prisma.RecordingUncheckedUpdateWithoutSoundbitesInput>
+}
+
+export type RecordingUpdateWithoutSoundbitesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumRecordingSourceFieldUpdateOperationsInput | $Enums.RecordingSource
+  status?: Prisma.EnumRecordingStatusFieldUpdateOperationsInput | $Enums.RecordingStatus
+  platform?: Prisma.NullableEnumMeetingPlatformFieldUpdateOperationsInput | $Enums.MeetingPlatform | null
+  meetingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  botId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  s3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  s3Bucket?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
+  transcript?: Prisma.TranscriptUpdateOneWithoutRecordingNestedInput
+  notes?: Prisma.NoteUpdateManyWithoutRecordingNestedInput
+  jobs?: Prisma.ProcessingJobUpdateManyWithoutRecordingNestedInput
+  speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
+  knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
+}
+
+export type RecordingUncheckedUpdateWithoutSoundbitesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orgId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumRecordingSourceFieldUpdateOperationsInput | $Enums.RecordingSource
+  status?: Prisma.EnumRecordingStatusFieldUpdateOperationsInput | $Enums.RecordingStatus
+  platform?: Prisma.NullableEnumMeetingPlatformFieldUpdateOperationsInput | $Enums.MeetingPlatform | null
+  meetingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  botId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  s3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  s3Bucket?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
+  notes?: Prisma.NoteUncheckedUpdateManyWithoutRecordingNestedInput
+  jobs?: Prisma.ProcessingJobUncheckedUpdateManyWithoutRecordingNestedInput
+  speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
+  knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateManyOrgInput = {
@@ -1613,6 +1882,8 @@ export type RecordingCreateManyOrgInput = {
   scheduledAt?: Date | string | null
   startedAt?: Date | string | null
   endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1635,6 +1906,8 @@ export type RecordingUpdateWithoutOrgInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUpdateOneWithoutRecordingNestedInput
@@ -1642,6 +1915,7 @@ export type RecordingUpdateWithoutOrgInput = {
   jobs?: Prisma.ProcessingJobUpdateManyWithoutRecordingNestedInput
   speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutOrgInput = {
@@ -1662,6 +1936,8 @@ export type RecordingUncheckedUpdateWithoutOrgInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -1669,6 +1945,7 @@ export type RecordingUncheckedUpdateWithoutOrgInput = {
   jobs?: Prisma.ProcessingJobUncheckedUpdateManyWithoutRecordingNestedInput
   speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateManyWithoutOrgInput = {
@@ -1689,6 +1966,8 @@ export type RecordingUncheckedUpdateManyWithoutOrgInput = {
   scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1703,6 +1982,7 @@ export type RecordingCountOutputType = {
   jobs: number
   speakerLabels: number
   knowledgeLinks: number
+  soundbites: number
 }
 
 export type RecordingCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1710,6 +1990,7 @@ export type RecordingCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensi
   jobs?: boolean | RecordingCountOutputTypeCountJobsArgs
   speakerLabels?: boolean | RecordingCountOutputTypeCountSpeakerLabelsArgs
   knowledgeLinks?: boolean | RecordingCountOutputTypeCountKnowledgeLinksArgs
+  soundbites?: boolean | RecordingCountOutputTypeCountSoundbitesArgs
 }
 
 /**
@@ -1750,6 +2031,13 @@ export type RecordingCountOutputTypeCountKnowledgeLinksArgs<ExtArgs extends runt
   where?: Prisma.KnowledgeEntityRecordingWhereInput
 }
 
+/**
+ * RecordingCountOutputType without action
+ */
+export type RecordingCountOutputTypeCountSoundbitesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SoundbiteWhereInput
+}
+
 
 export type RecordingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1770,6 +2058,8 @@ export type RecordingSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   scheduledAt?: boolean
   startedAt?: boolean
   endedAt?: boolean
+  isPublic?: boolean
+  publicSlug?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -1778,6 +2068,7 @@ export type RecordingSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   jobs?: boolean | Prisma.Recording$jobsArgs<ExtArgs>
   speakerLabels?: boolean | Prisma.Recording$speakerLabelsArgs<ExtArgs>
   knowledgeLinks?: boolean | Prisma.Recording$knowledgeLinksArgs<ExtArgs>
+  soundbites?: boolean | Prisma.Recording$soundbitesArgs<ExtArgs>
   _count?: boolean | Prisma.RecordingCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["recording"]>
 
@@ -1800,6 +2091,8 @@ export type RecordingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   scheduledAt?: boolean
   startedAt?: boolean
   endedAt?: boolean
+  isPublic?: boolean
+  publicSlug?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -1824,6 +2117,8 @@ export type RecordingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   scheduledAt?: boolean
   startedAt?: boolean
   endedAt?: boolean
+  isPublic?: boolean
+  publicSlug?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -1848,11 +2143,13 @@ export type RecordingSelectScalar = {
   scheduledAt?: boolean
   startedAt?: boolean
   endedAt?: boolean
+  isPublic?: boolean
+  publicSlug?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RecordingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "userId" | "title" | "description" | "source" | "status" | "platform" | "meetingUrl" | "botId" | "s3Key" | "s3Bucket" | "duration" | "fileSize" | "mimeType" | "scheduledAt" | "startedAt" | "endedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["recording"]>
+export type RecordingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "userId" | "title" | "description" | "source" | "status" | "platform" | "meetingUrl" | "botId" | "s3Key" | "s3Bucket" | "duration" | "fileSize" | "mimeType" | "scheduledAt" | "startedAt" | "endedAt" | "isPublic" | "publicSlug" | "createdAt" | "updatedAt", ExtArgs["result"]["recording"]>
 export type RecordingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   transcript?: boolean | Prisma.Recording$transcriptArgs<ExtArgs>
@@ -1860,6 +2157,7 @@ export type RecordingInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   jobs?: boolean | Prisma.Recording$jobsArgs<ExtArgs>
   speakerLabels?: boolean | Prisma.Recording$speakerLabelsArgs<ExtArgs>
   knowledgeLinks?: boolean | Prisma.Recording$knowledgeLinksArgs<ExtArgs>
+  soundbites?: boolean | Prisma.Recording$soundbitesArgs<ExtArgs>
   _count?: boolean | Prisma.RecordingCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RecordingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1878,6 +2176,7 @@ export type $RecordingPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     jobs: Prisma.$ProcessingJobPayload<ExtArgs>[]
     speakerLabels: Prisma.$SpeakerLabelPayload<ExtArgs>[]
     knowledgeLinks: Prisma.$KnowledgeEntityRecordingPayload<ExtArgs>[]
+    soundbites: Prisma.$SoundbitePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1898,6 +2197,8 @@ export type $RecordingPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     scheduledAt: Date | null
     startedAt: Date | null
     endedAt: Date | null
+    isPublic: boolean
+    publicSlug: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["recording"]>
@@ -2300,6 +2601,7 @@ export interface Prisma__RecordingClient<T, Null = never, ExtArgs extends runtim
   jobs<T extends Prisma.Recording$jobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Recording$jobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProcessingJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   speakerLabels<T extends Prisma.Recording$speakerLabelsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Recording$speakerLabelsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SpeakerLabelPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   knowledgeLinks<T extends Prisma.Recording$knowledgeLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Recording$knowledgeLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KnowledgeEntityRecordingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  soundbites<T extends Prisma.Recording$soundbitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Recording$soundbitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SoundbitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2347,6 +2649,8 @@ export interface RecordingFieldRefs {
   readonly scheduledAt: Prisma.FieldRef<"Recording", 'DateTime'>
   readonly startedAt: Prisma.FieldRef<"Recording", 'DateTime'>
   readonly endedAt: Prisma.FieldRef<"Recording", 'DateTime'>
+  readonly isPublic: Prisma.FieldRef<"Recording", 'Boolean'>
+  readonly publicSlug: Prisma.FieldRef<"Recording", 'String'>
   readonly createdAt: Prisma.FieldRef<"Recording", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Recording", 'DateTime'>
 }
@@ -2862,6 +3166,30 @@ export type Recording$knowledgeLinksArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.KnowledgeEntityRecordingScalarFieldEnum | Prisma.KnowledgeEntityRecordingScalarFieldEnum[]
+}
+
+/**
+ * Recording.soundbites
+ */
+export type Recording$soundbitesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Soundbite
+   */
+  select?: Prisma.SoundbiteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Soundbite
+   */
+  omit?: Prisma.SoundbiteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SoundbiteInclude<ExtArgs> | null
+  where?: Prisma.SoundbiteWhereInput
+  orderBy?: Prisma.SoundbiteOrderByWithRelationInput | Prisma.SoundbiteOrderByWithRelationInput[]
+  cursor?: Prisma.SoundbiteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SoundbiteScalarFieldEnum | Prisma.SoundbiteScalarFieldEnum[]
 }
 
 /**

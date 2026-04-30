@@ -12,6 +12,7 @@ import { RecordingStatusPoller } from '@/components/recording-status-poller'
 import { GenerateEmbeddingsButton } from '@/components/generate-embeddings-button'
 import { RecordingActionsMenu } from '@/components/recording-actions-menu'
 import { RecordingSplitView } from '@/components/recording-split-view'
+import { ShareRecordingButton } from '@/components/share-recording-button'
 import { formatDuration, relativeTime } from '@/lib/utils'
 import { Mic2, Clock, Calendar, User } from 'lucide-react'
 
@@ -159,6 +160,13 @@ export default async function RecordingDetailPage({ params }: Props) {
           {/* Header actions — note: Ask AI lives in the right pane now */}
           <div className="flex flex-shrink-0 flex-wrap items-center gap-2">
             <StatusBadge status={recording.status} createdAt={recording.createdAt} />
+            {recording.status === 'READY' && (
+              <ShareRecordingButton
+                recordingId={recording.id}
+                initialIsPublic={recording.isPublic}
+                initialSlug={recording.publicSlug}
+              />
+            )}
             {recording.status === 'READY' && recording.transcript && (
               <GenerateEmbeddingsButton recordingId={recording.id} />
             )}

@@ -6,7 +6,7 @@
 // A sticky audio player lives at the bottom of the right pane.
 
 import { useRef, useState } from 'react'
-import { CheckSquare, FileText, Lightbulb, Mic2, Search, Sparkles } from 'lucide-react'
+import { CheckSquare, FileText, Lightbulb, Mic2, Scissors, Search, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { EditableActionItem } from './editable-action-item'
 import { EditableNoteSection } from './editable-note-section'
@@ -19,6 +19,8 @@ import { InlineAskAI } from './inline-ask-ai'
 import { MarkdownContent } from './markdown-content'
 import { RecordingKnowledgeChips } from './recording-knowledge-chips'
 import { AISuggestionsPanel } from './ai-suggestions-panel'
+import { SoundbiteCapture } from './soundbite-capture'
+import { SoundbitesPanel } from './soundbites-panel'
 
 // Plain-object shapes that travel across the RSC boundary.
 type Segment = {
@@ -71,7 +73,7 @@ type Props = {
   ready: boolean
 }
 
-type Tab = 'notes' | 'transcript' | 'ai' | 'insights'
+type Tab = 'notes' | 'transcript' | 'ai' | 'insights' | 'soundbites'
 
 // Solid note-section card surface — replaces the translucent `.glass` look
 // that was blending into the off-white page background in light mode.
@@ -111,7 +113,9 @@ export function RecordingSplitView({
   // left even when the right pane is showing transcript/ai/insights.
   const rightTabIsAI = tab === 'ai'
   const rightTabIsInsights = tab === 'insights'
-  const rightTabIsTranscript = !rightTabIsAI && !rightTabIsInsights
+  const rightTabIsSoundbites = tab === 'soundbites'
+  const rightTabIsTranscript =
+    !rightTabIsAI && !rightTabIsInsights && !rightTabIsSoundbites
 
   // Visibility flags for mobile single-panel mode.
   const showLeftOnMobile = tab === 'notes'
@@ -133,6 +137,11 @@ export function RecordingSplitView({
         {ready && (
           <MobileTab active={tab === 'insights'} onClick={() => setTab('insights')} icon={<Lightbulb className="h-3.5 w-3.5" />}>
             Insights
+          </MobileTab>
+        )}
+        {ready && (
+          <MobileTab active={tab === 'soundbites'} onClick={() => setTab('soundbites')} icon={<Scissors className="h-3.5 w-3.5" />}>
+            Bites
           </MobileTab>
         )}
       </div>
@@ -283,6 +292,15 @@ export function RecordingSplitView({
                   Insights
                 </PaneTab>
               )}
+              {ready && (
+                <PaneTab
+                  active={rightTabIsSoundbites}
+                  onClick={() => setTab('soundbites')}
+                  icon={<Scissors className="h-3.5 w-3.5" />}
+                >
+                  Soundbites
+                </PaneTab>
+              )}
 
               {/* Name Speakers button (transcript tab only) */}
               {rightTabIsTranscript &&
@@ -319,20 +337,24 @@ export function RecordingSplitView({
               <InlineAskAI recordingId={recordingId} recordingTitle={recordingTitle} />
             ) : rightTabIsInsights ? (
               <AISuggestionsPanel recordingId={recordingId} />
+            ) : rightTabIsSoundbites ? (
+              <SoundbitesPanel recordingId={recordingId} />
             ) : transcript ? (
-              <div className="h-full overflow-y-auto px-4 py-4 sm:px-5">
-                <TranscriptPaginated
-                  transcriptId={transcript.id}
-                  recordingId={recordingId}
-                  initialSegments={transcript.initialSegments}
-                  initialHasMore={transcript.initialHasMore}
-                  fullText={transcript.text}
-                  speakerLabels={speakerLabels}
-                  duration={duration}
-                  onSeek={handleSeek}
-                  playhead={playhead}
-                />
-              </div>
+              <SoundbiteCapture recordingId={recordingId}>
+                <div className="h-full overflow-y-auto px-4 py-4 sm:px-5">
+                  <TranscriptPaginated
+                    transcriptId={transcript.id}
+                    recordingId={recordingId}
+                    initialSegments={transcript.initialSegments}
+                    initialHasMore={transcript.initialHasMore}
+                    fullText={transcript.text}
+                    speakerLabels={speakerLabels}
+                    duration={duration}
+                    onSeek={handleSeek}
+                    playhead={playhead}
+                  />
+                </div>
+              </SoundbiteCapture>
             ) : (
               <div className="flex h-full flex-col items-center justify-center p-8 text-center">
                 <Mic2 className="mb-3 h-10 w-10 text-muted" />

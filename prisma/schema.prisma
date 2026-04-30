@@ -141,6 +141,7 @@ model Organization {
   apiKeys          ApiKey[]
   templates        NoteTemplate[]
   knowledgeEntities KnowledgeEntity[]
+  soundbites       Soundbite[]
 }
 
 model OrgMember {
@@ -156,7 +157,8 @@ model OrgMember {
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
 
-  org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  org           Organization          @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  webPushSubs   WebPushSubscription[]
 
   @@unique([orgId, userId])
   @@index([userId])
@@ -181,6 +183,11 @@ model Recording {
   scheduledAt DateTime?
   startedAt   DateTime?
   endedAt     DateTime?
+  // Public sharing — when isPublic=true, /share/{publicSlug} renders the
+  // notes + transcript without auth. publicSlug is null until the owner
+  // hits "Share" the first time; cleared on Make Private.
+  isPublic    Boolean          @default(false)
+  publicSlug  String?          @unique
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
@@ -190,6 +197,7 @@ model Recording {
   jobs         ProcessingJob[]
   speakerLabels SpeakerLabel[]
   knowledgeLinks KnowledgeEntityRecording[]
+  soundbites   Soundbite[]
 
   @@index([orgId, status])
   @@index([orgId, createdAt(sort: Desc)])
@@ -476,4 +484,40 @@ model AdminAuditLog {
 
   @@index([createdAt(sort: Desc)])
   @@index([targetOrgId])
+}
+
+// ── Soundbites — short clip highlights of a recording ───────────────────────
+// Just metadata + transcript text; the actual audio is a virtual range
+// rendered against the parent Recording's audio file.
+model Soundbite {
+  id           String   @id @default(cuid())
+  recordingId  String
+  orgId        String
+  title        String
+  startSeconds Float
+  endSeconds   Float
+  transcript   String?
+  createdAt    DateTime @default(now())
+
+  recording Recording    @relation(fields: [recordingId], references: [id], onDelete: Cascade)
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([recordingId, startSeconds])
+  @@index([orgId, createdAt(sort: Desc)])
+}
+
+// ── Web Push subscriptions — one per (member, browser) ─────────────────────
+// Endpoint is the unique URL Push Service hands the browser; p256dh + auth
+// are the encryption keys we sign payloads against.
+model WebPushSubscription {
+  id          String   @id @default(cuid())
+  orgMemberId String
+  endpoint    String   @unique
+  p256dh      String
+  auth        String
+  createdAt   DateTime @default(now())
+
+  orgMember OrgMember @relation(fields: [orgMemberId], references: [id], onDelete: Cascade)
+
+  @@index([orgMemberId])
 }

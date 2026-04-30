@@ -7,6 +7,9 @@ const isPublicRoute = createRouteMatcher([
   '/sign-in(.*)',
   '/sign-up(.*)',
   '/pricing(.*)',
+  // Public share pages — anyone with the slug can view a recording's
+  // notes / transcript when the owner has flipped isPublic=true.
+  '/share/(.*)',
   '/api/webhooks/(.*)',
   // Public REST API — bearer-token authenticated, not Clerk-session.
   // The route handlers themselves call `authenticateApiKey` and return 401

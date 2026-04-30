@@ -338,6 +338,8 @@ export function TranscriptPaginated({
                   // Word-level click-to-seek. Whisper includes a leading space
                   // in each word token, so buttons sit flush without extra
                   // separators. `inline` display lets them wrap naturally.
+                  // `data-sb-*` attributes let the SoundbiteCapture overlay
+                  // turn a text selection into a precise time range.
                   <p className="text-sm leading-relaxed text-neutral-700">
                     {words.map((w, i) => {
                       const isActive =
@@ -349,6 +351,8 @@ export function TranscriptPaginated({
                           key={i}
                           type="button"
                           onClick={() => onSeek?.(w.start)}
+                          data-sb-start={w.start}
+                          data-sb-end={w.end}
                           className={cn(
                             'inline rounded px-0.5 transition-colors',
                             onSeek && 'cursor-pointer hover:bg-accent/20',
@@ -361,7 +365,13 @@ export function TranscriptPaginated({
                     })}
                   </p>
                 ) : (
-                  <p className="text-sm leading-relaxed text-neutral-700">{seg.text}</p>
+                  <p
+                    className="text-sm leading-relaxed text-neutral-700"
+                    data-sb-start={seg.startTime}
+                    data-sb-end={seg.endTime}
+                  >
+                    {seg.text}
+                  </p>
                 )}
               </div>
             </div>

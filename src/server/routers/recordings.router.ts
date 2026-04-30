@@ -1121,6 +1121,62 @@ export const recordingsRouter = router({
   // ── TODO: Integration connected ───────────────────────────────────────────
   // When Slack/Notion settings are implemented:
   //   captureServerEvent(ctx.userId, 'integration_connected', { type: 'slack' | 'notion' })
+
+  // ── Public sharing ────────────────────────────────────────────────────────
+  // makePublic mints (or reuses) an 8-char URL-safe slug. We store the slug
+  // even after Make Private so the same URL re-activates if re-shared.
+  makePublic: orgProcedure
+    .input(z.object({ recordingId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const recording = await ctx.db.recording.findFirst({
+        where: { id: input.recordingId, orgId: ctx.orgId },
+        select: { id: true, publicSlug: true },
+      })
+      if (!recording) throw new TRPCError({ code: 'NOT_FOUND' })
+
+      let slug = recording.publicSlug
+      if (!slug) {
+        // Retry on the (rare) collision — 36^8 = ~2.8 trillion possibilities.
+        for (let attempt = 0; attempt < 5; attempt++) {
+          const candidate = randomSlug(8)
+          const taken = await ctx.db.recording.findFirst({
+            where: { publicSlug: candidate },
+            select: { id: true },
+          })
+          if (!taken) {
+            slug = candidate
+            break
+          }
+        }
+        if (!slug) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Could not allocate a unique share slug — try again.',
+          })
+        }
+      }
+
+      await ctx.db.recording.update({
+        where: { id: recording.id },
+        data: { isPublic: true, publicSlug: slug },
+      })
+      return { slug, isPublic: true }
+    }),
+
+  makePrivate: orgProcedure
+    .input(z.object({ recordingId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const recording = await ctx.db.recording.findFirst({
+        where: { id: input.recordingId, orgId: ctx.orgId },
+        select: { id: true },
+      })
+      if (!recording) throw new TRPCError({ code: 'NOT_FOUND' })
+      await ctx.db.recording.update({
+        where: { id: recording.id },
+        data: { isPublic: false },
+      })
+      return { isPublic: false }
+    }),
 })
 
 // Build a case-insensitive regex from a user-supplied find string. All special
@@ -1131,4 +1187,14 @@ function buildFindRegex(find: string, wholeWord: boolean): RegExp {
   const escaped = find.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const pattern = wholeWord ? `\\b${escaped}\\b` : escaped
   return new RegExp(pattern, 'gi')
+}
+
+// URL-safe random slug for /share/* links. Avoids ambiguous chars (0/O, 1/l).
+function randomSlug(len: number): string {
+  const alphabet = 'abcdefghjkmnpqrstuvwxyz23456789'
+  let out = ''
+  for (let i = 0; i < len; i++) {
+    out += alphabet[Math.floor(Math.random() * alphabet.length)]
+  }
+  return out
 }

@@ -68,7 +68,9 @@ export const ModelName = {
   KnowledgeEntity: 'KnowledgeEntity',
   KnowledgeEntityRecording: 'KnowledgeEntityRecording',
   AdminUser: 'AdminUser',
-  AdminAuditLog: 'AdminAuditLog'
+  AdminAuditLog: 'AdminAuditLog',
+  Soundbite: 'Soundbite',
+  WebPushSubscription: 'WebPushSubscription'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -152,6 +154,8 @@ export const RecordingScalarFieldEnum = {
   scheduledAt: 'scheduledAt',
   startedAt: 'startedAt',
   endedAt: 'endedAt',
+  isPublic: 'isPublic',
+  publicSlug: 'publicSlug',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -371,6 +375,32 @@ export const AdminAuditLogScalarFieldEnum = {
 } as const
 
 export type AdminAuditLogScalarFieldEnum = (typeof AdminAuditLogScalarFieldEnum)[keyof typeof AdminAuditLogScalarFieldEnum]
+
+
+export const SoundbiteScalarFieldEnum = {
+  id: 'id',
+  recordingId: 'recordingId',
+  orgId: 'orgId',
+  title: 'title',
+  startSeconds: 'startSeconds',
+  endSeconds: 'endSeconds',
+  transcript: 'transcript',
+  createdAt: 'createdAt'
+} as const
+
+export type SoundbiteScalarFieldEnum = (typeof SoundbiteScalarFieldEnum)[keyof typeof SoundbiteScalarFieldEnum]
+
+
+export const WebPushSubscriptionScalarFieldEnum = {
+  id: 'id',
+  orgMemberId: 'orgMemberId',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  createdAt: 'createdAt'
+} as const
+
+export type WebPushSubscriptionScalarFieldEnum = (typeof WebPushSubscriptionScalarFieldEnum)[keyof typeof WebPushSubscriptionScalarFieldEnum]
 
 
 export const SortOrder = {

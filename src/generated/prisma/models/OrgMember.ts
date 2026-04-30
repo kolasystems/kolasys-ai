@@ -207,6 +207,7 @@ export type OrgMemberWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   org?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
+  webPushSubs?: Prisma.WebPushSubscriptionListRelationFilter
 }
 
 export type OrgMemberOrderByWithRelationInput = {
@@ -219,6 +220,7 @@ export type OrgMemberOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   org?: Prisma.OrganizationOrderByWithRelationInput
+  webPushSubs?: Prisma.WebPushSubscriptionOrderByRelationAggregateInput
 }
 
 export type OrgMemberWhereUniqueInput = Prisma.AtLeast<{
@@ -235,6 +237,7 @@ export type OrgMemberWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   org?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
+  webPushSubs?: Prisma.WebPushSubscriptionListRelationFilter
 }, "id" | "orgId_userId">
 
 export type OrgMemberOrderByWithAggregationInput = {
@@ -274,6 +277,7 @@ export type OrgMemberCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutMembersInput
+  webPushSubs?: Prisma.WebPushSubscriptionCreateNestedManyWithoutOrgMemberInput
 }
 
 export type OrgMemberUncheckedCreateInput = {
@@ -285,6 +289,7 @@ export type OrgMemberUncheckedCreateInput = {
   expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  webPushSubs?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutOrgMemberInput
 }
 
 export type OrgMemberUpdateInput = {
@@ -296,6 +301,7 @@ export type OrgMemberUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutMembersNestedInput
+  webPushSubs?: Prisma.WebPushSubscriptionUpdateManyWithoutOrgMemberNestedInput
 }
 
 export type OrgMemberUncheckedUpdateInput = {
@@ -307,6 +313,7 @@ export type OrgMemberUncheckedUpdateInput = {
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  webPushSubs?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutOrgMemberNestedInput
 }
 
 export type OrgMemberCreateManyInput = {
@@ -389,6 +396,11 @@ export type OrgMemberMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type OrgMemberScalarRelationFilter = {
+  is?: Prisma.OrgMemberWhereInput
+  isNot?: Prisma.OrgMemberWhereInput
+}
+
 export type OrgMemberCreateNestedManyWithoutOrgInput = {
   create?: Prisma.XOR<Prisma.OrgMemberCreateWithoutOrgInput, Prisma.OrgMemberUncheckedCreateWithoutOrgInput> | Prisma.OrgMemberCreateWithoutOrgInput[] | Prisma.OrgMemberUncheckedCreateWithoutOrgInput[]
   connectOrCreate?: Prisma.OrgMemberCreateOrConnectWithoutOrgInput | Prisma.OrgMemberCreateOrConnectWithoutOrgInput[]
@@ -435,6 +447,20 @@ export type EnumMemberRoleFieldUpdateOperationsInput = {
   set?: $Enums.MemberRole
 }
 
+export type OrgMemberCreateNestedOneWithoutWebPushSubsInput = {
+  create?: Prisma.XOR<Prisma.OrgMemberCreateWithoutWebPushSubsInput, Prisma.OrgMemberUncheckedCreateWithoutWebPushSubsInput>
+  connectOrCreate?: Prisma.OrgMemberCreateOrConnectWithoutWebPushSubsInput
+  connect?: Prisma.OrgMemberWhereUniqueInput
+}
+
+export type OrgMemberUpdateOneRequiredWithoutWebPushSubsNestedInput = {
+  create?: Prisma.XOR<Prisma.OrgMemberCreateWithoutWebPushSubsInput, Prisma.OrgMemberUncheckedCreateWithoutWebPushSubsInput>
+  connectOrCreate?: Prisma.OrgMemberCreateOrConnectWithoutWebPushSubsInput
+  upsert?: Prisma.OrgMemberUpsertWithoutWebPushSubsInput
+  connect?: Prisma.OrgMemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrgMemberUpdateToOneWithWhereWithoutWebPushSubsInput, Prisma.OrgMemberUpdateWithoutWebPushSubsInput>, Prisma.OrgMemberUncheckedUpdateWithoutWebPushSubsInput>
+}
+
 export type OrgMemberCreateWithoutOrgInput = {
   id?: string
   userId: string
@@ -443,6 +469,7 @@ export type OrgMemberCreateWithoutOrgInput = {
   expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  webPushSubs?: Prisma.WebPushSubscriptionCreateNestedManyWithoutOrgMemberInput
 }
 
 export type OrgMemberUncheckedCreateWithoutOrgInput = {
@@ -453,6 +480,7 @@ export type OrgMemberUncheckedCreateWithoutOrgInput = {
   expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  webPushSubs?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutOrgMemberInput
 }
 
 export type OrgMemberCreateOrConnectWithoutOrgInput = {
@@ -495,6 +523,66 @@ export type OrgMemberScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
 }
 
+export type OrgMemberCreateWithoutWebPushSubsInput = {
+  id?: string
+  userId: string
+  role?: $Enums.MemberRole
+  googleRefreshToken?: string | null
+  expoPushToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  org: Prisma.OrganizationCreateNestedOneWithoutMembersInput
+}
+
+export type OrgMemberUncheckedCreateWithoutWebPushSubsInput = {
+  id?: string
+  orgId: string
+  userId: string
+  role?: $Enums.MemberRole
+  googleRefreshToken?: string | null
+  expoPushToken?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OrgMemberCreateOrConnectWithoutWebPushSubsInput = {
+  where: Prisma.OrgMemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrgMemberCreateWithoutWebPushSubsInput, Prisma.OrgMemberUncheckedCreateWithoutWebPushSubsInput>
+}
+
+export type OrgMemberUpsertWithoutWebPushSubsInput = {
+  update: Prisma.XOR<Prisma.OrgMemberUpdateWithoutWebPushSubsInput, Prisma.OrgMemberUncheckedUpdateWithoutWebPushSubsInput>
+  create: Prisma.XOR<Prisma.OrgMemberCreateWithoutWebPushSubsInput, Prisma.OrgMemberUncheckedCreateWithoutWebPushSubsInput>
+  where?: Prisma.OrgMemberWhereInput
+}
+
+export type OrgMemberUpdateToOneWithWhereWithoutWebPushSubsInput = {
+  where?: Prisma.OrgMemberWhereInput
+  data: Prisma.XOR<Prisma.OrgMemberUpdateWithoutWebPushSubsInput, Prisma.OrgMemberUncheckedUpdateWithoutWebPushSubsInput>
+}
+
+export type OrgMemberUpdateWithoutWebPushSubsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  org?: Prisma.OrganizationUpdateOneRequiredWithoutMembersNestedInput
+}
+
+export type OrgMemberUncheckedUpdateWithoutWebPushSubsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orgId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type OrgMemberCreateManyOrgInput = {
   id?: string
   userId: string
@@ -513,6 +601,7 @@ export type OrgMemberUpdateWithoutOrgInput = {
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  webPushSubs?: Prisma.WebPushSubscriptionUpdateManyWithoutOrgMemberNestedInput
 }
 
 export type OrgMemberUncheckedUpdateWithoutOrgInput = {
@@ -523,6 +612,7 @@ export type OrgMemberUncheckedUpdateWithoutOrgInput = {
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  webPushSubs?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutOrgMemberNestedInput
 }
 
 export type OrgMemberUncheckedUpdateManyWithoutOrgInput = {
@@ -536,6 +626,35 @@ export type OrgMemberUncheckedUpdateManyWithoutOrgInput = {
 }
 
 
+/**
+ * Count Type OrgMemberCountOutputType
+ */
+
+export type OrgMemberCountOutputType = {
+  webPushSubs: number
+}
+
+export type OrgMemberCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  webPushSubs?: boolean | OrgMemberCountOutputTypeCountWebPushSubsArgs
+}
+
+/**
+ * OrgMemberCountOutputType without action
+ */
+export type OrgMemberCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OrgMemberCountOutputType
+   */
+  select?: Prisma.OrgMemberCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * OrgMemberCountOutputType without action
+ */
+export type OrgMemberCountOutputTypeCountWebPushSubsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WebPushSubscriptionWhereInput
+}
+
 
 export type OrgMemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -547,6 +666,8 @@ export type OrgMemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
+  webPushSubs?: boolean | Prisma.OrgMember$webPushSubsArgs<ExtArgs>
+  _count?: boolean | Prisma.OrgMemberCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["orgMember"]>
 
 export type OrgMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -587,6 +708,8 @@ export type OrgMemberSelectScalar = {
 export type OrgMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "userId" | "role" | "googleRefreshToken" | "expoPushToken" | "createdAt" | "updatedAt", ExtArgs["result"]["orgMember"]>
 export type OrgMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
+  webPushSubs?: boolean | Prisma.OrgMember$webPushSubsArgs<ExtArgs>
+  _count?: boolean | Prisma.OrgMemberCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OrgMemberIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -599,6 +722,7 @@ export type $OrgMemberPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   name: "OrgMember"
   objects: {
     org: Prisma.$OrganizationPayload<ExtArgs>
+    webPushSubs: Prisma.$WebPushSubscriptionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1004,6 +1128,7 @@ readonly fields: OrgMemberFieldRefs;
 export interface Prisma__OrgMemberClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   org<T extends Prisma.OrganizationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrganizationDefaultArgs<ExtArgs>>): Prisma.Prisma__OrganizationClient<runtime.Types.Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  webPushSubs<T extends Prisma.OrgMember$webPushSubsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrgMember$webPushSubsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WebPushSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1439,6 +1564,30 @@ export type OrgMemberDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many OrgMembers to delete.
    */
   limit?: number
+}
+
+/**
+ * OrgMember.webPushSubs
+ */
+export type OrgMember$webPushSubsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WebPushSubscription
+   */
+  select?: Prisma.WebPushSubscriptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WebPushSubscription
+   */
+  omit?: Prisma.WebPushSubscriptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WebPushSubscriptionInclude<ExtArgs> | null
+  where?: Prisma.WebPushSubscriptionWhereInput
+  orderBy?: Prisma.WebPushSubscriptionOrderByWithRelationInput | Prisma.WebPushSubscriptionOrderByWithRelationInput[]
+  cursor?: Prisma.WebPushSubscriptionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WebPushSubscriptionScalarFieldEnum | Prisma.WebPushSubscriptionScalarFieldEnum[]
 }
 
 /**

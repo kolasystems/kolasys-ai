@@ -26,6 +26,7 @@ import { createNotionPage } from '@/services/integrations/notion.service'
 import { resend, FROM_EMAIL } from '@/lib/email'
 import { captureServerEvent } from '@/lib/posthog'
 import { sendExpoPush } from '@/services/push.service'
+import { sendWebPushToMember } from '@/lib/web-push'
 import { extractKnowledge } from '@/services/knowledge.service'
 import { KnowledgeEntityType } from '@/generated/prisma/client'
 import { findBestTemplate } from '@/services/template-matcher.service'
@@ -271,10 +272,10 @@ async function processSummarization(job: Job<SummarizationJobData>) {
   try {
     const ownerMember = await db.orgMember.findFirst({
       where: { orgId: recording.orgId, userId: recording.userId },
-      select: { expoPushToken: true },
+      select: { id: true, expoPushToken: true },
     })
 
-    if (ownerMember?.expoPushToken) {
+    if (ownerMember) {
       const pushNote = await db.note.findFirst({
         where: { recordingId },
         include: { sections: { orderBy: { order: 'asc' }, take: 3 } },
@@ -287,12 +288,26 @@ async function processSummarization(job: Job<SummarizationJobData>) {
           .map((s) => `• ${s.title}`)
           .join('\n') ?? '• Notes are ready'
 
-      await sendExpoPush({
-        token: ownerMember.expoPushToken,
-        title: `Notes ready: ${recording.title}`,
+      // Expo push — iPhone + Apple Watch.
+      if (ownerMember.expoPushToken) {
+        await sendExpoPush({
+          token: ownerMember.expoPushToken,
+          title: `Notes ready: ${recording.title}`,
+          body: bullets,
+          data: { recordingId },
+        }).catch((err) =>
+          console.error('[push] Expo send failed (non-fatal):', err),
+        )
+      }
+
+      // Web push — every browser this user has subscribed in.
+      await sendWebPushToMember(ownerMember.id, {
+        title: `Notes ready for ${recording.title}`,
         body: bullets,
-        data: { recordingId },
-      })
+        url: `/dashboard/recordings/${recordingId}`,
+      }).catch((err) =>
+        console.error('[push] Web push send failed (non-fatal):', err),
+      )
     }
   } catch (pushErr) {
     console.error('[push] Failed to send push notification:', pushErr)

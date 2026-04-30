@@ -9,6 +9,7 @@ import { MobileNav } from '@/components/mobile-nav'
 import { CollapsibleSidebar } from '@/components/sidebar'
 import { KolasysLogoMark } from '@/components/kolasys-logo'
 import { TrialBanner } from '@/components/trial-banner'
+import { WebPushRegistrar } from '@/components/web-push-registrar'
 import { db } from '@/lib/db'
 
 type TrialState =
@@ -85,6 +86,7 @@ export default async function DashboardLayout({
         <MobileNav />
         <main className="flex-1 overflow-y-auto bg-[#F8F9FC] dark:bg-[#0F0F13]">
           <TrialBanner state={trialState} />
+          <WebPushRegistrar />
           {children}
         </main>
       </div>

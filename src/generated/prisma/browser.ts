@@ -107,3 +107,13 @@ export type AdminUser = Prisma.AdminUserModel
  * 
  */
 export type AdminAuditLog = Prisma.AdminAuditLogModel
+/**
+ * Model Soundbite
+ * 
+ */
+export type Soundbite = Prisma.SoundbiteModel
+/**
+ * Model WebPushSubscription
+ * 
+ */
+export type WebPushSubscription = Prisma.WebPushSubscriptionModel
