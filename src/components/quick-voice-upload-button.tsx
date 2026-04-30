@@ -111,16 +111,23 @@ export function QuickVoiceUploadButton() {
         }}
       />
 
-      <button
-        type="button"
-        onClick={pickFile}
-        disabled={inFlight}
-        title="Upload audio or Voice Memo"
-        className="flex min-h-[44px] items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2 text-sm font-medium text-primary shadow-sm transition-colors hover:bg-[color-mix(in_srgb,var(--text-muted)_8%,transparent)] disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        <Upload className="h-4 w-4" />
-        Upload audio or Voice Memo
-      </button>
+      <div className="flex flex-col items-start gap-1">
+        <button
+          type="button"
+          onClick={pickFile}
+          disabled={inFlight}
+          title="Upload audio or Voice Memo"
+          className="flex min-h-[44px] items-center gap-2 rounded-lg border border-line bg-surface px-4 py-2 text-sm font-medium text-primary shadow-sm transition-colors hover:bg-[color-mix(in_srgb,var(--text-muted)_8%,transparent)] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <Upload className="h-4 w-4" />
+          Upload audio or Voice Memo
+        </button>
+        {!inFlight && (
+          <p className="text-xs text-neutral-500 mt-1">
+            On iPhone: Choose File → On My iPhone → Voice Memos
+          </p>
+        )}
+      </div>
 
       <UploadStatus state={state} onDismiss={() => setState({ kind: 'idle' })} />
     </>
