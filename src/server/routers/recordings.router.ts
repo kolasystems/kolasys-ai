@@ -1125,8 +1125,23 @@ export const recordingsRouter = router({
   // ── Public sharing ────────────────────────────────────────────────────────
   // makePublic mints (or reuses) an 8-char URL-safe slug. We store the slug
   // even after Make Private so the same URL re-activates if re-shared.
+  // Calling makePublic on an already-public recording updates permissions
+  // and/or expiry without minting a new slug — Save semantics.
   makePublic: orgProcedure
-    .input(z.object({ recordingId: z.string() }))
+    .input(
+      z.object({
+        recordingId: z.string(),
+        permissions: z
+          .object({
+            transcript: z.boolean(),
+            summary: z.boolean(),
+            actionItems: z.boolean(),
+          })
+          .optional(),
+        // ISO datetime; null clears the expiry (never-expires).
+        expiresAt: z.string().datetime().nullable().optional(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const recording = await ctx.db.recording.findFirst({
         where: { id: input.recordingId, orgId: ctx.orgId },
@@ -1156,9 +1171,23 @@ export const recordingsRouter = router({
         }
       }
 
+      const expiresAt =
+        input.expiresAt === undefined
+          ? undefined
+          : input.expiresAt === null
+            ? null
+            : new Date(input.expiresAt)
+
       await ctx.db.recording.update({
         where: { id: recording.id },
-        data: { isPublic: true, publicSlug: slug },
+        data: {
+          isPublic: true,
+          publicSlug: slug,
+          ...(input.permissions !== undefined && {
+            sharePermissions: input.permissions,
+          }),
+          ...(expiresAt !== undefined && { shareExpiresAt: expiresAt }),
+        },
       })
       return { slug, isPublic: true }
     }),
@@ -1176,6 +1205,87 @@ export const recordingsRouter = router({
         data: { isPublic: false },
       })
       return { isPublic: false }
+    }),
+
+  // ── Share state read ────────────────────────────────────────────────────
+  // Returns everything the share modal needs in one shot.
+  getShareState: orgProcedure
+    .input(z.object({ recordingId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const r = await ctx.db.recording.findFirst({
+        where: { id: input.recordingId, orgId: ctx.orgId },
+        select: {
+          isPublic: true,
+          publicSlug: true,
+          sharePermissions: true,
+          shareExpiresAt: true,
+        },
+      })
+      if (!r) throw new TRPCError({ code: 'NOT_FOUND' })
+      return r
+    }),
+
+  // ── Share invites ─────────────────────────────────────────────────────
+  // Plain audit list — see SharedInvite docstring; access enforcement
+  // against these emails is not yet wired into /share/{slug}.
+  listShareInvites: orgProcedure
+    .input(z.object({ recordingId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      // Org-scope check before returning invite emails.
+      const r = await ctx.db.recording.findFirst({
+        where: { id: input.recordingId, orgId: ctx.orgId },
+        select: { id: true },
+      })
+      if (!r) throw new TRPCError({ code: 'NOT_FOUND' })
+      return ctx.db.sharedInvite.findMany({
+        where: { recordingId: input.recordingId },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, email: true, invitedBy: true, createdAt: true },
+      })
+    }),
+
+  addShareInvite: orgProcedure
+    .input(
+      z.object({
+        recordingId: z.string(),
+        email: z.string().email(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const r = await ctx.db.recording.findFirst({
+        where: { id: input.recordingId, orgId: ctx.orgId },
+        select: { id: true },
+      })
+      if (!r) throw new TRPCError({ code: 'NOT_FOUND' })
+      const email = input.email.trim().toLowerCase()
+      const existing = await ctx.db.sharedInvite.findFirst({
+        where: { recordingId: input.recordingId, email },
+        select: { id: true },
+      })
+      if (existing) return { id: existing.id, alreadyInvited: true as const }
+      const created = await ctx.db.sharedInvite.create({
+        data: {
+          recordingId: input.recordingId,
+          email,
+          invitedBy: ctx.userId,
+        },
+        select: { id: true },
+      })
+      return { id: created.id, alreadyInvited: false as const }
+    }),
+
+  removeShareInvite: orgProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const invite = await ctx.db.sharedInvite.findFirst({
+        where: { id: input.id },
+        select: { id: true, recording: { select: { orgId: true } } },
+      })
+      if (!invite || invite.recording.orgId !== ctx.orgId) {
+        throw new TRPCError({ code: 'NOT_FOUND' })
+      }
+      await ctx.db.sharedInvite.delete({ where: { id: input.id } })
+      return { ok: true }
     }),
 })
 

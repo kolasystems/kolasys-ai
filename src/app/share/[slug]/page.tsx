@@ -38,6 +38,8 @@ export default async function SharePage({ params }: Props) {
       title: true,
       createdAt: true,
       duration: true,
+      sharePermissions: true,
+      shareExpiresAt: true,
       transcript: { select: { text: true } },
       notes: {
         orderBy: { createdAt: 'desc' },
@@ -59,6 +61,16 @@ export default async function SharePage({ params }: Props) {
 
   if (!recording) notFound()
 
+  // Expiry check — render an "expired" page if shareExpiresAt is in the past.
+  if (
+    recording.shareExpiresAt &&
+    recording.shareExpiresAt.getTime() < Date.now()
+  ) {
+    return <ExpiredView />
+  }
+
+  // Permission gates — null means everything-on (legacy).
+  const perms = parsePerms(recording.sharePermissions)
   const note = recording.notes[0] ?? null
 
   return (
@@ -97,7 +109,7 @@ export default async function SharePage({ params }: Props) {
         </p>
 
         {/* Summary */}
-        {note?.summary && (
+        {perms.summary && note?.summary && (
           <section className="mt-8 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm" style={{ borderLeft: '3px solid #CA2625' }}>
             <p className="text-xs font-semibold uppercase tracking-widest text-[#CA2625]">
               Summary
@@ -108,8 +120,9 @@ export default async function SharePage({ params }: Props) {
           </section>
         )}
 
-        {/* Sections */}
-        {note?.sections.map((section) => (
+        {/* Sections — included with the Summary permission since they're
+            generated alongside it. */}
+        {perms.summary && note?.sections.map((section) => (
           <section
             key={section.id}
             className="mt-4 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"
@@ -125,7 +138,7 @@ export default async function SharePage({ params }: Props) {
         ))}
 
         {/* Action items */}
-        {note?.actionItems && note.actionItems.length > 0 && (
+        {perms.actionItems && note?.actionItems && note.actionItems.length > 0 && (
           <section className="mt-4 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm" style={{ borderLeft: '3px solid #CA2625' }}>
             <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-neutral-700">
               <CheckCircle2 className="h-4 w-4" /> Action items
@@ -152,7 +165,7 @@ export default async function SharePage({ params }: Props) {
         )}
 
         {/* Transcript */}
-        {recording.transcript?.text && (
+        {perms.transcript && recording.transcript?.text && (
           <section className="mt-4 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
             <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-neutral-700">
               <Mic2 className="h-4 w-4" /> Transcript
@@ -177,6 +190,44 @@ export default async function SharePage({ params }: Props) {
           </Link>
         </footer>
       </main>
+    </div>
+  )
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+
+type SharePerms = { transcript: boolean; summary: boolean; actionItems: boolean }
+
+/** Tolerantly parse the `sharePermissions` JSON column. null → everything on
+ *  (legacy default before per-share permissions existed). */
+function parsePerms(raw: unknown): SharePerms {
+  if (raw && typeof raw === 'object') {
+    const p = raw as Partial<SharePerms>
+    return {
+      transcript: p.transcript ?? true,
+      summary: p.summary ?? true,
+      actionItems: p.actionItems ?? true,
+    }
+  }
+  return { transcript: true, summary: true, actionItems: true }
+}
+
+function ExpiredView() {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#F8F9FC] px-6 text-center">
+      <KolasysLogoMark size={28} className="mb-4 text-black" />
+      <h1 className="text-xl font-bold text-neutral-900">This link has expired</h1>
+      <p className="mt-2 max-w-md text-sm text-neutral-500">
+        The owner of this recording set an expiry on the share link. Reach out to
+        them directly if you still need access.
+      </p>
+      <Link
+        href="/"
+        className="mt-5 rounded-lg px-4 py-2 text-sm font-semibold text-white"
+        style={{ backgroundColor: '#CA2625' }}
+      >
+        Try Kolasys AI free
+      </Link>
     </div>
   )
 }

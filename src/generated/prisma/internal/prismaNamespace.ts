@@ -403,6 +403,7 @@ export const ModelName = {
   AdminUser: 'AdminUser',
   AdminAuditLog: 'AdminAuditLog',
   Soundbite: 'Soundbite',
+  SharedInvite: 'SharedInvite',
   WebPushSubscription: 'WebPushSubscription'
 } as const
 
@@ -419,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "organization" | "orgMember" | "recording" | "transcript" | "transcriptSegment" | "speakerLabel" | "note" | "noteSection" | "actionItem" | "noteComment" | "noteTemplate" | "processingJob" | "apiKey" | "transcriptEmbedding" | "knowledgeEntity" | "knowledgeEntityRecording" | "adminUser" | "adminAuditLog" | "soundbite" | "webPushSubscription"
+    modelProps: "organization" | "orgMember" | "recording" | "transcript" | "transcriptSegment" | "speakerLabel" | "note" | "noteSection" | "actionItem" | "noteComment" | "noteTemplate" | "processingJob" | "apiKey" | "transcriptEmbedding" | "knowledgeEntity" | "knowledgeEntityRecording" | "adminUser" | "adminAuditLog" | "soundbite" | "sharedInvite" | "webPushSubscription"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1829,6 +1830,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SharedInvite: {
+      payload: Prisma.$SharedInvitePayload<ExtArgs>
+      fields: Prisma.SharedInviteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SharedInviteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedInvitePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SharedInviteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedInvitePayload>
+        }
+        findFirst: {
+          args: Prisma.SharedInviteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedInvitePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SharedInviteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedInvitePayload>
+        }
+        findMany: {
+          args: Prisma.SharedInviteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedInvitePayload>[]
+        }
+        create: {
+          args: Prisma.SharedInviteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedInvitePayload>
+        }
+        createMany: {
+          args: Prisma.SharedInviteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SharedInviteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedInvitePayload>[]
+        }
+        delete: {
+          args: Prisma.SharedInviteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedInvitePayload>
+        }
+        update: {
+          args: Prisma.SharedInviteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedInvitePayload>
+        }
+        deleteMany: {
+          args: Prisma.SharedInviteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SharedInviteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SharedInviteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedInvitePayload>[]
+        }
+        upsert: {
+          args: Prisma.SharedInviteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SharedInvitePayload>
+        }
+        aggregate: {
+          args: Prisma.SharedInviteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSharedInvite>
+        }
+        groupBy: {
+          args: Prisma.SharedInviteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SharedInviteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SharedInviteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SharedInviteCountAggregateOutputType> | number
+        }
+      }
+    }
     WebPushSubscription: {
       payload: Prisma.$WebPushSubscriptionPayload<ExtArgs>
       fields: Prisma.WebPushSubscriptionFieldRefs
@@ -2009,6 +2084,8 @@ export const RecordingScalarFieldEnum = {
   endedAt: 'endedAt',
   isPublic: 'isPublic',
   publicSlug: 'publicSlug',
+  sharePermissions: 'sharePermissions',
+  shareExpiresAt: 'shareExpiresAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2244,6 +2321,17 @@ export const SoundbiteScalarFieldEnum = {
 export type SoundbiteScalarFieldEnum = (typeof SoundbiteScalarFieldEnum)[keyof typeof SoundbiteScalarFieldEnum]
 
 
+export const SharedInviteScalarFieldEnum = {
+  id: 'id',
+  recordingId: 'recordingId',
+  email: 'email',
+  invitedBy: 'invitedBy',
+  createdAt: 'createdAt'
+} as const
+
+export type SharedInviteScalarFieldEnum = (typeof SharedInviteScalarFieldEnum)[keyof typeof SharedInviteScalarFieldEnum]
+
+
 export const WebPushSubscriptionScalarFieldEnum = {
   id: 'id',
   orgMemberId: 'orgMemberId',
@@ -2264,19 +2352,19 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -2430,6 +2518,20 @@ export type ListEnumMeetingPlatformFieldRefInput<$PrismaModel> = FieldRefInputTy
 
 
 /**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -2468,20 +2570,6 @@ export type EnumPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
  * Reference to a field of type 'Priority[]'
  */
 export type ListEnumPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Priority[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -2654,6 +2742,7 @@ export type GlobalOmitConfig = {
   adminUser?: Prisma.AdminUserOmit
   adminAuditLog?: Prisma.AdminAuditLogOmit
   soundbite?: Prisma.SoundbiteOmit
+  sharedInvite?: Prisma.SharedInviteOmit
   webPushSubscription?: Prisma.WebPushSubscriptionOmit
 }
 

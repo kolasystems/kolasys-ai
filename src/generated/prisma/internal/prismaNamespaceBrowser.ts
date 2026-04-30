@@ -70,6 +70,7 @@ export const ModelName = {
   AdminUser: 'AdminUser',
   AdminAuditLog: 'AdminAuditLog',
   Soundbite: 'Soundbite',
+  SharedInvite: 'SharedInvite',
   WebPushSubscription: 'WebPushSubscription'
 } as const
 
@@ -156,6 +157,8 @@ export const RecordingScalarFieldEnum = {
   endedAt: 'endedAt',
   isPublic: 'isPublic',
   publicSlug: 'publicSlug',
+  sharePermissions: 'sharePermissions',
+  shareExpiresAt: 'shareExpiresAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -391,6 +394,17 @@ export const SoundbiteScalarFieldEnum = {
 export type SoundbiteScalarFieldEnum = (typeof SoundbiteScalarFieldEnum)[keyof typeof SoundbiteScalarFieldEnum]
 
 
+export const SharedInviteScalarFieldEnum = {
+  id: 'id',
+  recordingId: 'recordingId',
+  email: 'email',
+  invitedBy: 'invitedBy',
+  createdAt: 'createdAt'
+} as const
+
+export type SharedInviteScalarFieldEnum = (typeof SharedInviteScalarFieldEnum)[keyof typeof SharedInviteScalarFieldEnum]
+
+
 export const WebPushSubscriptionScalarFieldEnum = {
   id: 'id',
   orgMemberId: 'orgMemberId',
@@ -411,19 +425,19 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-export const JsonNullValueInput = {
-  JsonNull: JsonNull
-} as const
-
-export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

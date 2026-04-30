@@ -186,8 +186,14 @@ model Recording {
   // Public sharing — when isPublic=true, /share/{publicSlug} renders the
   // notes + transcript without auth. publicSlug is null until the owner
   // hits "Share" the first time; cleared on Make Private.
-  isPublic    Boolean          @default(false)
-  publicSlug  String?          @unique
+  isPublic         Boolean   @default(false)
+  publicSlug       String?   @unique
+  // Per-share permission map: { transcript, summary, actionItems } booleans.
+  // null = all-on (the historical default before this column was added).
+  sharePermissions Json?
+  // Expiry — the public page renders a "link expired" view past this point.
+  // null = never expires.
+  shareExpiresAt   DateTime?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
@@ -198,6 +204,7 @@ model Recording {
   speakerLabels SpeakerLabel[]
   knowledgeLinks KnowledgeEntityRecording[]
   soundbites   Soundbite[]
+  shareInvites SharedInvite[]
 
   @@index([orgId, status])
   @@index([orgId, createdAt(sort: Desc)])
@@ -504,6 +511,24 @@ model Soundbite {
 
   @@index([recordingId, startSeconds])
   @@index([orgId, createdAt(sort: Desc)])
+}
+
+// ── Recording share invites ────────────────────────────────────────────────
+// Users the owner has explicitly invited to a public-share recording.
+// Stored for an audit trail; access enforcement (e.g. requiring a Clerk
+// session whose email matches an invite) is a follow-up — for now the
+// /share/{slug} page is open to anyone with the link.
+model SharedInvite {
+  id          String   @id @default(cuid())
+  recordingId String
+  email       String
+  invitedBy   String   // Clerk userId of the inviter
+  createdAt   DateTime @default(now())
+
+  recording Recording @relation(fields: [recordingId], references: [id], onDelete: Cascade)
+
+  @@unique([recordingId, email])
+  @@index([recordingId])
 }
 
 // ── Web Push subscriptions — one per (member, browser) ─────────────────────

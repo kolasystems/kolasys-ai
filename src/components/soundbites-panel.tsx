@@ -4,7 +4,7 @@
 // soundbite captured against this recording with a duration pill, a
 // transcript excerpt, and a delete button.
 
-import { Scissors, Trash2 } from 'lucide-react'
+import { ArrowRight, Lightbulb, Scissors, Trash2 } from 'lucide-react'
 import { trpc } from '@/lib/trpc'
 
 function fmtSeconds(secs: number): string {
@@ -13,16 +13,45 @@ function fmtSeconds(secs: number): string {
   return `${m}:${String(s).padStart(2, '0')}`
 }
 
-export function SoundbitesPanel({ recordingId }: { recordingId: string }) {
+type Props = {
+  recordingId: string
+  /** When provided, renders a "Switch to transcript" CTA so the user can
+   *  capture more soundbites without hunting for the right tab. */
+  onOpenTranscript?: () => void
+}
+
+export function SoundbitesPanel({ recordingId, onOpenTranscript }: Props) {
   const utils = trpc.useUtils()
   const { data, isLoading } = trpc.soundbites.list.useQuery({ recordingId })
   const deleteSoundbite = trpc.soundbites.delete.useMutation({
     onSuccess: () => utils.soundbites.list.invalidate(),
   })
 
+  // Always-visible nudge — the "Create soundbite" button only appears in
+  // the transcript view, so people landing here need a clear bridge over.
+  const Hint = onOpenTranscript ? (
+    <div className="mb-3 flex items-start gap-2 rounded-lg border border-[#CA2625]/15 bg-[#CA2625]/5 px-3 py-2.5">
+      <Lightbulb className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-[#CA2625]" />
+      <div className="flex-1 text-xs text-neutral-700 dark:text-gray-300">
+        Switch to the Transcript tab, select any text, then tap{' '}
+        <span className="font-semibold text-[#CA2625]">Create soundbite</span>{' '}
+        to clip a moment.
+      </div>
+      <button
+        type="button"
+        onClick={onOpenTranscript}
+        className="inline-flex flex-shrink-0 items-center gap-1 rounded-md bg-[#CA2625] px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-[#b21f1f]"
+      >
+        Open transcript
+        <ArrowRight className="h-3 w-3" />
+      </button>
+    </div>
+  ) : null
+
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center">
+      <div className="h-full overflow-y-auto px-4 py-4 sm:px-5">
+        {Hint}
         <p className="text-xs text-muted">Loading soundbites…</p>
       </div>
     )
@@ -30,20 +59,24 @@ export function SoundbitesPanel({ recordingId }: { recordingId: string }) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center px-6 text-center">
-        <Scissors className="mb-3 h-10 w-10 text-muted" />
-        <p className="text-sm font-medium text-secondary">No soundbites yet</p>
-        <p className="mt-1 max-w-xs text-xs text-muted">
-          Highlight a passage in the transcript and tap{' '}
-          <span className="font-semibold text-[#CA2625]">Create soundbite</span>{' '}
-          to clip a memorable moment.
-        </p>
+      <div className="h-full overflow-y-auto px-4 py-4 sm:px-5">
+        {Hint}
+        <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+          <Scissors className="mb-3 h-10 w-10 text-muted" />
+          <p className="text-sm font-medium text-secondary">No soundbites yet</p>
+          <p className="mt-1 max-w-xs text-xs text-muted">
+            Highlight a passage in the transcript and tap{' '}
+            <span className="font-semibold text-[#CA2625]">Create soundbite</span>{' '}
+            to clip a memorable moment.
+          </p>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="h-full overflow-y-auto px-4 py-4 sm:px-5">
+      {Hint}
       <ul className="space-y-3">
         {data.map((b) => {
           const duration = Math.max(0, b.endSeconds - b.startSeconds)

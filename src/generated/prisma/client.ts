@@ -137,6 +137,11 @@ export type AdminAuditLog = Prisma.AdminAuditLogModel
  */
 export type Soundbite = Prisma.SoundbiteModel
 /**
+ * Model SharedInvite
+ * 
+ */
+export type SharedInvite = Prisma.SharedInviteModel
+/**
  * Model WebPushSubscription
  * 
  */

@@ -338,7 +338,10 @@ export function RecordingSplitView({
             ) : rightTabIsInsights ? (
               <AISuggestionsPanel recordingId={recordingId} />
             ) : rightTabIsSoundbites ? (
-              <SoundbitesPanel recordingId={recordingId} />
+              <SoundbitesPanel
+                recordingId={recordingId}
+                onOpenTranscript={() => setTab('transcript')}
+              />
             ) : transcript ? (
               <SoundbiteCapture recordingId={recordingId}>
                 <div className="h-full overflow-y-auto px-4 py-4 sm:px-5">
