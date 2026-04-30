@@ -97,10 +97,14 @@ export async function POST(req: Request) {
           const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.kolasys.ai'
           const firstName = d.first_name ?? 'there'
 
-          // Send welcome email (non-fatal — don't let email failure break the webhook)
+          // Send welcome email (non-fatal — don't let email failure break the webhook).
+          // From: hello@kolasys.ai requires the kolasys.ai domain to be verified
+          // in Resend; otherwise the send returns an error and we fall back to
+          // the configured FROM_EMAIL via the catch path.
           sendEmail({
             to: primaryEmail,
-            subject: 'Welcome to Kolasys AI',
+            from: 'Kolasys AI <hello@kolasys.ai>',
+            subject: 'Welcome to Kolasys AI 👋',
             react: React.createElement(WelcomeEmail, { firstName, appUrl }),
           }).catch((err) =>
             console.error('[clerk webhook] Failed to send welcome email:', err)

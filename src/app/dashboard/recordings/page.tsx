@@ -8,6 +8,7 @@ import { Plus, Mic2, Clock, FileText, Search, X } from 'lucide-react'
 import { trpc } from '@/lib/trpc'
 import { StatusBadge } from '@/components/status-badge'
 import { NewRecordingModal } from '@/components/new-recording-modal'
+import { QuickVoiceUploadButton } from '@/components/quick-voice-upload-button'
 import { formatDuration, relativeTime } from '@/lib/utils'
 
 const TERMINAL = ['READY', 'FAILED']
@@ -73,14 +74,17 @@ export default function RecordingsPage() {
             All your meeting recordings in one place.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setModalOpen(true)}
-          className="flex min-h-[44px] items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white shadow-md shadow-[color:var(--accent)]/25 transition-all hover:-translate-y-0.5 hover:shadow-lg"
-        >
-          <Plus className="h-4 w-4" />
-          New Recording
-        </button>
+        <div className="flex items-center gap-2">
+          <QuickVoiceUploadButton />
+          <button
+            type="button"
+            onClick={() => setModalOpen(true)}
+            className="flex min-h-[44px] items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white shadow-md shadow-[color:var(--accent)]/25 transition-all hover:-translate-y-0.5 hover:shadow-lg"
+          >
+            <Plus className="h-4 w-4" />
+            New Recording
+          </button>
+        </div>
       </div>
 
       {/* Search bar — submit-on-Enter + 500ms debounce */}

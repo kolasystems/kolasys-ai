@@ -4,12 +4,13 @@
 
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { CheckCircle2, Sparkles } from 'lucide-react'
+import { CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react'
 import { db } from '@/lib/db'
 import {
   PRICES,
   createOrgCheckoutSession,
   createOrgPortalSession,
+  getStripe,
 } from '@/lib/stripe'
 
 export const dynamic = 'force-dynamic'
@@ -116,6 +117,30 @@ export default async function BillingPage({ searchParams }: Props) {
 
   const isPaid =
     org.plan === 'PRO' || org.plan === 'TEAM' || org.plan === 'ENTERPRISE'
+
+  // Pull the renewal date from Stripe when we have a subscription. Stripe
+  // failures (network, missing env) are non-fatal — the page degrades to
+  // a card without the date.
+  let renewalDate: Date | null = null
+  if (isPaid && org.stripeSubscriptionId) {
+    try {
+      const sub = await getStripe().subscriptions.retrieve(
+        org.stripeSubscriptionId,
+      )
+      // Stripe v22 / dahlia: period end lives on each subscription item.
+      // Fall back to the legacy top-level field for older API versions
+      // (we pin 2025-01-27.acacia in `lib/stripe.ts`).
+      const itemEnd = sub.items?.data?.[0]?.current_period_end
+      const legacyEnd = (sub as unknown as { current_period_end?: number })
+        .current_period_end
+      const periodEnd = itemEnd ?? legacyEnd
+      if (periodEnd) {
+        renewalDate = new Date(periodEnd * 1000)
+      }
+    } catch (err) {
+      console.error('[billing] failed to retrieve subscription:', err)
+    }
+  }
   const trialActive =
     org.trialEndsAt !== null && org.trialEndsAt.getTime() > Date.now()
   const trialDaysLeft = trialActive
@@ -221,6 +246,67 @@ export default async function BillingPage({ searchParams }: Props) {
           )}
         </div>
       </section>
+
+      {/* Paid plan section — Manage Subscription + renewal + cancel note */}
+      {isPaid && (
+        <section className="mb-6 rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#1A1A24]">
+          <div className="mb-4 flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-[#CA2625]" />
+            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+              Subscription
+            </h2>
+          </div>
+
+          <dl className="mb-5 space-y-2 text-sm">
+            <div className="flex items-center justify-between">
+              <dt className="text-neutral-500 dark:text-gray-400">Plan</dt>
+              <dd className="font-semibold text-neutral-900 dark:text-white">
+                {org.plan}
+              </dd>
+            </div>
+            {renewalDate && (
+              <div className="flex items-center justify-between">
+                <dt className="text-neutral-500 dark:text-gray-400">
+                  {trialActive ? 'Trial converts on' : 'Renews on'}
+                </dt>
+                <dd className="text-neutral-900 dark:text-white">
+                  {renewalDate.toLocaleDateString(undefined, {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </dd>
+              </div>
+            )}
+            {trialActive && org.trialEndsAt && (
+              <div className="flex items-center justify-between">
+                <dt className="text-neutral-500 dark:text-gray-400">Trial ends</dt>
+                <dd className="text-neutral-900 dark:text-white">
+                  {org.trialEndsAt.toLocaleDateString()} ({trialDaysLeft}d left)
+                </dd>
+              </div>
+            )}
+          </dl>
+
+          {org.stripeCustomerId ? (
+            <form action={openPortalAction}>
+              <button
+                type="submit"
+                className="w-full rounded-lg bg-[#CA2625] py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#b21f1f] sm:w-auto sm:px-6"
+              >
+                Manage subscription
+              </button>
+            </form>
+          ) : (
+            <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
+              No Stripe customer linked yet — contact support if billing changes are needed.
+            </p>
+          )}
+          <p className="mt-3 text-xs text-neutral-500 dark:text-gray-400">
+            Cancel anytime — your plan stays active through the end of the current billing period.
+          </p>
+        </section>
+      )}
 
       {/* Upgrade CTA — only shown on FREE */}
       {!isPaid && (

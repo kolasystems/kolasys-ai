@@ -45,9 +45,13 @@ export function WelcomeEmail({ firstName, appUrl }: WelcomeEmailProps) {
 
           <Hr style={divider} />
 
-          <Button style={button} href={`${appUrl}/dashboard`}>
-            Open Dashboard
+          <Button style={button} href={`${appUrl}/dashboard/recordings`}>
+            Record your first meeting
           </Button>
+
+          <Text style={subdued}>
+            Or <Link href={`${appUrl}/dashboard`} style={footerLink}>open the dashboard</Link>.
+          </Text>
 
           <Hr style={divider} />
 
@@ -79,7 +83,7 @@ const container: React.CSSProperties = {
 }
 
 const h1: React.CSSProperties = {
-  color: '#4f46e5',
+  color: '#CA2625',
   fontSize: '28px',
   fontWeight: 700,
   margin: '0 0 24px',
@@ -112,7 +116,7 @@ const divider: React.CSSProperties = {
 }
 
 const button: React.CSSProperties = {
-  backgroundColor: '#4f46e5',
+  backgroundColor: '#CA2625',
   color: '#ffffff',
   borderRadius: '6px',
   padding: '12px 24px',
@@ -130,6 +134,12 @@ const footer: React.CSSProperties = {
 }
 
 const footerLink: React.CSSProperties = {
-  color: '#4f46e5',
+  color: '#CA2625',
   textDecoration: 'none',
+}
+
+const subdued: React.CSSProperties = {
+  fontSize: '13px',
+  color: '#6b7280',
+  margin: '12px 0 0',
 }

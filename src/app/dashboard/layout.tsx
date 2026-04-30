@@ -8,6 +8,39 @@ import { CreateOrganization } from '@clerk/nextjs'
 import { MobileNav } from '@/components/mobile-nav'
 import { CollapsibleSidebar } from '@/components/sidebar'
 import { KolasysLogoMark } from '@/components/kolasys-logo'
+import { TrialBanner } from '@/components/trial-banner'
+import { db } from '@/lib/db'
+
+type TrialState =
+  | { kind: 'expiring'; daysLeft: number; trialEndIso: string }
+  | { kind: 'expired'; trialEndIso: string }
+  | null
+
+async function resolveTrialState(clerkOrgId: string): Promise<TrialState> {
+  const org = await db.organization.findFirst({
+    where: { clerkOrgId },
+    select: { plan: true, trialEndsAt: true },
+  })
+  if (!org?.trialEndsAt) return null
+
+  const ms = org.trialEndsAt.getTime() - Date.now()
+  const trialEndIso = org.trialEndsAt.toISOString()
+  const day = 24 * 60 * 60 * 1000
+
+  // Yellow: trial active and ≤7 days remain.
+  if (ms > 0 && ms <= 7 * day) {
+    return {
+      kind: 'expiring',
+      daysLeft: Math.max(1, Math.ceil(ms / day)),
+      trialEndIso,
+    }
+  }
+  // Red: trial expired AND user is still on FREE (didn't upgrade).
+  if (ms <= 0 && org.plan === 'FREE') {
+    return { kind: 'expired', trialEndIso }
+  }
+  return null
+}
 
 export default async function DashboardLayout({
   children,
@@ -40,6 +73,8 @@ export default async function DashboardLayout({
     )
   }
 
+  const trialState = await resolveTrialState(orgId)
+
   return (
     <div className="flex h-screen overflow-hidden bg-app">
       {/* Desktop sidebar — Fireflies-style collapsible */}
@@ -49,6 +84,7 @@ export default async function DashboardLayout({
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <MobileNav />
         <main className="flex-1 overflow-y-auto bg-[#F8F9FC] dark:bg-[#0F0F13]">
+          <TrialBanner state={trialState} />
           {children}
         </main>
       </div>

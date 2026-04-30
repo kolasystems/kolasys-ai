@@ -17,16 +17,18 @@ interface SendEmailOptions {
   subject: string
   react: ReactElement
   replyTo?: string
+  /** Optional From override. Defaults to FROM_EMAIL. */
+  from?: string
 }
 
 /**
  * Send a transactional email via Resend.
  * Returns the Resend message ID on success or null on failure (non-fatal).
  */
-export async function sendEmail({ to, subject, react, replyTo }: SendEmailOptions) {
+export async function sendEmail({ to, subject, react, replyTo, from }: SendEmailOptions) {
   try {
     const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: from ?? FROM_EMAIL,
       to,
       subject,
       react,
