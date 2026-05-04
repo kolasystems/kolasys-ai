@@ -5,6 +5,7 @@ import { Loader2, Play, SkipBack, SkipForward } from 'lucide-react'
 import { trpc } from '@/lib/trpc'
 import { formatDuration } from '@/lib/utils'
 import { SpeakerLabelEditor } from './speaker-label-editor'
+import { EditableSpeakerLabel } from './editable-speaker-label'
 import { cn } from '@/lib/utils'
 
 type Segment = {
@@ -331,8 +332,14 @@ export function TranscriptPaginated({
                 {formatDuration(seg.startTime)}
               </button>
               <div className="min-w-0">
-                {displayName && (
-                  <p className={cn('mb-0.5 text-xs font-semibold', color)}>{displayName}</p>
+                {displayName && seg.speaker && (
+                  <p className={cn('mb-0.5 text-xs font-semibold', color)}>
+                    <EditableSpeakerLabel
+                      recordingId={recordingId}
+                      speakerId={seg.speaker}
+                      displayName={displayName}
+                    />
+                  </p>
                 )}
                 {hasWords ? (
                   // Word-level click-to-seek. Whisper includes a leading space

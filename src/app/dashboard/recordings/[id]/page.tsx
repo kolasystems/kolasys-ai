@@ -13,6 +13,7 @@ import { GenerateEmbeddingsButton } from '@/components/generate-embeddings-butto
 import { RecordingActionsMenu } from '@/components/recording-actions-menu'
 import { RecordingSplitView } from '@/components/recording-split-view'
 import { ShareRecordingButton } from '@/components/share-recording-button'
+import { EditableRecordingTitle } from '@/components/editable-recording-title'
 import { formatDuration, relativeTime } from '@/lib/utils'
 import { Mic2, Clock, Calendar, User } from 'lucide-react'
 
@@ -133,9 +134,12 @@ export default async function RecordingDetailPage({ params }: Props) {
               >
                 <Mic2 className="h-4 w-4 text-accent sm:h-5 sm:w-5" />
               </div>
-              <h1 className="truncate text-lg font-bold text-primary sm:text-xl">
-                {recording.title}
-              </h1>
+              <div className="min-w-0 flex-1">
+                <EditableRecordingTitle
+                  recordingId={recording.id}
+                  initialTitle={recording.title}
+                />
+              </div>
             </div>
 
             {/* Meta row */}

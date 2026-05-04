@@ -215,6 +215,22 @@ export const recordingsRouter = router({
       return recording
     }),
 
+  // ── Rename a recording ────────────────────────────────────────────────────
+  updateTitle: orgProcedure
+    .input(z.object({ id: z.string(), title: z.string().min(1).max(200) }))
+    .mutation(async ({ ctx, input }) => {
+      const existing = await ctx.db.recording.findFirst({
+        where: { id: input.id, orgId: ctx.orgId },
+        select: { id: true },
+      })
+      if (!existing) throw new TRPCError({ code: 'NOT_FOUND' })
+      await ctx.db.recording.update({
+        where: { id: input.id },
+        data: { title: input.title.trim() },
+      })
+      return { id: input.id, title: input.title.trim() }
+    }),
+
   // ── Delete a recording ────────────────────────────────────────────────────
   delete: orgProcedure
     .input(z.object({ id: z.string() }))

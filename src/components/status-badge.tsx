@@ -69,7 +69,9 @@ const IN_PROGRESS: ReadonlySet<RecordingStatus> = new Set([
   'TRANSCRIBING',
   'SUMMARIZING',
 ])
-const STUCK_THRESHOLD_MS = 30 * 60_000
+// 10-minute stuck threshold — beyond this, in-progress statuses surface a
+// Retry affordance in the recordings list and on the detail page.
+const STUCK_THRESHOLD_MS = 10 * 60_000
 
 export function isStuck(status: RecordingStatus, createdAt: Date | string): boolean {
   if (!IN_PROGRESS.has(status)) return false

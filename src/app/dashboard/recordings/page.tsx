@@ -6,7 +6,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Plus, Mic2, Clock, FileText, Search, X } from 'lucide-react'
 import { trpc } from '@/lib/trpc'
-import { StatusBadge } from '@/components/status-badge'
+import { StatusBadge, isStuck } from '@/components/status-badge'
+import { RetryStuckButton } from '@/components/retry-stuck-button'
 import { NewRecordingModal } from '@/components/new-recording-modal'
 import { QuickVoiceUploadButton } from '@/components/quick-voice-upload-button'
 import { formatDuration, relativeTime } from '@/lib/utils'
@@ -292,8 +293,12 @@ function SearchResultRow({ result, query }: { result: SearchResult; query: strin
 }
 
 function RecordingRow({ r }: { r: RowRecording }) {
+  const stuck = isStuck(
+    r.status as Parameters<typeof isStuck>[0],
+    r.createdAt,
+  )
   return (
-    <li>
+    <li className="relative">
       <Link
         href={`/dashboard/recordings/${r.id}`}
         className="glass lift-on-hover group flex items-center gap-3 px-4 py-3 sm:gap-4 sm:px-5"
@@ -328,6 +333,19 @@ function RecordingRow({ r }: { r: RowRecording }) {
           </div>
         </div>
       </Link>
+      {stuck && (
+        // Sits over the row's right edge so the click never reaches the
+        // outer Link. RetryStuckButton renders its own <button>.
+        <div
+          className="absolute right-3 top-1/2 -translate-y-1/2"
+          onClickCapture={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+          }}
+        >
+          <RetryStuckButton recordingId={r.id} size="sm" />
+        </div>
+      )}
     </li>
   )
 }

@@ -9,6 +9,7 @@ import { useRef, useState } from 'react'
 import { CheckSquare, FileText, Lightbulb, Mic2, Scissors, Search, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { EditableActionItem } from './editable-action-item'
+import { applySpeakerLabels } from '@/lib/speaker-substitute'
 import { EditableNoteSection } from './editable-note-section'
 import { TranscriptPaginated } from './transcript-paginated'
 import { NameSpeakersModal } from './name-speakers-modal'
@@ -237,8 +238,14 @@ export function RecordingSplitView({
                         <EditableActionItem
                           key={item.id}
                           itemId={item.id}
-                          title={item.title}
-                          description={item.description}
+                          // Substitute "SPEAKER_0" / "Speaker 0" with the
+                          // user-set name at render time. Storage stays raw.
+                          title={applySpeakerLabels(item.title, speakerLabels)}
+                          description={
+                            item.description
+                              ? applySpeakerLabels(item.description, speakerLabels)
+                              : item.description
+                          }
                           initialStatus={item.status}
                           initialPriority={item.priority}
                           dueDate={item.dueDate}
