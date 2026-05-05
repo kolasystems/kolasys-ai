@@ -19,6 +19,10 @@ const isPublicRoute = createRouteMatcher([
   // possible from Stripe's IPs), checkout/portal handlers gate themselves
   // via auth() and return 401 if missing.
   '/api/stripe/(.*)',
+  // Web push routes — vapid-public-key returns a public value; subscribe
+  // self-gates via auth(). Letting the middleware skip them avoids
+  // redirect loops if the service worker fetches before Clerk is ready.
+  '/api/push/(.*)',
   // tRPC routes handle their own auth via protectedProcedure / orgProcedure.
   // Letting the middleware redirect here produces a 302 → /sign-in response
   // that httpBatchStreamLink can't parse, causing "Stream closed before head

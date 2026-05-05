@@ -6,7 +6,7 @@
 **Production:** https://app.kolasys.ai  
 **tRPC API:** `https://app.kolasys.ai/api/trpc`  
 **Mobile repo:** `~/Desktop/kolasys-ai-mobile` · `github.com/kolasystems/kolasys-ai-mobile`  
-**Last updated:** 2026-04-29
+**Last updated:** 2026-05-05
 
 ---
 
@@ -72,8 +72,13 @@ Root router is `src/server/root.ts` — **not** `src/server/routers/index.ts`. R
 Add new public routes to `src/proxy.ts`. Currently public:
 - `/sign-in(.*)`, `/sign-up(.*)`
 - `/pricing(.*)`
+- `/share/(.*)` — public recording share pages (no auth)
 - `/api/webhooks/(.*)`
 - `/api/v1/(.*)` — bearer-token authenticated REST API
+- `/api/stripe/(.*)` — Stripe webhook is signature-verified; checkout +
+  portal route handlers gate themselves via `auth({ acceptsToken: 'session_token' })`
+  so they accept both browser cookies and mobile Bearer tokens
+- `/api/push/(.*)` — vapid-public-key is a public value; subscribe self-gates via `auth()`
 
 ---
 
@@ -82,63 +87,94 @@ Add new public routes to `src/proxy.ts`. Currently public:
 ```
 src/
 ├── app/
+│   ├── admin/page.tsx                Internal cross-tenant dashboard (gated by AdminUser table)
 │   ├── dashboard/
 │   │   ├── page.tsx                  Overview — gradient stat cards
-│   │   ├── recordings/page.tsx       Recordings list + semantic search
+│   │   ├── layout.tsx                TrialBanner + WebPushRegistrar mounted here
+│   │   ├── recordings/page.tsx       Meetings list + semantic search (route stays /recordings; UI label = "Meetings")
+│   │   ├── recordings/[id]/page.tsx  Split-pane recording detail
 │   │   ├── action-items/page.tsx     Action items across all recordings
 │   │   ├── analytics/page.tsx        Conversation intelligence
 │   │   ├── contacts/page.tsx         Auto-extracted contacts
-│   │   ├── ask-ai/page.tsx           Global Ask AI (uses /api/ai/ask SSE)
+│   │   ├── knowledge/page.tsx        Personal knowledge graph (people / topics / projects)
+│   │   ├── soundbites/page.tsx       Cross-recording soundbites browser
+│   │   ├── search/page.tsx           Global Ask AI (uses /api/ai/ask SSE)
 │   │   ├── calendar/page.tsx         Calendar + Google OAuth
+│   │   ├── billing/page.tsx          Stripe billing — plan, usage, manage subscription
 │   │   ├── settings/page.tsx         All settings sections
-│   │   ├── settings/templates/       Template management
-│   │   └── recordings/[id]/page.tsx  Split-pane recording detail
+│   │   └── settings/templates/       Template management
 │   ├── api/
 │   │   ├── ai/ask/route.ts           POST — SSE stream (Anthropic + pgvector)
 │   │   ├── ai/suggestions/route.ts   POST — post-meeting analysis
+│   │   ├── admin/export/[orgId]/     GET — admin-gated full org JSON dump
 │   │   ├── auth/google/              Google OAuth for calendar
 │   │   ├── cron/daily-digest/        8 AM cron
 │   │   ├── cron/weekly-digest/       Weekly recap
+│   │   ├── push/
+│   │   │   ├── subscribe/            POST — saves PushSubscription to WebPushSubscription
+│   │   │   └── vapid-public-key/     GET — public VAPID key for SW subscribe
+│   │   ├── stripe/
+│   │   │   ├── checkout/route.ts     POST — Checkout session (Bearer-token compatible)
+│   │   │   ├── portal/route.ts       POST — Billing Portal session (Bearer-token compatible)
+│   │   │   └── webhook/route.ts      POST — signature-verified Stripe events
 │   │   ├── trpc/[trpc]/route.ts      tRPC HTTP handler
-│   │   ├── webhooks/clerk/route.ts   Clerk org/user sync (svix HMAC)
+│   │   ├── webhooks/clerk/route.ts   Clerk org/user sync (svix HMAC) + welcome email
 │   │   ├── webhooks/recall/route.ts  Recall.ai bot status events
 │   │   └── v1/                       Public REST API (bearer-token auth)
 │   │       └── recordings/
-│   │           ├── route.ts          GET /api/v1/recordings
+│   │           ├── route.ts          GET list / POST create (desktop app)
 │   │           └── [id]/
-│   │               ├── transcript/   GET /api/v1/recordings/{id}/transcript
-│   │               └── actions/      GET /api/v1/recordings/{id}/actions
+│   │               ├── confirm/      POST — desktop app confirms upload
+│   │               ├── transcript/   GET — transcript segments
+│   │               └── actions/      GET — action items
 │   ├── pricing/page.tsx              Public pricing page (no auth required)
+│   ├── share/[slug]/page.tsx         Public share page — respects sharePermissions + shareExpiresAt
 │   └── layout.tsx                    Pre-hydration dark mode script in <head>
 ├── server/
 │   ├── root.ts                       Root tRPC router — register all routers here
 │   └── routers/
-│       ├── recordings.router.ts
+│       ├── recordings.router.ts      List/get/create/update/delete + share + retry-stuck + regenerate-title
 │       ├── search.router.ts          search.askAI — global vector search
 │       ├── settings.router.ts
 │       ├── apikeys.router.ts         API key generation + revocation
 │       ├── analytics.router.ts
 │       ├── contacts.router.ts
 │       ├── knowledge.router.ts
-│       └── templates.router.ts (or similar)
+│       ├── templates.router.ts
+│       ├── billing.router.ts         getSubscription / createCheckoutSession / createPortalSession
+│       └── soundbites.router.ts      Soundbites list / create / delete
 ├── workers/
 │   ├── transcription.worker.ts       Upstash Redis queue consumer
-│   └── summarization.worker.ts       Upstash Redis queue consumer + Expo push
+│   └── summarization.worker.ts       Steps 5–8.6: summary, AI-title (8.4), push (8.5), knowledge (8.6)
 ├── services/
-│   └── push.service.ts               sendExpoPush() — Expo Push API, no SDK
+│   ├── push.service.ts               sendExpoPush() — Expo Push API, no SDK
+│   └── summarization.service.ts      summarizeTranscript / generateAiMeetingTitle / formatTitleWithDate
 ├── lib/
 │   ├── db.ts                         Prisma client
-│   ├── api-auth.ts                   Bearer token auth for /api/v1/ routes
+│   ├── api-auth.ts                   Bearer token auth for /api/v1/ routes (skips suspended orgs)
+│   ├── stripe.ts                     Lazy Stripe SDK + checkout/portal helpers + planForPriceId
+│   ├── web-push.ts                   sendWebPush / sendWebPushToMember (auto-prunes 404/410)
+│   ├── speaker-substitute.ts         applySpeakerLabels — render-time SPEAKER_N → name
 │   └── trpc.ts                       tRPC context + middleware
-└── components/
-    ├── api-keys-section.tsx          API Keys UI in Settings
-    ├── audio-retention-toggle.tsx
-    ├── post-meeting-email-toggle.tsx
-    ├── daily-digest-toggle.tsx
-    ├── default-language-selector.tsx
-    ├── bot-display-name-input.tsx
-    ├── sso-settings.tsx
-    └── dark-mode-toggle.tsx
+├── components/
+│   ├── share-recording-button.tsx    Plaud-style share modal (link tab + invite tab)
+│   ├── soundbite-capture.tsx         Selection-driven soundbite creator overlay
+│   ├── soundbites-panel.tsx          Soundbites tab content
+│   ├── editable-recording-title.tsx  Click-to-edit title on detail page
+│   ├── editable-speaker-label.tsx    Click-to-rename speaker in transcript
+│   ├── quick-voice-upload-button.tsx One-tap voice memo upload (XHR with progress)
+│   ├── trial-banner.tsx              Sticky banner in dashboard layout
+│   ├── web-push-registrar.tsx        Registers /sw.js + subscribes to push on mount
+│   ├── api-keys-section.tsx          API Keys UI in Settings
+│   ├── audio-retention-toggle.tsx
+│   ├── post-meeting-email-toggle.tsx
+│   ├── daily-digest-toggle.tsx
+│   ├── default-language-selector.tsx
+│   ├── bot-display-name-input.tsx
+│   ├── sso-settings.tsx
+│   └── dark-mode-toggle.tsx
+└── public/
+    └── sw.js                         Web Push service worker (push + notificationclick)
 ```
 
 ---
@@ -149,11 +185,24 @@ src/
 ```
 recordings.list              GET    { limit?: number } — includes nested actionItems[]
 recordings.get               GET    { id }
+recordings.create            POST   — enforces FREE-tier 3/month + admin maxRecordingsPerMonth cap
+recordings.delete            POST   { id } — deletes row + S3 audio
+recordings.updateTitle       POST   { id, title } — refines that title.trim().length >= 1
+recordings.regenerateTitle   POST   { recordingId } — Haiku regenerates "Mon D — title"
 recordings.updateActionItem  POST   { id, status?, priority? }
                                     status: OPEN | IN_PROGRESS | COMPLETED | CANCELLED
                                     priority: LOW | MEDIUM | HIGH | URGENT
 recordings.refineSummary     POST   { id } — calls Claude Opus, returns refined markdown
 recordings.confirmUpload     POST   { id } — after S3 upload, triggers transcription queue
+recordings.retryStuck        POST   { recordingId } — clears failed jobs, resets PENDING, re-queues
+recordings.nameSpeakers      POST   { recordingId, speakerMappings[] } — used by EditableSpeakerLabel
+recordings.makePublic        POST   { recordingId, permissions?, expiresAt? }
+                                    Mints (or reuses) 8-char publicSlug; idempotent for save semantics
+recordings.makePrivate       POST   { recordingId } — flips isPublic=false (slug retained)
+recordings.getShareState     GET    { recordingId } — hydrates the share modal
+recordings.addShareInvite    POST   { recordingId, email } — audit-trail only (no enforcement yet)
+recordings.removeShareInvite POST   { id }
+recordings.listShareInvites  GET    { recordingId }
 ```
 
 ### search.router.ts
@@ -181,6 +230,22 @@ apiKeys.create               POST   { name: string }
                                     Returns: { id, name, keyPreview, createdAt, rawKey }
                                     rawKey returned ONCE — never stored, never returned again
 apiKeys.revoke               POST   { id: string } — soft delete (revokedAt = now())
+```
+
+### billing.router.ts
+```
+billing.getSubscription      GET    — { plan, stripeCustomerId, stripeSubscriptionId,
+                                          trialEndsAt, maxRecordingsPerMonth,
+                                          recordingsThisMonth }
+billing.createCheckoutSession POST  { priceId, seats? } — wraps the same helper as /api/stripe/checkout
+billing.createPortalSession   POST  — wraps the same helper as /api/stripe/portal
+```
+
+### soundbites.router.ts
+```
+soundbites.list              GET    { recordingId? } — per-recording or whole-org browser
+soundbites.create            POST   { recordingId, title, startSeconds, endSeconds, transcript? }
+soundbites.delete            POST   { id }
 ```
 
 ### analytics.router.ts
@@ -326,7 +391,7 @@ Current sections in `src/app/dashboard/settings/page.tsx`:
 | Default language | `DefaultLanguageSelector` | 16 languages + auto-detect |
 | AI Skills & Templates | link | → /dashboard/settings/templates |
 | API Keys | `ApiKeysSection` | Live — generate/revoke, show once |
-| Billing | Coming soon stub | Not yet built |
+| Billing | link | → `/dashboard/billing` (live) |
 
 ---
 
@@ -498,6 +563,13 @@ and an in-app billing page. **`stripe` v22.x installed.**
 | `STRIPE_PRO_YEARLY_PRICE_ID` | `price_1TReKGCSoXibpWfNx6C1HT1T` (test) |
 | `STRIPE_TEAM_MONTHLY_PRICE_ID` | `price_1TReOnCSoXibpWfNUod8NeTK` (test) |
 
+### Web Push (VAPID) env vars
+| Variable | Notes |
+|---|---|
+| `VAPID_PUBLIC_KEY` | Generated 2026-04-30 via `npx web-push generate-vapid-keys`. Same value local + Vercel + Railway. |
+| `VAPID_PRIVATE_KEY` | Server-only; never exposed to the client. |
+| `VAPID_SUBJECT` | `mailto:hi@kolasys.ai` — required by RFC 8292. |
+
 ### Plans
 - **Pro** — $9.99/month or $99/year (save 17%). 14-day trial.
 - **Team** — $8.99/seat/month, min 3 seats. 14-day trial.
@@ -519,18 +591,26 @@ Stripe Dashboard → Developers → Webhooks → Add endpoint
 - Copy the signing secret into `STRIPE_WEBHOOK_SECRET`
 
 ### Known issues / followups
-- **Team → ENTERPRISE in DB.** The `Plan` enum has no `TEAM` value, so
-  `planForPriceId` maps the Team monthly price to `ENTERPRISE`. This
-  conflates two distinct tiers. Follow-up: add `TEAM` to the enum,
-  update `planForPriceId`, and run `prisma db push`.
+- ✅ **Resolved 2026-04-30**: `Plan` enum now has `TEAM` between `PRO` and
+  `ENTERPRISE`. `planForPriceId` returns `'TEAM'` for `team_monthly` (no
+  longer aliased to ENTERPRISE). `PLAN_CYCLE` in /admin cycles
+  FREE → PRO → TEAM → ENTERPRISE → FREE.
 - **`apiVersion: '2025-01-27.acacia'`** is older than Stripe v22's
   pinned `'2026-04-22.dahlia'`. Per Stripe docs we suppress the
   literal-narrowing error with `@ts-expect-error`. If the account is
   upgraded, drop the suppression and switch to `'2026-04-22.dahlia'`.
 - **`bodyParser: false` is App-Router-irrelevant.** `await request.text()`
   is sufficient for `stripe.webhooks.constructEvent`.
-- **Suspended orgs can still pay.** Billing flow doesn't gate against
-  `Organization.suspended`. Same gap as the rest of the app.
+- **`current_period_end` moved off Subscription onto subscription items**
+  in dahlia. Billing page reads from `sub.items.data[0].current_period_end`
+  with fallback to the legacy top-level field.
+
+### Mobile Bearer-token compat (2026-05-04)
+Both `/api/stripe/checkout` and `/api/stripe/portal` use
+`auth({ acceptsToken: 'session_token' })` so they accept both the
+browser session cookie AND `Authorization: Bearer <session-jwt>`
+from the mobile app's `getToken()`. Without it Clerk only inspects
+the cookie and 401s a header-only request.
 
 ---
 
@@ -608,3 +688,212 @@ model AdminAuditLog {
 - `stripeSubscriptionId String?`
 - `suspended Boolean @default(false)`
 - `suspendedReason String?`
+
+---
+
+## Plan enforcement (2026-04-30)
+
+The free-tier cap and admin-set per-org cap are checked on **both**
+ingress paths so the desktop app can't bypass them.
+
+- `recordings.create` (tRPC) — counts recordings since the 1st of the
+  current calendar month. Throws `FORBIDDEN` if the org is on `FREE`
+  with no active trial AND has 3+ recordings already, with message:
+  `"Free plan limit reached. Upgrade to Pro for unlimited recordings."`.
+  Independently throws if `Organization.maxRecordingsPerMonth > 0` and
+  the count exceeds it (regardless of plan).
+- `POST /api/v1/recordings` (REST, bearer-token) — same logic, returns
+  HTTP 403 with `{ error, message }`.
+
+## Suspension enforcement (2026-04-30)
+
+Previously visual-only — now hard-gated everywhere user code can hit:
+
+- `orgProcedure` (`src/server/trpc.ts`) — after resolving the
+  Organization row, throws `FORBIDDEN` with
+  `"Your account has been suspended. Contact support@kolasys.ai."` if
+  `org.suspended === true`. Sits between org-resolve and member-resolve
+  so suspended orgs can't auto-bootstrap membership rows either.
+- `authenticateApiKey` (`src/lib/api-auth.ts`) — same check, but
+  returns `null` (treats the key as if revoked → 401 at the route).
+  Avoids leaking the underlying reason to external integrations.
+
+## "Meetings" rename (2026-05-04)
+
+User-facing label flip — the URL still resolves at `/dashboard/recordings`
+so existing bookmarks and share links continue to work.
+
+- Sidebar (`src/components/sidebar.tsx`) — "Recordings" → "Meetings"
+- Mobile drawer (`src/components/mobile-nav.tsx`) — same
+- Page heading (`src/app/dashboard/recordings/page.tsx`) — H1 + subtitle
+
+The Prisma `Recording` model and the `recordings` tRPC router are
+unchanged — this is pure UI copy.
+
+## AI-generated meeting titles (2026-05-04)
+
+Replaces the generic `"Recording – Apr 29 10:39 AM"` default with
+something topical like `"May 4 — Q3 budget alignment"`.
+
+### Worker step 8.4 (in `summarization.worker.ts`)
+Runs after the recording is marked `READY`, before push notifications
+fire so the notification body shows the new title. Skips silently if the
+title doesn't match the default-title detector. Failures are logged but
+never fail the job.
+
+### Default-title detector (broadened 2026-05-05)
+A title is considered "default" (and thus eligible for AI rewrite) when:
+```ts
+!recording.title?.trim()
+  || /^Recording\s*[–-]/i.test(recording.title)
+  || /^Shared\s/i.test(recording.title)
+  || /^audio$/i.test(recording.title.trim())
+  || /^voice\s*memo/i.test(recording.title)
+  || /^untitled/i.test(recording.title)
+  || /^\d{4}[-_]\d{2}[-_]\d{2}/.test(recording.title)   // YYYY-MM-DD prefix
+```
+
+### Helpers in `src/services/summarization.service.ts`
+- `generateAiMeetingTitle({ summary, transcriptText })` — Claude
+  `claude-haiku-4-5-20251001`, `max_tokens: 50`. Cleans surrounding
+  quotes and trailing punctuation, caps at 120 chars.
+- `formatTitleWithDate(date, aiTitle)` — `"${monthDay} — ${aiTitle}"`
+  (e.g. `"May 4 — Q3 budget alignment"`).
+
+### On-demand regeneration
+- `recordings.regenerateTitle({ recordingId })` — same Haiku call
+  regardless of current title. Surfaced in the recording detail
+  "..." menu as **Regenerate title** with the Wand2 icon. Disabled
+  until a transcript exists; surfaces inline error on Haiku failure;
+  `router.refresh()` on success.
+
+## Shareable recording links (2026-04-30, expanded 2026-05-01)
+
+Public `/share/{slug}` page rendered with no auth. Audio is intentionally
+omitted — S3 stays private.
+
+### Schema (Recording)
+- `isPublic Boolean @default(false)`
+- `publicSlug String? @unique` — 8-char URL-safe (alphabet drops
+  ambiguous chars 0/O/1/l). Retained even after Make Private so the
+  same URL re-activates if re-shared.
+- `sharePermissions Json?` — `{ transcript, summary, actionItems }`
+  booleans. `null` = legacy all-on.
+- `shareExpiresAt DateTime?` — null = never expires.
+
+### Plaud-style modal (`src/components/share-recording-button.tsx`)
+- Trigger button flips to a green "Sharing" pill with globe icon when
+  public.
+- Tab 1 — Share link: toggle, copyable URL, three permission
+  checkboxes, expiry dropdown (Never / 7d / 14d / 30d), Save button.
+  Calling `makePublic` again with new settings is the Save path —
+  idempotent on the slug.
+- Tab 2 — Invite: email input + invitee list + remove. Stored in
+  `SharedInvite` table for audit. **Access enforcement is not yet
+  wired** — invitee emails don't gate `/share/{slug}` (the link is
+  still open to anyone who has it). Modal surfaces this warning.
+
+### Public page (`src/app/share/[slug]/page.tsx`)
+- Returns `<ExpiredView />` if `shareExpiresAt < now`.
+- Each section gates on its permission flag (Sections inherit Summary).
+- Tracks no view count yet.
+
+## Soundbites (2026-04-30)
+
+Virtual clip ranges over the parent recording's audio — no audio is
+duplicated.
+
+### Schema
+```prisma
+model Soundbite {
+  id           String   @id @default(cuid())
+  recordingId  String
+  orgId        String
+  title        String
+  startSeconds Float
+  endSeconds   Float
+  transcript   String?  // captured snippet
+  createdAt    DateTime @default(now())
+  @@index([recordingId, startSeconds])
+  @@index([orgId, createdAt(sort: Desc)])
+}
+```
+
+### Capture flow
+- `transcript-paginated.tsx` annotates every word button (and the
+  plain-text fallback for old recordings) with `data-sb-start` and
+  `data-sb-end` attributes.
+- `<SoundbiteCapture>` overlay in `recording-split-view.tsx` watches
+  `selectionchange`, derives the time range from the first/last
+  annotated DOM elements in the selection, and shows a floating
+  "Create soundbite" button positioned via `getBoundingClientRect`.
+  Click → prompts for a title → calls `soundbites.create`.
+
+### UI surfaces
+- New **Soundbites** tab on the recording split view (mobile + desktop).
+  Shows a persistent banner with an "Open transcript" button so users
+  who land on this tab can find the create-soundbite flow.
+- `/dashboard/soundbites` global page — cross-recording browser.
+- Sidebar + mobile-nav links.
+
+## Web Push (2026-04-30)
+
+Mounts on every dashboard page. Browser → backend → service worker →
+desktop notification.
+
+### Schema
+```prisma
+model WebPushSubscription {
+  id          String   @id @default(cuid())
+  orgMemberId String
+  endpoint    String   @unique
+  p256dh      String
+  auth        String
+  createdAt   DateTime @default(now())
+  @@index([orgMemberId])
+}
+```
+
+### Pieces
+- `public/sw.js` — service worker. Handles `push` (renders system
+  notification from `{ title, body, url, icon }`) and
+  `notificationclick` (focuses an existing tab + navigates, or opens
+  new).
+- `src/lib/web-push.ts` — lazy VAPID config (defers reading env until
+  first send so build's "collect page data" pass doesn't trip).
+  `sendWebPushToMember(orgMemberId, payload)` fans out to every
+  subscription, auto-prunes 404/410 (Gone) responses.
+- `src/app/api/push/vapid-public-key/route.ts` — GET. Returns
+  `{ publicKey }` from `VAPID_PUBLIC_KEY`.
+- `src/app/api/push/subscribe/route.ts` — POST. Saves the
+  PushSubscription against the active OrgMember.
+- `src/components/web-push-registrar.tsx` — mounted in
+  `dashboard/layout.tsx`. Registers `/sw.js`, requests permission
+  (skips if previously denied or this-session-declined), subscribes,
+  POSTs to `/api/push/subscribe`.
+
+### Worker integration
+Step 8.5 (push) now fires Expo push (iPhone + Apple Watch) AND web
+push to every browser the recording's owner has subscribed in. Each
+send is independently non-fatal — failures log but never fail the job.
+
+---
+
+## Commit history — May 2026
+
+| Hash | Description |
+|---|---|
+| `f8307b2` | Free-tier cap on REST `POST /api/v1/recordings` (desktop app path) |
+| `9706898` | Removed `import 'server-only'` crashing the Railway summarization worker |
+| `5997f2c` | Stripe billing — checkout, portal, webhook, billing page, updated pricing |
+| `e49530f` | TEAM plan enum + suspension enforcement + free-tier cap (tRPC) |
+| `b454c66` | Voice memo upload, onboarding email, trial banner, billing portal section |
+| `5a28238` | Shareable links + Soundbites + Web Push (3 features at once) |
+| `194f9ec` | Plaud-style share modal — permissions, expiry, invites |
+| `130be9e` | Edit title, speaker rename, retry stuck (10m threshold) |
+| `e55375f` | AI-generated meeting titles with date prefix |
+| `36a4791` | Billing page trial copy — clearer free trial messaging |
+| `68cdb0c` | AI-title regex broadened (Shared / audio / voice memo / untitled / YYYY-MM-DD) |
+| `83ef4d4` | "Recordings" → "Meetings" rename (sidebar + mobile + heading) |
+| `5d6bf01` | Stripe checkout accepts Bearer tokens from mobile |
+| `6f51991` | Stripe portal accepts Bearer tokens from mobile |
