@@ -314,7 +314,7 @@ export default async function BillingPage({ searchParams }: Props) {
           <div className="mb-4 flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-[#CA2625]" />
             <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
-              Start your 14-day free trial
+              Start your free trial — no charge for 14 days
             </h2>
           </div>
           <p className="mb-5 text-sm text-neutral-500 dark:text-gray-400">
@@ -345,7 +345,7 @@ export default async function BillingPage({ searchParams }: Props) {
                   type="submit"
                   className="w-full rounded-lg bg-[#CA2625] py-2 text-sm font-semibold text-white hover:bg-[#b21f1f]"
                 >
-                  Start Pro monthly
+                  Try Pro free for 14 days
                 </button>
               </form>
               <form action={startCheckoutAction} className="mt-2">
@@ -357,6 +357,9 @@ export default async function BillingPage({ searchParams }: Props) {
                   Pro yearly · $99
                 </button>
               </form>
+              <p className="mt-2 text-[11px] text-neutral-500 dark:text-gray-400">
+                Cancel anytime. Card required to reserve your spot.
+              </p>
             </div>
 
             {/* Team */}
@@ -395,9 +398,12 @@ export default async function BillingPage({ searchParams }: Props) {
                   type="submit"
                   className="w-full rounded-lg bg-neutral-900 py-2 text-sm font-semibold text-white hover:bg-neutral-700"
                 >
-                  Start Team trial
+                  Try Team free for 14 days
                 </button>
               </form>
+              <p className="mt-2 text-[11px] text-neutral-500 dark:text-gray-400">
+                Cancel anytime. Card required to reserve your spot.
+              </p>
             </div>
           </div>
         </section>
