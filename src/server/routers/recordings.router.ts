@@ -18,6 +18,10 @@ import {
   objectExists,
 } from '@/lib/storage'
 import { transcriptionQueue, summarizationQueue } from '@/lib/queues'
+import {
+  formatTitleWithDate,
+  generateAiMeetingTitle,
+} from '@/services/summarization.service'
 import { deployBot } from '@/services/meetingbot.service'
 import { captureServerEvent } from '@/lib/posthog'
 import Anthropic from '@anthropic-ai/sdk'
@@ -217,18 +221,74 @@ export const recordingsRouter = router({
 
   // ── Rename a recording ────────────────────────────────────────────────────
   updateTitle: orgProcedure
-    .input(z.object({ id: z.string(), title: z.string().min(1).max(200) }))
+    .input(
+      z.object({
+        id: z.string(),
+        title: z
+          .string()
+          .max(200)
+          // Whitespace-only fails min(1) silently, so refine after trim.
+          .refine((s) => s.trim().length >= 1, { message: 'Title cannot be blank.' }),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const existing = await ctx.db.recording.findFirst({
         where: { id: input.id, orgId: ctx.orgId },
         select: { id: true },
       })
       if (!existing) throw new TRPCError({ code: 'NOT_FOUND' })
+      const title = input.title.trim()
       await ctx.db.recording.update({
         where: { id: input.id },
-        data: { title: input.title.trim() },
+        data: { title },
       })
-      return { id: input.id, title: input.title.trim() }
+      return { id: input.id, title }
+    }),
+
+  // ── Regenerate the meeting title via Claude ──────────────────────────────
+  // On-demand variant of the auto-title step that runs in the worker.
+  // Available from the recording detail "..." menu.
+  regenerateTitle: orgProcedure
+    .input(z.object({ recordingId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const recording = await ctx.db.recording.findFirst({
+        where: { id: input.recordingId, orgId: ctx.orgId },
+        select: {
+          id: true,
+          createdAt: true,
+          transcript: { select: { text: true } },
+          notes: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: { summary: true },
+          },
+        },
+      })
+      if (!recording) throw new TRPCError({ code: 'NOT_FOUND' })
+      if (!recording.transcript) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'No transcript yet — wait for processing to finish.',
+        })
+      }
+
+      const aiTitle = await generateAiMeetingTitle({
+        summary: recording.notes[0]?.summary ?? null,
+        transcriptText: recording.transcript.text,
+      })
+      if (!aiTitle) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Couldn\'t generate a title — try again in a moment.',
+        })
+      }
+
+      const finalTitle = formatTitleWithDate(recording.createdAt, aiTitle)
+      await ctx.db.recording.update({
+        where: { id: recording.id },
+        data: { title: finalTitle },
+      })
+      return { title: finalTitle }
     }),
 
   // ── Delete a recording ────────────────────────────────────────────────────

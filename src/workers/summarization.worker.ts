@@ -15,6 +15,8 @@ import { Worker, type Job } from 'bullmq'
 import { bullmqConnection } from '@/lib/redis'
 import { db } from '@/lib/db'
 import {
+  formatTitleWithDate,
+  generateAiMeetingTitle,
   summarizeTranscript,
   extractActionItems,
   type SectionDefinition,
@@ -105,10 +107,10 @@ async function processSummarization(job: Job<SummarizationJobData>) {
     throw new Error(`Transcript ${transcriptId} not found`)
   }
 
-  // ── 3. Fetch recording (for title, orgId, userId) ─────────────────────────
+  // ── 3. Fetch recording (for title, orgId, userId, createdAt) ──────────────
   const recording = await db.recording.findUnique({
     where: { id: recordingId },
-    select: { id: true, title: true, orgId: true, userId: true },
+    select: { id: true, title: true, orgId: true, userId: true, createdAt: true },
   })
 
   if (!recording) {
@@ -263,6 +265,33 @@ async function processSummarization(job: Job<SummarizationJobData>) {
     where: { id: recordingId },
     data: { status: RecordingStatus.READY },
   })
+
+  // ── 8.4. Auto-generate a smart title ─────────────────────────────────────
+  // Only override default-format titles like "Recording – Apr 29 10:39 AM"
+  // or empty strings. User-set titles (renames, voice memo filenames, etc.)
+  // are left alone. The push notification step below reads recording.title,
+  // so we update the in-memory variable too.
+  const isDefaultTitle =
+    !recording.title?.trim() || /^Recording\s*[–-]/.test(recording.title)
+  if (isDefaultTitle) {
+    try {
+      const aiTitle = await generateAiMeetingTitle({
+        summary: summaryResult.summary ?? null,
+        transcriptText: transcript.text,
+      })
+      if (aiTitle) {
+        const finalTitle = formatTitleWithDate(recording.createdAt, aiTitle)
+        await db.recording.update({
+          where: { id: recordingId },
+          data: { title: finalTitle },
+        })
+        recording.title = finalTitle
+        console.log(`[summarization] Auto-titled ${recordingId}: "${finalTitle}"`)
+      }
+    } catch (titleErr) {
+      console.error('[summarization] Title generation failed (non-fatal):', titleErr)
+    }
+  }
 
   // ── 8.5. Mobile push (Apple Watch Phase 2) ───────────────────────────────
   // Fire-and-forget Expo push so only the recording's owner gets pinged on

@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Dropdown from '@radix-ui/react-dropdown-menu'
-import { MoreHorizontal, X, RefreshCw, Search as SearchIcon, Loader2 } from 'lucide-react'
+import { MoreHorizontal, X, RefreshCw, Search as SearchIcon, Loader2, Wand2 } from 'lucide-react'
 import { trpc } from '@/lib/trpc'
 
 type Props = {
@@ -19,7 +19,17 @@ type Props = {
 type ActiveModal = null | 'retranscribe' | 'findReplace'
 
 export function RecordingActionsMenu({ recordingId, hasTranscript, canRetranscribe }: Props) {
+  const router = useRouter()
   const [active, setActive] = useState<ActiveModal>(null)
+  const [titleStatus, setTitleStatus] = useState<string | null>(null)
+
+  const regenerateTitle = trpc.recordings.regenerateTitle.useMutation({
+    onSuccess: () => {
+      setTitleStatus(null)
+      router.refresh()
+    },
+    onError: (err) => setTitleStatus(err.message),
+  })
 
   return (
     <>
@@ -40,6 +50,28 @@ export function RecordingActionsMenu({ recordingId, hasTranscript, canRetranscri
             sideOffset={6}
             className="z-50 min-w-[220px] overflow-hidden rounded-xl border border-neutral-200 bg-white p-1 shadow-lg focus:outline-none"
           >
+            <Dropdown.Item
+              disabled={!hasTranscript || regenerateTitle.isPending}
+              onSelect={(e) => {
+                e.preventDefault()
+                setTitleStatus(null)
+                regenerateTitle.mutate({ recordingId })
+              }}
+              className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-700 outline-none data-[highlighted]:bg-neutral-100 data-[disabled]:cursor-not-allowed data-[disabled]:opacity-40"
+            >
+              {regenerateTitle.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin text-neutral-500" />
+              ) : (
+                <Wand2 className="h-4 w-4 text-[#CA2625]" />
+              )}
+              <div className="flex-1">
+                <p className="font-medium">Regenerate title</p>
+                <p className="text-xs text-neutral-500">
+                  {hasTranscript ? 'Re-summarise into a fresh title' : 'Needs a transcript first'}
+                </p>
+              </div>
+            </Dropdown.Item>
+
             <Dropdown.Item
               disabled={!canRetranscribe}
               onSelect={(e) => { e.preventDefault(); setActive('retranscribe') }}
@@ -65,6 +97,10 @@ export function RecordingActionsMenu({ recordingId, hasTranscript, canRetranscri
                 <p className="text-xs text-neutral-500">Update words in the transcript</p>
               </div>
             </Dropdown.Item>
+
+            {titleStatus && (
+              <p className="px-3 py-1.5 text-[11px] text-red-600">{titleStatus}</p>
+            )}
           </Dropdown.Content>
         </Dropdown.Portal>
       </Dropdown.Root>

@@ -165,3 +165,59 @@ Return the JSON array of action items only.`
     return []
   }
 }
+
+// ── Meeting title autogeneration ──────────────────────────────────────────
+// Cheap Haiku call that produces a 5–8 word topical title for a recording.
+// Returns null when the model gives nothing usable; caller leaves the
+// existing title untouched in that case.
+export async function generateAiMeetingTitle(args: {
+  summary: string | null
+  transcriptText: string
+}): Promise<string | null> {
+  const { summary, transcriptText } = args
+  const haveSomething = (summary && summary.trim()) || transcriptText.trim()
+  if (!haveSomething) return null
+
+  const prompt =
+    `Based on this meeting transcript and summary, generate a short, ` +
+    `descriptive meeting title (5-8 words max). Be specific about what ` +
+    `was discussed. Do not use generic phrases like "Meeting" or "Discussion". ` +
+    `Return ONLY the title text, nothing else.\n\n` +
+    `Summary: ${summary?.trim() || '(none yet)'}\n\n` +
+    `Transcript excerpt: ${transcriptText.slice(0, 500)}`
+
+  try {
+    const res = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 50,
+      messages: [{ role: 'user', content: prompt }],
+    })
+    const block = res.content[0]
+    if (!block || block.type !== 'text') return null
+    return cleanTitle(block.text)
+  } catch (err) {
+    console.error('[summarization] generateAiMeetingTitle failed:', err)
+    return null
+  }
+}
+
+/** Format the generated title with a leading "Mon D" date prefix:
+ *  e.g. "May 4 — Q3 budget alignment". */
+export function formatTitleWithDate(date: Date, aiTitle: string): string {
+  const monthDay = date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+  })
+  return `${monthDay} — ${aiTitle}`
+}
+
+function cleanTitle(raw: string): string | null {
+  // Strip surrounding quotes Claude sometimes adds, trailing punctuation,
+  // collapse internal whitespace, and cap at 120 chars defensively.
+  const s = raw
+    .replace(/^[\s"'`*_]+|[\s"'`*_.!]+$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 120)
+  return s || null
+}
