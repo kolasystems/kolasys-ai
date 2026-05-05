@@ -272,7 +272,13 @@ async function processSummarization(job: Job<SummarizationJobData>) {
   // are left alone. The push notification step below reads recording.title,
   // so we update the in-memory variable too.
   const isDefaultTitle =
-    !recording.title?.trim() || /^Recording\s*[–-]/.test(recording.title)
+    !recording.title?.trim() ||
+    /^Recording\s*[–-]/i.test(recording.title) ||
+    /^Shared\s/i.test(recording.title) ||
+    /^audio$/i.test(recording.title.trim()) ||
+    /^voice\s*memo/i.test(recording.title) ||
+    /^untitled/i.test(recording.title) ||
+    /^\d{4}[-_]\d{2}[-_]\d{2}/.test(recording.title)
   if (isDefaultTitle) {
     try {
       const aiTitle = await generateAiMeetingTitle({
