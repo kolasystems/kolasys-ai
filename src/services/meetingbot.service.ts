@@ -40,17 +40,15 @@ export async function deployBot(
   webhookUrl: string,
   botDisplayName: string = 'Kolasys AI'
 ): Promise<string> {
+  // We transcribe with Whisper in our own worker, so we deliberately do NOT
+  // ask Recall.ai to run their own transcription provider — both
+  // `transcription_options` and `real_time_transcription` would invoke it.
+  // The bot just records and notifies our webhook on status changes.
   const bot: RecallBot = await recallFetch('/bot/', {
     method: 'POST',
     body: JSON.stringify({
       meeting_url: meetingUrl,
-      bot_name: botDisplayName,
-      transcription_options: { provider: 'default' },
-      real_time_transcription: {
-        destination_url: webhookUrl,
-        partial_results: false,
-      },
-      metadata: { recordingId },
+      webhook_url: webhookUrl,
     }),
   })
   return bot.id
