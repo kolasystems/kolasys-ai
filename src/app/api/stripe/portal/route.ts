@@ -1,5 +1,8 @@
 // Kolasys AI — Create a Stripe Billing Portal session for the active org.
-// POST /api/stripe/portal — auth: Clerk session.
+// POST /api/stripe/portal — auth: Clerk. Accepts both the browser session
+// cookie AND `Authorization: Bearer <session-jwt>` from the mobile app
+// (without `acceptsToken: 'session_token'` Clerk would only inspect the
+// cookie and 401 a header-only request).
 // Returns 400 if the org has no Stripe customer yet.
 
 import { auth } from '@clerk/nextjs/server'
@@ -7,7 +10,9 @@ import { db } from '@/lib/db'
 import { createOrgPortalSession } from '@/lib/stripe'
 
 export async function POST() {
-  const { userId, orgId: clerkOrgId } = await auth()
+  const { userId, orgId: clerkOrgId } = await auth({
+    acceptsToken: 'session_token',
+  })
   if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
   if (!clerkOrgId) {
     return Response.json(
