@@ -1,8 +1,11 @@
 // Kolasys AI — Create a Stripe Checkout Session for the active org.
 // POST /api/stripe/checkout
 // Body: { priceId: string, seats?: number }
-// Auth: Clerk session (handler-level — proxy lets it through unredirected
-// because /api/stripe/(.*) is in isPublicRoute).
+// Auth: Clerk — accepts both the standard browser session cookie AND
+// `Authorization: Bearer <session-jwt>` from the mobile app. Without
+// `acceptsToken: 'session_token'` Clerk only inspects the cookie, so a
+// React Native client passing its `getToken()` JWT in the header would
+// 401 even though the token is valid.
 
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
@@ -11,7 +14,9 @@ import { createOrgCheckoutSession } from '@/lib/stripe'
 type Body = { priceId?: string; seats?: number }
 
 export async function POST(request: Request) {
-  const { userId, orgId: clerkOrgId } = await auth()
+  const { userId, orgId: clerkOrgId } = await auth({
+    acceptsToken: 'session_token',
+  })
   if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
   if (!clerkOrgId) {
     return Response.json(
