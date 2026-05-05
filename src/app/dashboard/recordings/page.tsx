@@ -70,9 +70,9 @@ export default function RecordingsPage() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-primary sm:text-2xl">Recordings</h1>
+          <h1 className="text-xl font-bold text-primary sm:text-2xl">Meetings</h1>
           <p className="mt-0.5 text-sm text-secondary">
-            All your meeting recordings in one place.
+            All your meetings in one place.
           </p>
         </div>
         <div className="flex items-center gap-2">

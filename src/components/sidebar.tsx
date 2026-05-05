@@ -158,7 +158,7 @@ export function CollapsibleSidebar() {
         <DashboardNavLink
           href="/dashboard/recordings"
           icon={<Mic2 className={ICON} strokeWidth={STROKE} />}
-          label="Recordings"
+          label="Meetings"
           collapsed={collapsed}
         />
         <DashboardNavLink

@@ -29,7 +29,7 @@ import { KolasysLogoMark } from './kolasys-logo'
 
 const NAV_LINKS = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, exact: true },
-  { href: '/dashboard/recordings', label: 'Recordings', icon: Mic2 },
+  { href: '/dashboard/recordings', label: 'Meetings', icon: Mic2 },
   { href: '/dashboard/action-items', label: 'Action Items', icon: ListChecks },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart2 },
   { href: '/dashboard/contacts', label: 'Contacts', icon: Users },
