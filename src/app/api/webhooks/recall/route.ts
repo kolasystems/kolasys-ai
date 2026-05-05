@@ -1,10 +1,17 @@
 // Kolasys AI — Recall.ai webhook handler
 // Handles bot status changes and recording completion events.
+//
+// Signature verification uses RECALLAI_WEBHOOK_SECRET (HMAC-SHA256 over the
+// raw body). The bot.status_change → 'done' branch downloads the bot's
+// recorded media from Recall.ai, uploads it to S3, and enqueues
+// transcription — the same pipeline trigger as recordings.confirmUpload.
 
 import { createHmac, timingSafeEqual } from 'crypto'
 import { db } from '@/lib/db'
 import { transcriptionQueue } from '@/lib/queues'
 import { RecordingStatus } from '@/generated/prisma/client'
+import { getBotMediaUrl } from '@/services/meetingbot.service'
+import { generateRecordingKey, uploadToS3 } from '@/lib/storage'
 
 type RecallEvent =
   | { event: 'bot.status_change'; data: { bot_id: string; status: { code: string } } }
@@ -48,7 +55,9 @@ export async function POST(req: Request) {
         if (!recording) break
 
         if (status.code === 'done') {
-          // Recording has finished; trigger transcription if we have the file.
+          // Bot has left the call. If we already have audio in S3 (e.g. a
+          // re-fired webhook for the same bot), just enqueue transcription.
+          // Otherwise, fetch the media from Recall.ai → S3 → enqueue.
           if (recording.s3Key) {
             await transcriptionQueue.add('transcribe', {
               recordingId: recording.id,
@@ -57,9 +66,12 @@ export async function POST(req: Request) {
             })
             await db.recording.update({
               where: { id: recording.id },
-              data: { status: RecordingStatus.PROCESSING, endedAt: new Date() },
+              data: { status: RecordingStatus.TRANSCRIBING, endedAt: new Date() },
             })
+            break
           }
+
+          await ingestBotMedia(bot_id, recording)
         } else if (status.code === 'fatal') {
           await db.recording.update({
             where: { id: recording.id },
@@ -87,4 +99,82 @@ export async function POST(req: Request) {
   }
 
   return new Response('OK', { status: 200 })
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+/**
+ * Pull the bot's recorded audio from Recall.ai, upload it to the same S3
+ * bucket used by direct uploads, and enqueue transcription. Mirrors the
+ * tail of `recordings.confirmUpload` so the rest of the pipeline (worker
+ * → Whisper → notes → push) doesn't need to know the recording came from
+ * a bot.
+ */
+async function ingestBotMedia(
+  botId: string,
+  recording: { id: string; orgId: string },
+) {
+  const media = await getBotMediaUrl(botId)
+  if (!media) {
+    console.error(
+      `[recall webhook] bot ${botId} 'done' but no media URL on the response`,
+    )
+    await db.recording.update({
+      where: { id: recording.id },
+      data: { status: RecordingStatus.FAILED },
+    })
+    return
+  }
+
+  // Stream the file. arrayBuffer is fine for typical meeting audio (< a
+  // few hundred MB); upgrade to streamed PUT if we ever see OOM here.
+  const res = await fetch(media.url)
+  if (!res.ok) {
+    console.error(
+      `[recall webhook] failed to download Recall media: ${res.status} ${res.statusText}`,
+    )
+    await db.recording.update({
+      where: { id: recording.id },
+      data: { status: RecordingStatus.FAILED },
+    })
+    return
+  }
+  const arrayBuf = await res.arrayBuffer()
+  const buffer = Buffer.from(arrayBuf)
+  const fileSize = buffer.byteLength
+  const responseContentType = res.headers.get('content-type') ?? media.contentType
+
+  const s3Key = generateRecordingKey(recording.orgId, recording.id, media.extension)
+  await uploadToS3(s3Key, buffer, responseContentType)
+
+  await db.recording.update({
+    where: { id: recording.id },
+    data: {
+      s3Key,
+      s3Bucket: process.env.S3_BUCKET_NAME,
+      mimeType: responseContentType,
+      fileSize,
+      status: RecordingStatus.TRANSCRIBING,
+      endedAt: new Date(),
+    },
+  })
+
+  // Resolve language: org default (matches the upload-path confirmUpload
+  // behaviour). 'auto' becomes undefined so Whisper auto-detects.
+  const org = await db.organization.findFirst({
+    where: { id: recording.orgId },
+    select: { defaultTranscriptionLanguage: true },
+  })
+  const language = org?.defaultTranscriptionLanguage ?? 'en'
+
+  await transcriptionQueue.add('transcribe', {
+    recordingId: recording.id,
+    orgId: recording.orgId,
+    s3Key,
+    language: language === 'auto' ? undefined : language,
+  })
+
+  console.log(
+    `[recall webhook] ingested bot ${botId} → ${s3Key} (${fileSize} bytes) → queued transcription`,
+  )
 }
