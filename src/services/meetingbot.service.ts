@@ -43,12 +43,14 @@ export async function deployBot(
   // We transcribe with Whisper in our own worker, so we deliberately do NOT
   // ask Recall.ai to run their own transcription provider — both
   // `transcription_options` and `real_time_transcription` would invoke it.
-  // The bot just records and notifies our webhook on status changes.
+  // The bot just records, joins under the org's branded display name, and
+  // notifies our webhook on status changes.
   const bot: RecallBot = await recallFetch('/bot/', {
     method: 'POST',
     body: JSON.stringify({
       meeting_url: meetingUrl,
       webhook_url: webhookUrl,
+      bot_name: botDisplayName,
     }),
   })
   return bot.id
