@@ -1,6 +1,9 @@
 // Kolasys AI — Recall.ai meeting bot service
 
-const RECALL_BASE_URL = 'https://us-east-1.recall.ai/api/v1'
+// Account-region endpoint — the API key is registered to us-west-2, so all
+// API calls (deploy / status / media URL) must hit this base. The bot's
+// runtime region is set separately via `region` in the deploy body.
+const RECALL_BASE_URL = 'https://us-west-2.recall.ai/api/v1'
 
 type RecallBot = {
   id: string
