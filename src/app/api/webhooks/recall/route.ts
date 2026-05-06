@@ -60,6 +60,11 @@ export async function POST(request: Request) {
     return new Response('Invalid JSON', { status: 400 })
   }
 
+  console.log(
+    '[recall] event:',
+    JSON.stringify({ event: event.event, data: event.data }),
+  )
+
   try {
     switch (event.event) {
       case 'bot.status_change': {
