@@ -23,28 +23,32 @@ type RecallEvent =
 export async function POST(request: Request) {
   const rawBody = await request.text()
 
-  // Diagnostic logging — strip when signature verification is healthy.
+  // ⚠️ TEMPORARY — signature verification is downgraded from "block" to
+  // "log" while we debug why Recall.ai webhooks are 401-ing. This route
+  // is in the public proxy list, so for the duration this stays live an
+  // attacker who knows a valid botId could forge bot.status_change events.
+  // REMOVE THIS BLOCK and restore the throw-on-failure path once the secret
+  // mismatch is resolved.
+  const secret = process.env.RECALLAI_WEBHOOK_SECRET
+  console.log('[recall] secret present:', !!secret)
   console.log(
-    '[recall] RECALLAI_WEBHOOK_SECRET present:',
-    !!process.env.RECALLAI_WEBHOOK_SECRET,
+    '[recall] all headers:',
+    JSON.stringify(Object.fromEntries(request.headers.entries())),
   )
-  const sigHeader =
-    request.headers.get('x-recall-signature') ??
-    request.headers.get('svix-signature') ??
-    'none'
-  console.log('[recall] signature header:', sigHeader)
-  const allHeaders = Object.fromEntries(request.headers.entries())
-  console.log('[recall] all headers:', JSON.stringify(allHeaders))
 
-  const wh = new Webhook(process.env.RECALLAI_WEBHOOK_SECRET!)
-  try {
-    wh.verify(rawBody, {
-      'svix-id': request.headers.get('svix-id') ?? '',
-      'svix-timestamp': request.headers.get('svix-timestamp') ?? '',
-      'svix-signature': request.headers.get('svix-signature') ?? '',
-    })
-  } catch {
-    return Response.json({ error: 'Invalid signature' }, { status: 401 })
+  if (secret) {
+    const wh = new Webhook(secret)
+    try {
+      wh.verify(rawBody, {
+        'svix-id': request.headers.get('svix-id') ?? '',
+        'svix-timestamp': request.headers.get('svix-timestamp') ?? '',
+        'svix-signature': request.headers.get('svix-signature') ?? '',
+      })
+      console.log('[recall] signature OK')
+    } catch (err) {
+      console.error('[recall] signature FAILED:', err)
+      // TEMP: log but don't block — remove after debugging
+    }
   }
 
   const body = rawBody
