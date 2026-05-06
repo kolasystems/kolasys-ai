@@ -1,6 +1,6 @@
 // Kolasys AI — Recall.ai meeting bot service
 
-const RECALL_BASE_URL = 'https://us-west-2.recall.ai/api/v1'
+const RECALL_BASE_URL = 'https://us-east-1.recall.ai/api/v1'
 
 type RecallBot = {
   id: string

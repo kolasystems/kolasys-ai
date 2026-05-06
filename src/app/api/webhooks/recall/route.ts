@@ -23,6 +23,7 @@ type RecallEvent =
       data: { bot_id: string; recording: { id: string; media_shortcuts?: unknown } }
     }
   | { event: 'bot.call_ended'; data: { bot_id: string } }
+  | { event: 'bot.fatal'; data: { bot_id: string } }
   | { event: string; data: unknown }
 
 export async function POST(request: Request) {
@@ -91,6 +92,24 @@ export async function POST(request: Request) {
       // only; the recording.done / bot.done event will trigger ingestion.
       case 'bot.call_ended':
         break
+
+      // Bot crashed mid-call. Mark the recording FAILED so the dashboard
+      // stops showing it as in-progress. HTTP-mode Prisma has no
+      // updateMany, so look up the row first.
+      case 'bot.fatal': {
+        const data = event.data as { bot_id: string }
+        const recording = await db.recording.findFirst({
+          where: { botId: data.bot_id },
+          select: { id: true },
+        })
+        if (recording) {
+          await db.recording.update({
+            where: { id: recording.id },
+            data: { status: RecordingStatus.FAILED },
+          })
+        }
+        break
+      }
 
       default:
         // Unknown event type — already logged above. No-op.
