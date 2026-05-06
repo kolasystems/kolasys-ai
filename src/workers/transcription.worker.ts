@@ -25,6 +25,25 @@ import { diarizeAudio, mapSpeakersToSegments } from '@/services/diarization.serv
 import { summarizationQueue, type TranscriptionJobData } from '@/lib/queues'
 import { JobStatus, RecordingStatus } from '@/generated/prisma/client'
 
+/**
+ * Map an S3 key's file extension to the right Content-Type for Deepgram.
+ * The bytes are unchanged — this only affects the HTTP header so Deepgram
+ * routes to the right decoder. Unknown extensions fall back to mp4 since
+ * that's the safest cross-platform default.
+ */
+function mimeFromS3Key(key: string): string {
+  const ext = key.split('.').pop()?.toLowerCase() ?? ''
+  switch (ext) {
+    case 'webm': return 'audio/webm'
+    case 'mp3':  return 'audio/mpeg'
+    case 'wav':  return 'audio/wav'
+    case 'ogg':  return 'audio/ogg'
+    case 'm4a':
+    case 'mp4':  return 'audio/mp4'
+    default:     return 'audio/mp4'
+  }
+}
+
 async function processTranscription(job: Job<TranscriptionJobData>) {
   const { recordingId, s3Key, language, quality } = job.data
 
@@ -111,7 +130,11 @@ async function processTranscription(job: Job<TranscriptionJobData>) {
   if (process.env.DEEPGRAM_API_KEY && transcript) {
     try {
       console.log(`[transcription] Running Deepgram diarization for ${recordingId}`)
-      const mimeType = result.segments[0] ? 'audio/webm' : 'audio/mpeg'
+      // Derive Deepgram's Content-Type from the S3 key's extension so DESKTOP
+      // recordings (m4a/mp4) and Electron uploads (webm) route to the right
+      // decoder. The previous `result.segments[0] ? 'webm' : 'mpeg'` always
+      // landed on webm regardless of source format.
+      const mimeType = mimeFromS3Key(s3Key)
       const speakerWords = await diarizeAudio(audioBuffer, mimeType)
 
       if (speakerWords.length > 0) {
