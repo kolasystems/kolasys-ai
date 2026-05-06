@@ -278,7 +278,9 @@ async function processSummarization(job: Job<SummarizationJobData>) {
     /^audio$/i.test(recording.title.trim()) ||
     /^voice\s*memo/i.test(recording.title) ||
     /^untitled/i.test(recording.title) ||
-    /^\d{4}[-_]\d{2}[-_]\d{2}/.test(recording.title)
+    /^\d{4}[-_]\d{2}[-_]\d{2}/.test(recording.title) ||
+    // Desktop app default: "Meeting — May 6, 2026 at 12:36 PM"
+    /^Meeting\s*[–—-]\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i.test(recording.title)
   if (isDefaultTitle) {
     try {
       const aiTitle = await generateAiMeetingTitle({

@@ -1,12 +1,14 @@
 // Kolasys AI — Recall.ai webhook handler
 // Handles bot status changes and recording completion events.
 //
-// Signature verification uses RECALLAI_WEBHOOK_SECRET (HMAC-SHA256 over the
-// raw body). The bot.status_change → 'done' branch downloads the bot's
-// recorded media from Recall.ai, uploads it to S3, and enqueues
-// transcription — the same pipeline trigger as recordings.confirmUpload.
+// Recall.ai delivers webhooks via Svix; signatures land in the standard
+// svix-id / svix-timestamp / svix-signature headers and are verified with
+// `svix`'s Webhook helper using the whsec_… secret from Recall's webhook
+// config UI as RECALLAI_WEBHOOK_SECRET. The bot.status_change → 'done'
+// branch downloads the bot's recorded media from Recall.ai, uploads to S3,
+// and enqueues transcription — the same pipeline trigger as
+// recordings.confirmUpload.
 
-import { createHmac, timingSafeEqual } from 'crypto'
 import { Webhook } from 'svix'
 import { db } from '@/lib/db'
 import { transcriptionQueue } from '@/lib/queues'
@@ -18,57 +20,34 @@ type RecallEvent =
   | { event: 'bot.status_change'; data: { bot_id: string; status: { code: string } } }
   | { event: 'transcript.ready'; data: { bot_id: string; transcript: unknown } }
 
-/**
- * Verify a webhook payload. Modern Recall.ai delivers via Svix and signs
- * with the standard svix-id / svix-timestamp / svix-signature headers; the
- * older API used a custom HMAC at `x-recall-signature`. We try Svix first
- * and fall back to the legacy scheme so this handler keeps working through
- * any account migration.
- */
-function verifyWebhook(body: string, headers: Headers): boolean {
-  const secret = process.env.RECALLAI_WEBHOOK_SECRET
-  if (!secret) return false
-
-  // ── Svix path ───────────────────────────────────────────────────────────
-  const svixId = headers.get('svix-id')
-  const svixTimestamp = headers.get('svix-timestamp')
-  const svixSignature = headers.get('svix-signature')
-  if (svixId && svixTimestamp && svixSignature) {
-    try {
-      const wh = new Webhook(secret)
-      wh.verify(body, {
-        'svix-id': svixId,
-        'svix-timestamp': svixTimestamp,
-        'svix-signature': svixSignature,
-      })
-      return true
-    } catch (err) {
-      console.error('[recall] svix verify failed:', err)
-      return false
-    }
-  }
-
-  // ── Legacy HMAC path (older Recall.ai) ──────────────────────────────────
-  const legacy = headers.get('x-recall-signature')
-  if (!legacy) return false
-  const expected = createHmac('sha256', secret).update(body).digest('hex')
-  try {
-    return timingSafeEqual(Buffer.from(legacy), Buffer.from(expected))
-  } catch {
-    return false
-  }
-}
-
-export async function POST(req: Request) {
-  const body = await req.text()
+export async function POST(request: Request) {
+  const rawBody = await request.text()
 
   // Diagnostic logging — strip when signature verification is healthy.
-  console.log('[recall] secret present:', !!process.env.RECALLAI_WEBHOOK_SECRET)
-  console.log('[recall] headers:', Object.fromEntries(req.headers.entries()))
+  console.log(
+    '[recall] RECALLAI_WEBHOOK_SECRET present:',
+    !!process.env.RECALLAI_WEBHOOK_SECRET,
+  )
+  const sigHeader =
+    request.headers.get('x-recall-signature') ??
+    request.headers.get('svix-signature') ??
+    'none'
+  console.log('[recall] signature header:', sigHeader)
+  const allHeaders = Object.fromEntries(request.headers.entries())
+  console.log('[recall] all headers:', JSON.stringify(allHeaders))
 
-  if (!verifyWebhook(body, req.headers)) {
-    return new Response('Unauthorized', { status: 401 })
+  const wh = new Webhook(process.env.RECALLAI_WEBHOOK_SECRET!)
+  try {
+    wh.verify(rawBody, {
+      'svix-id': request.headers.get('svix-id') ?? '',
+      'svix-timestamp': request.headers.get('svix-timestamp') ?? '',
+      'svix-signature': request.headers.get('svix-signature') ?? '',
+    })
+  } catch {
+    return Response.json({ error: 'Invalid signature' }, { status: 401 })
   }
+
+  const body = rawBody
 
   let event: RecallEvent
   try {
