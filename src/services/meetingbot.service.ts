@@ -52,6 +52,7 @@ export async function deployBot(
       webhook_url: webhookUrl,
       bot_name: botDisplayName || 'Kolasys AI',
       bot_image_url: 'https://app.kolasys.ai/kolasys-bot-avatar.svg',
+      region: 'us-east-1',
     }),
   })
   return bot.id

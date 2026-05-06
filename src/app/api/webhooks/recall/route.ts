@@ -17,8 +17,13 @@ import { getBotMediaUrl } from '@/services/meetingbot.service'
 import { generateRecordingKey, uploadToS3 } from '@/lib/storage'
 
 type RecallEvent =
-  | { event: 'bot.status_change'; data: { bot_id: string; status: { code: string } } }
-  | { event: 'transcript.ready'; data: { bot_id: string; transcript: unknown } }
+  | { event: 'bot.done'; data: { bot_id: string } }
+  | {
+      event: 'recording.done'
+      data: { bot_id: string; recording: { id: string; media_shortcuts?: unknown } }
+    }
+  | { event: 'bot.call_ended'; data: { bot_id: string } }
+  | { event: string; data: unknown }
 
 export async function POST(request: Request) {
   const rawBody = await request.text()
@@ -67,52 +72,28 @@ export async function POST(request: Request) {
 
   try {
     switch (event.event) {
-      case 'bot.status_change': {
-        const { bot_id, status } = event.data
-
-        const recording = await db.recording.findFirst({
-          where: { botId: bot_id },
-          select: { id: true, orgId: true, s3Key: true },
-        })
-        if (!recording) break
-
-        if (status.code === 'done') {
-          // Bot has left the call. If we already have audio in S3 (e.g. a
-          // re-fired webhook for the same bot), just enqueue transcription.
-          // Otherwise, fetch the media from Recall.ai → S3 → enqueue.
-          if (recording.s3Key) {
-            await transcriptionQueue.add('transcribe', {
-              recordingId: recording.id,
-              orgId: recording.orgId,
-              s3Key: recording.s3Key,
-            })
-            await db.recording.update({
-              where: { id: recording.id },
-              data: { status: RecordingStatus.TRANSCRIBING, endedAt: new Date() },
-            })
-            break
-          }
-
-          await ingestBotMedia(bot_id, recording)
-        } else if (status.code === 'fatal') {
-          await db.recording.update({
-            where: { id: recording.id },
-            data: { status: RecordingStatus.FAILED },
-          })
-        } else if (status.code === 'in_call_recording') {
-          await db.recording.update({
-            where: { id: recording.id },
-            data: { status: RecordingStatus.PROCESSING, startedAt: new Date() },
-          })
-        }
+      // recording.done is the canonical "audio is ready to download" event.
+      case 'recording.done': {
+        const data = event.data as { bot_id: string }
+        await ingestBotMedia(data.bot_id)
         break
       }
 
-      case 'transcript.ready':
-        // Real-time transcript delivered — persisted via the transcription worker instead.
+      // Fallback if recording.done doesn't fire — bot.done lands a moment
+      // after the call ends and the media is also retrievable by then.
+      case 'bot.done': {
+        const data = event.data as { bot_id: string }
+        await ingestBotMedia(data.bot_id)
+        break
+      }
+
+      // Marks the call as ended but media may still be processing — log
+      // only; the recording.done / bot.done event will trigger ingestion.
+      case 'bot.call_ended':
         break
 
       default:
+        // Unknown event type — already logged above. No-op.
         break
     }
   } catch (err) {
@@ -131,11 +112,36 @@ export async function POST(request: Request) {
  * tail of `recordings.confirmUpload` so the rest of the pipeline (worker
  * → Whisper → notes → push) doesn't need to know the recording came from
  * a bot.
+ *
+ * Idempotent: recording.done and bot.done both fire for the same recording,
+ * so the second call is a no-op once s3Key is set (we just re-enqueue).
  */
-async function ingestBotMedia(
-  botId: string,
-  recording: { id: string; orgId: string },
-) {
+async function ingestBotMedia(botId: string) {
+  const recording = await db.recording.findFirst({
+    where: { botId },
+    select: { id: true, orgId: true, s3Key: true },
+  })
+  if (!recording) {
+    console.warn(`[recall webhook] no recording found for bot ${botId}`)
+    return
+  }
+
+  // Already ingested by an earlier event — just make sure the worker has
+  // the job and the status reflects it.
+  if (recording.s3Key) {
+    await transcriptionQueue.add('transcribe', {
+      recordingId: recording.id,
+      orgId: recording.orgId,
+      s3Key: recording.s3Key,
+    })
+    await db.recording.update({
+      where: { id: recording.id },
+      data: { status: RecordingStatus.TRANSCRIBING, endedAt: new Date() },
+    })
+    console.log(`[recall webhook] bot ${botId} already ingested — re-enqueued`)
+    return
+  }
+
   const media = await getBotMediaUrl(botId)
   if (!media) {
     console.error(
