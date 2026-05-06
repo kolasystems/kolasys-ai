@@ -43,6 +43,17 @@ type CreateBody = {
   durationSeconds?: number
   language?: string
   source?: string
+  mimeType?: string
+}
+
+// Map of accepted upload MIME types to their S3-key extensions. The signed
+// PUT URL must commit to a single content-type up front (AWS rejects PUTs
+// whose Content-Type header doesn't match the signature), so the client
+// declares its format here at create time.
+const MIME_TO_EXT: Record<string, string> = {
+  'audio/webm': 'webm',
+  'audio/m4a': 'm4a',
+  'audio/mp4': 'mp4',
 }
 
 export async function POST(request: Request) {
@@ -132,9 +143,16 @@ export async function POST(request: Request) {
     select: { id: true },
   })
 
-  // m4a is the Mac app's native AVAudioRecorder format — fine default.
-  const s3Key = generateRecordingKey(auth.orgId, recording.id, 'm4a')
-  const uploadUrl = await getSignedUploadUrl(s3Key, 'audio/m4a')
+  // Default to m4a (the Mac app's native AVAudioRecorder format). The
+  // Electron desktop client uses MediaRecorder which produces audio/webm,
+  // so it passes mimeType explicitly. Unknown types fall back to m4a so
+  // older clients keep working.
+  const requestedMime = (body.mimeType ?? '').toLowerCase()
+  const mimeType = requestedMime in MIME_TO_EXT ? requestedMime : 'audio/m4a'
+  const ext = MIME_TO_EXT[mimeType]
+
+  const s3Key = generateRecordingKey(auth.orgId, recording.id, ext)
+  const uploadUrl = await getSignedUploadUrl(s3Key, mimeType)
 
   await db.recording.update({
     where: { id: recording.id },
