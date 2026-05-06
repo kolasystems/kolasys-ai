@@ -7,6 +7,7 @@
 // transcription — the same pipeline trigger as recordings.confirmUpload.
 
 import { createHmac, timingSafeEqual } from 'crypto'
+import { Webhook } from 'svix'
 import { db } from '@/lib/db'
 import { transcriptionQueue } from '@/lib/queues'
 import { RecordingStatus } from '@/generated/prisma/client'
@@ -17,12 +18,42 @@ type RecallEvent =
   | { event: 'bot.status_change'; data: { bot_id: string; status: { code: string } } }
   | { event: 'transcript.ready'; data: { bot_id: string; transcript: unknown } }
 
-function verifySignature(body: string, signature: string | null): boolean {
+/**
+ * Verify a webhook payload. Modern Recall.ai delivers via Svix and signs
+ * with the standard svix-id / svix-timestamp / svix-signature headers; the
+ * older API used a custom HMAC at `x-recall-signature`. We try Svix first
+ * and fall back to the legacy scheme so this handler keeps working through
+ * any account migration.
+ */
+function verifyWebhook(body: string, headers: Headers): boolean {
   const secret = process.env.RECALLAI_WEBHOOK_SECRET
-  if (!secret || !signature) return false
+  if (!secret) return false
+
+  // ── Svix path ───────────────────────────────────────────────────────────
+  const svixId = headers.get('svix-id')
+  const svixTimestamp = headers.get('svix-timestamp')
+  const svixSignature = headers.get('svix-signature')
+  if (svixId && svixTimestamp && svixSignature) {
+    try {
+      const wh = new Webhook(secret)
+      wh.verify(body, {
+        'svix-id': svixId,
+        'svix-timestamp': svixTimestamp,
+        'svix-signature': svixSignature,
+      })
+      return true
+    } catch (err) {
+      console.error('[recall] svix verify failed:', err)
+      return false
+    }
+  }
+
+  // ── Legacy HMAC path (older Recall.ai) ──────────────────────────────────
+  const legacy = headers.get('x-recall-signature')
+  if (!legacy) return false
   const expected = createHmac('sha256', secret).update(body).digest('hex')
   try {
-    return timingSafeEqual(Buffer.from(signature), Buffer.from(expected))
+    return timingSafeEqual(Buffer.from(legacy), Buffer.from(expected))
   } catch {
     return false
   }
@@ -30,9 +61,12 @@ function verifySignature(body: string, signature: string | null): boolean {
 
 export async function POST(req: Request) {
   const body = await req.text()
-  const signature = req.headers.get('x-recall-signature')
 
-  if (!verifySignature(body, signature)) {
+  // Diagnostic logging — strip when signature verification is healthy.
+  console.log('[recall] secret present:', !!process.env.RECALLAI_WEBHOOK_SECRET)
+  console.log('[recall] headers:', Object.fromEntries(req.headers.entries()))
+
+  if (!verifyWebhook(body, req.headers)) {
     return new Response('Unauthorized', { status: 401 })
   }
 
