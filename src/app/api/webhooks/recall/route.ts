@@ -9,6 +9,7 @@
 // and enqueues transcription — the same pipeline trigger as
 // recordings.confirmUpload.
 
+import { after } from 'next/server'
 import { Webhook } from 'svix'
 import { db } from '@/lib/db'
 import { transcriptionQueue } from '@/lib/queues'
@@ -73,18 +74,17 @@ export async function POST(request: Request) {
 
   try {
     switch (event.event) {
-      // recording.done is the canonical "audio is ready to download" event.
+      // recording.done is the canonical "audio is ready to download" event;
+      // bot.done is the fallback if recording.done doesn't fire. Either way
+      // the work (Recall fetch → S3 upload → enqueue) runs AFTER we send the
+      // 200 via Next.js's `after()` so Vercel doesn't time out and Recall
+      // doesn't retry on us.
+      case 'bot.done':
       case 'recording.done': {
-        const data = event.data as { bot_id: string }
-        await ingestBotMedia(data.bot_id)
-        break
-      }
-
-      // Fallback if recording.done doesn't fire — bot.done lands a moment
-      // after the call ends and the media is also retrievable by then.
-      case 'bot.done': {
-        const data = event.data as { bot_id: string }
-        await ingestBotMedia(data.bot_id)
+        const botId = (event.data as { bot_id: string }).bot_id
+        after(async () => {
+          await ingestBotMedia(botId)
+        })
         break
       }
 
@@ -136,6 +136,7 @@ export async function POST(request: Request) {
  * so the second call is a no-op once s3Key is set (we just re-enqueue).
  */
 async function ingestBotMedia(botId: string) {
+  console.log('[recall] ingestBotMedia starting for botId:', botId)
   const recording = await db.recording.findFirst({
     where: { botId },
     select: { id: true, orgId: true, s3Key: true },
