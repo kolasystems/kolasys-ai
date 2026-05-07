@@ -137,92 +137,148 @@ export async function POST(request: Request) {
  */
 async function ingestBotMedia(botId: string) {
   console.log('[recall] ingestBotMedia starting for botId:', botId)
-  const recording = await db.recording.findFirst({
-    where: { botId },
-    select: { id: true, orgId: true, s3Key: true },
-  })
+
+  // ── Step 1: look up the recording row keyed by this botId ───────────────
+  console.log('[ingest] step 1: looking up recording for botId:', botId)
+  let recording: { id: string; orgId: string; s3Key: string | null } | null
+  try {
+    recording = await db.recording.findFirst({
+      where: { botId },
+      select: { id: true, orgId: true, s3Key: true },
+    })
+  } catch (err) {
+    console.error('[ingest] step 1 FAILED (lookup):', err)
+    return
+  }
+  console.log('[ingest] step 2: recording found:', recording?.id)
   if (!recording) {
     console.warn(`[recall webhook] no recording found for bot ${botId}`)
     return
   }
 
-  // Already ingested by an earlier event — just make sure the worker has
-  // the job and the status reflects it.
+  // Already ingested by an earlier event — just re-enqueue and bail before
+  // we re-download Recall's media for nothing.
   if (recording.s3Key) {
-    await transcriptionQueue.add('transcribe', {
-      recordingId: recording.id,
-      orgId: recording.orgId,
-      s3Key: recording.s3Key,
-    })
-    await db.recording.update({
-      where: { id: recording.id },
-      data: { status: RecordingStatus.TRANSCRIBING, endedAt: new Date() },
-    })
-    console.log(`[recall webhook] bot ${botId} already ingested — re-enqueued`)
+    try {
+      await transcriptionQueue.add('transcribe', {
+        recordingId: recording.id,
+        orgId: recording.orgId,
+        s3Key: recording.s3Key,
+      })
+      await db.recording.update({
+        where: { id: recording.id },
+        data: { status: RecordingStatus.TRANSCRIBING, endedAt: new Date() },
+      })
+      console.log(`[recall webhook] bot ${botId} already ingested — re-enqueued`)
+    } catch (err) {
+      console.error('[ingest] re-enqueue FAILED:', err)
+    }
     return
   }
 
-  const media = await getBotMediaUrl(botId)
+  // ── Step 3: ask Recall.ai for the bot's media URL ──────────────────────
+  let media: Awaited<ReturnType<typeof getBotMediaUrl>>
+  try {
+    media = await getBotMediaUrl(botId)
+  } catch (err) {
+    console.error('[ingest] step 3 FAILED (getBotMediaUrl threw):', err)
+    await markFailed(recording.id)
+    return
+  }
+  console.log('[ingest] step 3: media URL resolved:', media?.url ?? null)
   if (!media) {
     console.error(
       `[recall webhook] bot ${botId} 'done' but no media URL on the response`,
     )
-    await db.recording.update({
-      where: { id: recording.id },
-      data: { status: RecordingStatus.FAILED },
-    })
+    await markFailed(recording.id)
     return
   }
 
-  // Stream the file. arrayBuffer is fine for typical meeting audio (< a
-  // few hundred MB); upgrade to streamed PUT if we ever see OOM here.
-  const res = await fetch(media.url)
-  if (!res.ok) {
-    console.error(
-      `[recall webhook] failed to download Recall media: ${res.status} ${res.statusText}`,
-    )
-    await db.recording.update({
-      where: { id: recording.id },
-      data: { status: RecordingStatus.FAILED },
-    })
+  // ── Step 4: download the audio bytes ───────────────────────────────────
+  let buffer: Buffer
+  let responseContentType: string
+  try {
+    const res = await fetch(media.url)
+    if (!res.ok) {
+      console.error(
+        `[ingest] step 4 FAILED (download non-OK): ${res.status} ${res.statusText}`,
+      )
+      await markFailed(recording.id)
+      return
+    }
+    const arrayBuf = await res.arrayBuffer()
+    buffer = Buffer.from(arrayBuf)
+    responseContentType = res.headers.get('content-type') ?? media.contentType
+  } catch (err) {
+    console.error('[ingest] step 4 FAILED (fetch threw):', err)
+    await markFailed(recording.id)
     return
   }
-  const arrayBuf = await res.arrayBuffer()
-  const buffer = Buffer.from(arrayBuf)
+  console.log('[ingest] step 4: audio downloaded, size:', buffer.length)
   const fileSize = buffer.byteLength
-  const responseContentType = res.headers.get('content-type') ?? media.contentType
 
+  // ── Step 5: upload to S3 ───────────────────────────────────────────────
   const s3Key = generateRecordingKey(recording.orgId, recording.id, media.extension)
-  await uploadToS3(s3Key, buffer, responseContentType)
+  try {
+    await uploadToS3(s3Key, buffer, responseContentType)
+  } catch (err) {
+    console.error('[ingest] step 5 FAILED (S3 upload):', err)
+    await markFailed(recording.id)
+    return
+  }
+  console.log('[ingest] step 5: S3 upload complete, key:', s3Key)
 
-  await db.recording.update({
-    where: { id: recording.id },
-    data: {
+  // ── Step 6: persist + enqueue transcription ────────────────────────────
+  try {
+    await db.recording.update({
+      where: { id: recording.id },
+      data: {
+        s3Key,
+        s3Bucket: process.env.S3_BUCKET_NAME,
+        mimeType: responseContentType,
+        fileSize,
+        status: RecordingStatus.TRANSCRIBING,
+        endedAt: new Date(),
+      },
+    })
+
+    // Resolve language: org default (matches the upload-path confirmUpload
+    // behaviour). 'auto' becomes undefined so Whisper auto-detects.
+    const org = await db.organization.findFirst({
+      where: { id: recording.orgId },
+      select: { defaultTranscriptionLanguage: true },
+    })
+    const language = org?.defaultTranscriptionLanguage ?? 'en'
+
+    await transcriptionQueue.add('transcribe', {
+      recordingId: recording.id,
+      orgId: recording.orgId,
       s3Key,
-      s3Bucket: process.env.S3_BUCKET_NAME,
-      mimeType: responseContentType,
-      fileSize,
-      status: RecordingStatus.TRANSCRIBING,
-      endedAt: new Date(),
-    },
-  })
-
-  // Resolve language: org default (matches the upload-path confirmUpload
-  // behaviour). 'auto' becomes undefined so Whisper auto-detects.
-  const org = await db.organization.findFirst({
-    where: { id: recording.orgId },
-    select: { defaultTranscriptionLanguage: true },
-  })
-  const language = org?.defaultTranscriptionLanguage ?? 'en'
-
-  await transcriptionQueue.add('transcribe', {
-    recordingId: recording.id,
-    orgId: recording.orgId,
-    s3Key,
-    language: language === 'auto' ? undefined : language,
-  })
+      language: language === 'auto' ? undefined : language,
+    })
+  } catch (err) {
+    console.error('[ingest] step 6 FAILED (DB update / queue):', err)
+    return
+  }
+  console.log('[ingest] step 6: queued for transcription')
 
   console.log(
     `[recall webhook] ingested bot ${botId} → ${s3Key} (${fileSize} bytes) → queued transcription`,
   )
+}
+
+/**
+ * Best-effort flip the recording to FAILED so the dashboard stops showing
+ * it as in-progress. Wrapped because we don't want a failed-status update
+ * to hide the actual root-cause log line.
+ */
+async function markFailed(recordingId: string): Promise<void> {
+  try {
+    await db.recording.update({
+      where: { id: recordingId },
+      data: { status: RecordingStatus.FAILED },
+    })
+  } catch (err) {
+    console.error('[ingest] markFailed update threw:', err)
+  }
 }
