@@ -20,6 +20,15 @@ export const summarizationQueue = new Queue('summarization', {
   defaultJobOptions,
 })
 
+// Bot ingestion: pulls the recorded media from Recall.ai → S3 → kicks off
+// the existing transcription queue. Runs on Railway alongside the
+// transcription worker so the Recall.ai webhook on Vercel can fire-and-
+// forget without ever holding the response open for the download.
+export const botIngestionQueue = new Queue('bot-ingestion', {
+  connection: bullmqConnection,
+  defaultJobOptions,
+})
+
 export type TranscriptionQuality = 'standard' | 'high'
 
 export type TranscriptionJobData = {
@@ -34,4 +43,8 @@ export type SummarizationJobData = {
   recordingId: string
   transcriptId: string
   templateId?: string
+}
+
+export type BotIngestionJobData = {
+  botId: string
 }

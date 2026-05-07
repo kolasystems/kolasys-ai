@@ -24,6 +24,8 @@ import { transcribeAudio } from '@/services/transcription.service'
 import { diarizeAudio, mapSpeakersToSegments } from '@/services/diarization.service'
 import { summarizationQueue, type TranscriptionJobData } from '@/lib/queues'
 import { JobStatus, RecordingStatus } from '@/generated/prisma/client'
+import type { BotIngestionJobData } from '@/lib/queues'
+import { ingestBotMedia } from '@/services/bot-ingest.service'
 
 /**
  * Map an S3 key's file extension to the right Content-Type for Deepgram.
@@ -336,6 +338,39 @@ heartbeatInterval.unref()
 
 console.log('[transcription] Worker started')
 
+// ─── Bot ingestion worker ───────────────────────────────────────────────────
+// Consumes the `bot-ingestion` queue produced by the Recall.ai webhook.
+// Pulls the bot's recorded media → S3 → transcription queue. Lower
+// concurrency than transcription because each job does a multi-MB
+// download + S3 upload.
+
+const botIngestionWorker = new Worker<BotIngestionJobData>(
+  'bot-ingestion',
+  async (job) => {
+    const { botId } = job.data
+    console.log('[bot-ingest] processing botId:', botId)
+    await ingestBotMedia(botId)
+  },
+  {
+    connection: bullmqConnection,
+    concurrency: 3,
+  },
+)
+
+botIngestionWorker.on('failed', (job, err) => {
+  console.error('[bot-ingest] job failed:', job?.id, err)
+  Sentry.captureException(err, {
+    tags: { worker: 'bot-ingestion' },
+    extra: { jobId: job?.id, botId: job?.data?.botId },
+  })
+})
+botIngestionWorker.on('error', (err) => {
+  console.error('[bot-ingest] Worker error:', err)
+  Sentry.captureException(err, { tags: { worker: 'bot-ingestion', phase: 'worker_error' } })
+})
+
+console.log('[bot-ingest] Worker started')
+
 // ─── Graceful shutdown ──────────────────────────────────────────────────────
 // On SIGTERM (Railway redeploys) or SIGINT (local Ctrl-C) we stop the
 // heartbeat and wait for BullMQ to drain — worker.close() resolves once all
@@ -349,7 +384,7 @@ async function shutdown(signal: string) {
   console.log(`[transcription] shutting down gracefully (${signal})`)
   clearInterval(heartbeatInterval)
   try {
-    await worker.close()
+    await Promise.all([worker.close(), botIngestionWorker.close()])
   } catch (err) {
     console.error('[transcription] Error during worker.close():', err)
     Sentry.captureException(err, { tags: { worker: 'transcription', phase: 'shutdown' } })
