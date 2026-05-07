@@ -9,7 +9,6 @@
 // and enqueues transcription — the same pipeline trigger as
 // recordings.confirmUpload.
 
-import { after } from 'next/server'
 import { Webhook } from 'svix'
 import { db } from '@/lib/db'
 import { transcriptionQueue } from '@/lib/queues'
@@ -75,16 +74,17 @@ export async function POST(request: Request) {
   try {
     switch (event.event) {
       // recording.done is the canonical "audio is ready to download" event;
-      // bot.done is the fallback if recording.done doesn't fire. Either way
-      // the work (Recall fetch → S3 upload → enqueue) runs AFTER we send the
-      // 200 via Next.js's `after()` so Vercel doesn't time out and Recall
-      // doesn't retry on us.
+      // bot.done is the fallback if recording.done doesn't fire. We kick
+      // off the (Recall fetch → S3 upload → enqueue) work without await so
+      // the 200 response goes out immediately. Errors surface in Railway
+      // logs via the .catch() — the recording is left at PROCESSING so an
+      // operator can retry from the dashboard if the background work dies.
       case 'bot.done':
       case 'recording.done': {
         const botId = (event.data as { bot_id: string }).bot_id
-        after(async () => {
-          await ingestBotMedia(botId)
-        })
+        ingestBotMedia(botId).catch((err) =>
+          console.error('[recall] ingestBotMedia unhandled error:', err),
+        )
         break
       }
 
