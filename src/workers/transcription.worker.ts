@@ -17,6 +17,11 @@ Sentry.init({
 })
 
 import { Worker, type Job } from 'bullmq'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { execFileSync } from 'node:child_process'
+import ffmpegPath from 'ffmpeg-static'
 import { bullmqConnection } from '@/lib/redis'
 import { db } from '@/lib/db'
 import { getSignedDownloadUrl, deleteFromS3 } from '@/lib/storage'
@@ -24,6 +29,10 @@ import { transcribeAudio } from '@/services/transcription.service'
 import { diarizeAudio, mapSpeakersToSegments } from '@/services/diarization.service'
 import { summarizationQueue, type TranscriptionJobData } from '@/lib/queues'
 import { JobStatus, RecordingStatus } from '@/generated/prisma/client'
+
+// OpenAI Whisper's upload cap is 25 MiB (26214400 bytes). Stay a hair under
+// to absorb HTTP form overhead.
+const MAX_WHISPER_BYTES = 24 * 1024 * 1024
 import type { BotIngestionJobData } from '@/lib/queues'
 import { ingestBotMedia } from '@/services/bot-ingest.service'
 
@@ -43,6 +52,55 @@ function mimeFromS3Key(key: string): string {
     case 'm4a':
     case 'mp4':  return 'audio/mp4'
     default:     return 'audio/mp4'
+  }
+}
+
+/**
+ * Re-encode the source audio to mono 64 kbps 16 kHz MP3 so Whisper's 25
+ * MiB upload cap stops biting. ffmpeg-static ships a platform-specific
+ * binary, so no system ffmpeg is required on Railway.
+ *
+ * Uses execFileSync (no shell) with an args array to avoid any quoting
+ * issues on the file paths. Temp files are cleaned in a finally block.
+ */
+async function reencodeForWhisper(
+  source: Buffer,
+  recordingId: string,
+  s3Key: string,
+): Promise<Buffer> {
+  if (!ffmpegPath) {
+    throw new Error(
+      'ffmpeg-static did not resolve a binary path for this platform',
+    )
+  }
+  const ext = (s3Key.split('.').pop() ?? 'bin').toLowerCase()
+  const tmpDir = os.tmpdir()
+  const tmpIn = path.join(tmpDir, `kolasys-${recordingId}-in.${ext}`)
+  const tmpOut = path.join(tmpDir, `kolasys-${recordingId}-out.mp3`)
+
+  try {
+    fs.writeFileSync(tmpIn, source)
+    execFileSync(
+      ffmpegPath,
+      [
+        '-y',           // overwrite output if it exists
+        '-i', tmpIn,
+        '-ac', '1',     // mono
+        '-ar', '16000', // 16 kHz — Whisper's native sample rate
+        '-b:a', '64k',
+        tmpOut,
+      ],
+      { stdio: ['ignore', 'pipe', 'pipe'] },
+    )
+    const out = fs.readFileSync(tmpOut)
+    console.log(
+      `[transcription] re-encoded ${source.length} → ${out.length} bytes for ${recordingId}`,
+    )
+    return out
+  } finally {
+    for (const p of [tmpIn, tmpOut]) {
+      try { fs.unlinkSync(p) } catch {/* not all may exist on failure */}
+    }
   }
 }
 
@@ -82,9 +140,24 @@ async function processTranscription(job: Job<TranscriptionJobData>) {
   const downloadUrl = await getSignedDownloadUrl(s3Key)
   const audioRes = await fetch(downloadUrl)
   if (!audioRes.ok) throw new Error(`Failed to download audio: ${audioRes.status}`)
-  const audioBuffer = Buffer.from(await audioRes.arrayBuffer())
+  const originalBuffer = Buffer.from(await audioRes.arrayBuffer())
 
-  const filename = s3Key.split('/').pop() ?? 'audio.mp3'
+  // Whisper rejects uploads >25 MiB with a 413. Re-encode large files to a
+  // mono 64 kbps 16 kHz MP3 before sending — perfectly fine for speech and
+  // typically 1/5 to 1/10 the size of the source. Deepgram (diarization
+  // below) sees the same re-encoded buffer for consistency.
+  // Buffer<ArrayBufferLike> vs Buffer<ArrayBuffer> — pin the type so the
+  // assignment from `reencodeForWhisper` (which reads from fs) doesn't
+  // narrow the variance.
+  let audioBuffer: Buffer<ArrayBufferLike> = originalBuffer
+  let filename = s3Key.split('/').pop() ?? 'audio.mp3'
+  let diarizationMimeType = mimeFromS3Key(s3Key)
+
+  if (originalBuffer.length > MAX_WHISPER_BYTES) {
+    audioBuffer = await reencodeForWhisper(originalBuffer, recordingId, s3Key)
+    filename = `${recordingId}.mp3`
+    diarizationMimeType = 'audio/mpeg'
+  }
 
   // Transcribe.
   const result = await transcribeAudio(audioBuffer, filename, {
@@ -132,12 +205,9 @@ async function processTranscription(job: Job<TranscriptionJobData>) {
   if (process.env.DEEPGRAM_API_KEY && transcript) {
     try {
       console.log(`[transcription] Running Deepgram diarization for ${recordingId}`)
-      // Derive Deepgram's Content-Type from the S3 key's extension so DESKTOP
-      // recordings (m4a/mp4) and Electron uploads (webm) route to the right
-      // decoder. The previous `result.segments[0] ? 'webm' : 'mpeg'` always
-      // landed on webm regardless of source format.
-      const mimeType = mimeFromS3Key(s3Key)
-      const speakerWords = await diarizeAudio(audioBuffer, mimeType)
+      // Use the same content type we sent to Whisper — when the source
+      // was re-encoded the buffer is mp3 regardless of what s3Key says.
+      const speakerWords = await diarizeAudio(audioBuffer, diarizationMimeType)
 
       if (speakerWords.length > 0) {
         // Re-fetch segments with IDs so we can update them
