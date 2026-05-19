@@ -150,6 +150,7 @@ model OrgMember {
   userId             String     // Clerk user ID
   role               MemberRole @default(MEMBER)
   googleRefreshToken String?    // OAuth refresh token for Google Calendar
+  microsoftRefreshToken String? // OAuth refresh token for Microsoft Outlook Calendar
   // Expo push token registered by the mobile app on launch. Per-member so
   // each user's iPhone (and mirrored Apple Watch) gets its own ping when
   // their own recordings finish summarization.

@@ -1,10 +1,24 @@
 'use client'
 
-// Kolasys AI — Calendar meetings list + deploy bot (client component)
+// Kolasys AI — Calendar meetings list + deploy bot (client component).
+// Now merges Google + Microsoft events; the event payload tells us which
+// provider it came from so the UI can label it and the disconnect button
+// knows which token to clear.
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Calendar, Clock, Users, Bot, CheckCircle2, Loader2, ExternalLink } from 'lucide-react'
+import {
+  Calendar,
+  Clock,
+  Users,
+  Bot,
+  CheckCircle2,
+  Copy,
+  Check,
+  Loader2,
+  ExternalLink,
+  Mic,
+} from 'lucide-react'
 import { trpc } from '@/lib/trpc'
 import { relativeTime } from '@/lib/utils'
 
@@ -21,8 +35,6 @@ export function CalendarMeetingsList() {
 
   const disconnectMutation = trpc.calendar.disconnect.useMutation({
     onSuccess: () => {
-      // Page will re-render since the server component owns connection state.
-      // Easiest refresh: hard navigate.
       window.location.reload()
     },
   })
@@ -40,20 +52,21 @@ export function CalendarMeetingsList() {
   if (error) {
     const isExpired =
       error.message?.includes('expired') || error.message?.includes('reconnect')
+    const isMicrosoft = error.message?.includes('Microsoft')
     return (
       <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4">
         <p className="text-sm font-medium text-red-800">
           {isExpired
-            ? 'Your Google Calendar token has expired.'
+            ? `Your ${isMicrosoft ? 'Microsoft' : 'Google'} Calendar token has expired.`
             : `Failed to load meetings: ${error.message}`}
         </p>
         {isExpired && (
           <a
-            href="/api/auth/google"
+            href={isMicrosoft ? '/api/auth/microsoft' : '/api/auth/google'}
             className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-red-700 underline hover:text-red-900"
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            Reconnect Google Calendar
+            Reconnect {isMicrosoft ? 'Microsoft' : 'Google'} Calendar
           </a>
         )}
       </div>
@@ -76,20 +89,37 @@ export function CalendarMeetingsList() {
     )
   }
 
+  // Build the disconnect-buttons row based on which providers actually
+  // appear in the merged list — avoids showing "Disconnect Microsoft"
+  // when only Google events came back.
+  const providers = new Set(meetings.map((m) => m.provider))
+
   return (
     <div className="mt-6 space-y-3">
       {meetings.map((event) => (
-        <MeetingRow key={event.id} event={event} />
+        <MeetingRow key={`${event.provider}:${event.id}`} event={event} />
       ))}
-      <div className="pt-2 text-right">
-        <button
-          type="button"
-          onClick={() => disconnectMutation.mutate()}
-          disabled={disconnectMutation.isPending}
-          className="text-xs text-neutral-400 underline hover:text-neutral-600"
-        >
-          Disconnect Google Calendar
-        </button>
+      <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
+        {providers.has('google') && (
+          <button
+            type="button"
+            onClick={() => disconnectMutation.mutate({ provider: 'google' })}
+            disabled={disconnectMutation.isPending}
+            className="text-xs text-neutral-400 underline hover:text-neutral-600"
+          >
+            Disconnect Google
+          </button>
+        )}
+        {providers.has('microsoft') && (
+          <button
+            type="button"
+            onClick={() => disconnectMutation.mutate({ provider: 'microsoft' })}
+            disabled={disconnectMutation.isPending}
+            className="text-xs text-neutral-400 underline hover:text-neutral-600"
+          >
+            Disconnect Microsoft
+          </button>
+        )}
       </div>
     </div>
   )
@@ -102,11 +132,13 @@ type CalendarEvent = {
   endTime: string
   meetingUrl: string | null
   attendees: string[]
+  provider: 'google' | 'microsoft'
 }
 
 function MeetingRow({ event }: { event: CalendarEvent }) {
   const [deployed, setDeployed] = useState(false)
   const [recordingId, setRecordingId] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
   const deployMutation = trpc.calendar.deployBotForEvent.useMutation({
     onSuccess: (data) => {
@@ -117,6 +149,13 @@ function MeetingRow({ event }: { event: CalendarEvent }) {
 
   const start = new Date(event.startTime)
   const isInPast = start < new Date()
+
+  function copyTitleForDesktop() {
+    navigator.clipboard.writeText(event.title).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
 
   return (
     <div className="flex items-center gap-4 rounded-xl border border-neutral-200 bg-white px-5 py-4 shadow-sm">
@@ -132,7 +171,20 @@ function MeetingRow({ event }: { event: CalendarEvent }) {
 
       {/* Details */}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-neutral-900">{event.title}</p>
+        <div className="flex items-center gap-2">
+          <p className="truncate text-sm font-semibold text-neutral-900">{event.title}</p>
+          <span
+            className={
+              'rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ' +
+              (event.provider === 'google'
+                ? 'bg-blue-50 text-blue-700'
+                : 'bg-violet-50 text-violet-700')
+            }
+            title={event.provider === 'google' ? 'Google Calendar' : 'Microsoft Outlook'}
+          >
+            {event.provider === 'google' ? 'G' : 'MS'}
+          </span>
+        </div>
         <div className="mt-0.5 flex flex-wrap items-center gap-3 text-xs text-neutral-500">
           <span className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
@@ -158,8 +210,26 @@ function MeetingRow({ event }: { event: CalendarEvent }) {
         </div>
       </div>
 
-      {/* Action */}
-      <div className="flex-shrink-0">
+      {/* Actions */}
+      <div className="flex flex-shrink-0 items-center gap-2">
+        {/* Start Desktop Recording — copies the title so the desktop app
+            can pre-fill it for the next recording it starts. */}
+        <button
+          type="button"
+          onClick={copyTitleForDesktop}
+          title="Copy meeting title for the desktop recorder"
+          className={
+            'flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ' +
+            (copied
+              ? 'border-green-200 bg-green-50 text-green-700'
+              : 'border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50')
+          }
+        >
+          {copied ? <Check className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+          {copied ? 'Copied' : 'Start Desktop Recording'}
+        </button>
+
+        {/* Bot deploy */}
         {deployed && recordingId ? (
           <Link
             href={`/dashboard/recordings/${recordingId}`}
@@ -186,7 +256,7 @@ function MeetingRow({ event }: { event: CalendarEvent }) {
             ) : (
               <Bot className="h-3.5 w-3.5" />
             )}
-            Deploy Bot
+            Send Bot
           </button>
         ) : (
           <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-xs text-neutral-400">

@@ -30,6 +30,7 @@ export type OrgMemberMinAggregateOutputType = {
   userId: string | null
   role: $Enums.MemberRole | null
   googleRefreshToken: string | null
+  microsoftRefreshToken: string | null
   expoPushToken: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -41,6 +42,7 @@ export type OrgMemberMaxAggregateOutputType = {
   userId: string | null
   role: $Enums.MemberRole | null
   googleRefreshToken: string | null
+  microsoftRefreshToken: string | null
   expoPushToken: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -52,6 +54,7 @@ export type OrgMemberCountAggregateOutputType = {
   userId: number
   role: number
   googleRefreshToken: number
+  microsoftRefreshToken: number
   expoPushToken: number
   createdAt: number
   updatedAt: number
@@ -65,6 +68,7 @@ export type OrgMemberMinAggregateInputType = {
   userId?: true
   role?: true
   googleRefreshToken?: true
+  microsoftRefreshToken?: true
   expoPushToken?: true
   createdAt?: true
   updatedAt?: true
@@ -76,6 +80,7 @@ export type OrgMemberMaxAggregateInputType = {
   userId?: true
   role?: true
   googleRefreshToken?: true
+  microsoftRefreshToken?: true
   expoPushToken?: true
   createdAt?: true
   updatedAt?: true
@@ -87,6 +92,7 @@ export type OrgMemberCountAggregateInputType = {
   userId?: true
   role?: true
   googleRefreshToken?: true
+  microsoftRefreshToken?: true
   expoPushToken?: true
   createdAt?: true
   updatedAt?: true
@@ -171,6 +177,7 @@ export type OrgMemberGroupByOutputType = {
   userId: string
   role: $Enums.MemberRole
   googleRefreshToken: string | null
+  microsoftRefreshToken: string | null
   expoPushToken: string | null
   createdAt: Date
   updatedAt: Date
@@ -203,6 +210,7 @@ export type OrgMemberWhereInput = {
   userId?: Prisma.StringFilter<"OrgMember"> | string
   role?: Prisma.EnumMemberRoleFilter<"OrgMember"> | $Enums.MemberRole
   googleRefreshToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
+  microsoftRefreshToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   expoPushToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
@@ -216,6 +224,7 @@ export type OrgMemberOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   googleRefreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  microsoftRefreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
   expoPushToken?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -233,6 +242,7 @@ export type OrgMemberWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.StringFilter<"OrgMember"> | string
   role?: Prisma.EnumMemberRoleFilter<"OrgMember"> | $Enums.MemberRole
   googleRefreshToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
+  microsoftRefreshToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   expoPushToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
@@ -246,6 +256,7 @@ export type OrgMemberOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   googleRefreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  microsoftRefreshToken?: Prisma.SortOrderInput | Prisma.SortOrder
   expoPushToken?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -263,6 +274,7 @@ export type OrgMemberScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"OrgMember"> | string
   role?: Prisma.EnumMemberRoleWithAggregatesFilter<"OrgMember"> | $Enums.MemberRole
   googleRefreshToken?: Prisma.StringNullableWithAggregatesFilter<"OrgMember"> | string | null
+  microsoftRefreshToken?: Prisma.StringNullableWithAggregatesFilter<"OrgMember"> | string | null
   expoPushToken?: Prisma.StringNullableWithAggregatesFilter<"OrgMember"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OrgMember"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"OrgMember"> | Date | string
@@ -273,6 +285,7 @@ export type OrgMemberCreateInput = {
   userId: string
   role?: $Enums.MemberRole
   googleRefreshToken?: string | null
+  microsoftRefreshToken?: string | null
   expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -286,6 +299,7 @@ export type OrgMemberUncheckedCreateInput = {
   userId: string
   role?: $Enums.MemberRole
   googleRefreshToken?: string | null
+  microsoftRefreshToken?: string | null
   expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -297,6 +311,7 @@ export type OrgMemberUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  microsoftRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -310,6 +325,7 @@ export type OrgMemberUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  microsoftRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -322,6 +338,7 @@ export type OrgMemberCreateManyInput = {
   userId: string
   role?: $Enums.MemberRole
   googleRefreshToken?: string | null
+  microsoftRefreshToken?: string | null
   expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -332,6 +349,7 @@ export type OrgMemberUpdateManyMutationInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  microsoftRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -343,6 +361,7 @@ export type OrgMemberUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  microsoftRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -369,6 +388,7 @@ export type OrgMemberCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   googleRefreshToken?: Prisma.SortOrder
+  microsoftRefreshToken?: Prisma.SortOrder
   expoPushToken?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -380,6 +400,7 @@ export type OrgMemberMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   googleRefreshToken?: Prisma.SortOrder
+  microsoftRefreshToken?: Prisma.SortOrder
   expoPushToken?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -391,6 +412,7 @@ export type OrgMemberMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   googleRefreshToken?: Prisma.SortOrder
+  microsoftRefreshToken?: Prisma.SortOrder
   expoPushToken?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -466,6 +488,7 @@ export type OrgMemberCreateWithoutOrgInput = {
   userId: string
   role?: $Enums.MemberRole
   googleRefreshToken?: string | null
+  microsoftRefreshToken?: string | null
   expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -477,6 +500,7 @@ export type OrgMemberUncheckedCreateWithoutOrgInput = {
   userId: string
   role?: $Enums.MemberRole
   googleRefreshToken?: string | null
+  microsoftRefreshToken?: string | null
   expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -518,6 +542,7 @@ export type OrgMemberScalarWhereInput = {
   userId?: Prisma.StringFilter<"OrgMember"> | string
   role?: Prisma.EnumMemberRoleFilter<"OrgMember"> | $Enums.MemberRole
   googleRefreshToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
+  microsoftRefreshToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   expoPushToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   createdAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
@@ -528,6 +553,7 @@ export type OrgMemberCreateWithoutWebPushSubsInput = {
   userId: string
   role?: $Enums.MemberRole
   googleRefreshToken?: string | null
+  microsoftRefreshToken?: string | null
   expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -540,6 +566,7 @@ export type OrgMemberUncheckedCreateWithoutWebPushSubsInput = {
   userId: string
   role?: $Enums.MemberRole
   googleRefreshToken?: string | null
+  microsoftRefreshToken?: string | null
   expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -566,6 +593,7 @@ export type OrgMemberUpdateWithoutWebPushSubsInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  microsoftRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -578,6 +606,7 @@ export type OrgMemberUncheckedUpdateWithoutWebPushSubsInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  microsoftRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -588,6 +617,7 @@ export type OrgMemberCreateManyOrgInput = {
   userId: string
   role?: $Enums.MemberRole
   googleRefreshToken?: string | null
+  microsoftRefreshToken?: string | null
   expoPushToken?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -598,6 +628,7 @@ export type OrgMemberUpdateWithoutOrgInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  microsoftRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -609,6 +640,7 @@ export type OrgMemberUncheckedUpdateWithoutOrgInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  microsoftRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -620,6 +652,7 @@ export type OrgMemberUncheckedUpdateManyWithoutOrgInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumMemberRoleFieldUpdateOperationsInput | $Enums.MemberRole
   googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  microsoftRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -662,6 +695,7 @@ export type OrgMemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   userId?: boolean
   role?: boolean
   googleRefreshToken?: boolean
+  microsoftRefreshToken?: boolean
   expoPushToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -676,6 +710,7 @@ export type OrgMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   userId?: boolean
   role?: boolean
   googleRefreshToken?: boolean
+  microsoftRefreshToken?: boolean
   expoPushToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -688,6 +723,7 @@ export type OrgMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   userId?: boolean
   role?: boolean
   googleRefreshToken?: boolean
+  microsoftRefreshToken?: boolean
   expoPushToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -700,12 +736,13 @@ export type OrgMemberSelectScalar = {
   userId?: boolean
   role?: boolean
   googleRefreshToken?: boolean
+  microsoftRefreshToken?: boolean
   expoPushToken?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrgMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "userId" | "role" | "googleRefreshToken" | "expoPushToken" | "createdAt" | "updatedAt", ExtArgs["result"]["orgMember"]>
+export type OrgMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "userId" | "role" | "googleRefreshToken" | "microsoftRefreshToken" | "expoPushToken" | "createdAt" | "updatedAt", ExtArgs["result"]["orgMember"]>
 export type OrgMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   webPushSubs?: boolean | Prisma.OrgMember$webPushSubsArgs<ExtArgs>
@@ -730,6 +767,7 @@ export type $OrgMemberPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     userId: string
     role: $Enums.MemberRole
     googleRefreshToken: string | null
+    microsoftRefreshToken: string | null
     expoPushToken: string | null
     createdAt: Date
     updatedAt: Date
@@ -1163,6 +1201,7 @@ export interface OrgMemberFieldRefs {
   readonly userId: Prisma.FieldRef<"OrgMember", 'String'>
   readonly role: Prisma.FieldRef<"OrgMember", 'MemberRole'>
   readonly googleRefreshToken: Prisma.FieldRef<"OrgMember", 'String'>
+  readonly microsoftRefreshToken: Prisma.FieldRef<"OrgMember", 'String'>
   readonly expoPushToken: Prisma.FieldRef<"OrgMember", 'String'>
   readonly createdAt: Prisma.FieldRef<"OrgMember", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"OrgMember", 'DateTime'>
