@@ -22,7 +22,7 @@ type UploadState =
 // Core Audio Format Voice Memos uses natively; `.mp4` covers the
 // audio-only mp4 container used when memos are exported. Dropping
 // `video/*` removes the "Take Video" affordance from iOS.
-const ACCEPT = 'audio/*,.m4a,.mp3,.wav,.aac,.ogg,.flac,.mp4,.caf'
+const ACCEPT = 'audio/*,.m4a,.mp3,.wav,.aac,.ogg,.flac,.mp4,.caf,audio/x-m4a,audio/mp4'
 const MAX_SIZE = 500 * 1024 * 1024 // 500 MB
 
 function defaultTitleFor(file: File): string {
