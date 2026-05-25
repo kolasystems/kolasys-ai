@@ -240,7 +240,7 @@ export default function UploadPage() {
               uploads instantly — no saving to Files needed.
             </p>
             <a
-              href="https://apps.apple.com/app/kolasys-ai/id0000000000"
+              href="https://apps.apple.com/app/id6764396351"
               className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-2 text-xs font-medium text-white hover:bg-white/15 transition-colors"
             >
               <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current" aria-hidden>
