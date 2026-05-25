@@ -56,12 +56,10 @@ function mimeFromS3Key(key: string): string {
 }
 
 /**
- * Re-encode the source audio to mono 64 kbps 16 kHz MP3 so Whisper's 25
- * MiB upload cap stops biting. ffmpeg-static ships a platform-specific
- * binary, so no system ffmpeg is required on Railway.
- *
- * Uses execFileSync (no shell) with an args array to avoid any quoting
- * issues on the file paths. Temp files are cleaned in a finally block.
+ * Re-encode the source audio to mono 16 kHz MP3 so Whisper's 25 MiB upload
+ * cap stops biting. Tries progressively lower bitrates (32k → 16k → 8k)
+ * until the output fits. 32kbps handles ~1.8-hour meetings; 16kbps handles
+ * ~3.5-hour meetings; 8kbps is the floor (still intelligible for speech).
  */
 async function reencodeForWhisper(
   source: Buffer,
@@ -80,23 +78,31 @@ async function reencodeForWhisper(
 
   try {
     fs.writeFileSync(tmpIn, source)
-    execFileSync(
-      ffmpegPath,
-      [
-        '-y',           // overwrite output if it exists
-        '-i', tmpIn,
-        '-ac', '1',     // mono
-        '-ar', '16000', // 16 kHz — Whisper's native sample rate
-        '-b:a', '64k',
-        tmpOut,
-      ],
-      { stdio: ['ignore', 'pipe', 'pipe'] },
+
+    for (const bitrate of ['32k', '16k', '8k']) {
+      execFileSync(
+        ffmpegPath,
+        [
+          '-y',           // overwrite output if it exists
+          '-i', tmpIn,
+          '-ac', '1',     // mono
+          '-ar', '16000', // 16 kHz — Whisper's native sample rate
+          '-b:a', bitrate,
+          tmpOut,
+        ],
+        { stdio: ['ignore', 'pipe', 'pipe'] },
+      )
+      const out = fs.readFileSync(tmpOut)
+      console.log(
+        `[transcription] re-encoded ${source.length} → ${out.length} bytes at ${bitrate} for ${recordingId}`,
+      )
+      if (out.length <= MAX_WHISPER_BYTES) return out
+      console.log(`[transcription] ${bitrate} still too large, trying lower bitrate`)
+    }
+
+    throw new Error(
+      `Audio for ${recordingId} exceeds ${MAX_WHISPER_BYTES} bytes even at 8kbps — too long to transcribe`,
     )
-    const out = fs.readFileSync(tmpOut)
-    console.log(
-      `[transcription] re-encoded ${source.length} → ${out.length} bytes for ${recordingId}`,
-    )
-    return out
   } finally {
     for (const p of [tmpIn, tmpOut]) {
       try { fs.unlinkSync(p) } catch {/* not all may exist on failure */}
