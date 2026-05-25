@@ -10,6 +10,7 @@ import { StatusBadge, isStuck } from '@/components/status-badge'
 import { RetryStuckButton } from '@/components/retry-stuck-button'
 import { NewRecordingModal } from '@/components/new-recording-modal'
 import { QuickVoiceUploadButton } from '@/components/quick-voice-upload-button'
+import { MobileRecorder } from '@/components/mobile-recorder'
 import { formatDuration, relativeTime } from '@/lib/utils'
 
 const TERMINAL = ['READY', 'FAILED']
@@ -217,6 +218,7 @@ export default function RecordingsPage() {
       </div>
 
       <NewRecordingModal open={modalOpen} onOpenChange={setModalOpen} />
+      <MobileRecorder />
     </div>
   )
 }
