@@ -2,6 +2,7 @@
 // Protects /dashboard and API routes; allows public access to webhooks and auth pages.
 
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
 
 const isPublicRoute = createRouteMatcher([
   '/',
@@ -34,6 +35,14 @@ const isPublicRoute = createRouteMatcher([
 ])
 
 export default clerkMiddleware(async (auth, request) => {
+  // On app.kolasys.ai the root path has no page — redirect to sign-in.
+  // On kolasys.ai / www.kolasys.ai, allow through to the marketing page.
+  const host = request.headers.get('host') ?? ''
+  const isAppSubdomain = host.startsWith('app.')
+  if (isAppSubdomain && request.nextUrl.pathname === '/') {
+    return NextResponse.redirect(new URL('/sign-in', request.url))
+  }
+
   if (!isPublicRoute(request)) {
     await auth.protect()
   }
