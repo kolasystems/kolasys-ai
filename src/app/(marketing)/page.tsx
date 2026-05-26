@@ -1,5 +1,3 @@
-import { auth } from '@clerk/nextjs/server'
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Mic2, FileText, MessageSquare, Watch, Check } from 'lucide-react'
 
@@ -36,13 +34,13 @@ function Hero() {
 
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
-            href="/sign-up"
+            href="https://app.kolasys.ai/sign-up"
             className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl bg-[#CA2625] px-8 text-sm font-semibold text-white shadow-lg shadow-[#CA2625]/30 transition-all hover:-translate-y-0.5 hover:shadow-xl sm:w-auto"
           >
             Start free trial
           </Link>
           <Link
-            href="/sign-in"
+            href="https://app.kolasys.ai/sign-in"
             className="inline-flex min-h-[48px] w-full items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] px-8 text-sm font-semibold text-white transition-colors hover:bg-white/[0.08] sm:w-auto"
           >
             Sign in
@@ -234,10 +232,7 @@ function Pricing() {
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
-export default async function MarketingPage() {
-  const { userId } = await auth()
-  if (userId) redirect('/dashboard')
-
+export default function MarketingPage() {
   return (
     <>
       <Hero />
