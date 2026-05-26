@@ -42,6 +42,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
           </div>
           <nav className="flex gap-5 text-sm text-white/40">
             <Link href="/privacy" className="hover:text-white/70 transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-white/70 transition-colors">Terms of Service</Link>
             <a href="mailto:hi@kolasys.ai" className="hover:text-white/70 transition-colors">Contact</a>
             <a href="https://apps.apple.com/app/id6764396351" className="hover:text-white/70 transition-colors">iOS App</a>
           </nav>
