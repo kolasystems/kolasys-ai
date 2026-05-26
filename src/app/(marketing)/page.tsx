@@ -1,3 +1,5 @@
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Mic2, FileText, MessageSquare, Watch, Check } from 'lucide-react'
 
@@ -232,7 +234,10 @@ function Pricing() {
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
-export default function MarketingPage() {
+export default async function MarketingPage() {
+  const { userId } = await auth()
+  if (userId) redirect('/dashboard')
+
   return (
     <>
       <Hero />
