@@ -22,7 +22,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               Sign in
             </Link>
             <Link
-              href="/sign-up"
+              href="https://app.kolasys.ai/sign-up"
               className="rounded-lg bg-[#CA2625] px-4 py-2 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-90"
             >
               Start free
