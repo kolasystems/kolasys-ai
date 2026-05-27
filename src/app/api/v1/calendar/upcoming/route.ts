@@ -37,7 +37,7 @@ export async function GET(request: Request) {
   console.log('[calendar/upcoming] orgId:', auth.orgId)
 
   const now = new Date()
-  const cutoff = new Date(now.getTime() + 8 * 60 * 60 * 1000)
+  const cutoff = new Date(now.getTime() + 48 * 60 * 60 * 1000) // TEMP: 48h for debugging (was 8h)
   const events: UpcomingEvent[] = []
 
   // ── Google ────────────────────────────────────────────────────────────────
@@ -122,6 +122,7 @@ async function fetchGoogleEvents(
   url.searchParams.set('singleEvents', 'true')
   url.searchParams.set('orderBy', 'startTime')
   url.searchParams.set('maxResults', '20')
+  url.searchParams.set('timeZone', 'UTC')
 
   const res = await fetch(url, { headers: { Authorization: `Bearer ${access_token}` } })
   if (!res.ok) {
