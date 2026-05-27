@@ -58,6 +58,18 @@ export default async function DesktopAuthPage({
     const ctx = await createTRPCContext({ headers: await headers() })
     const createCaller = createCallerFactory(appRouter)
     const caller = createCaller(ctx)
+
+    // Revoke prior desktop keys for this org so each sign-in invalidates the
+    // previous token — older installs get a 401 on their next API call and
+    // fall back to the sign-in screen. Covers both the `Desktop · <email>`
+    // name and the no-email `Kolasys Desktop` fallback.
+    const existingKeys = await caller.apiKeys.list()
+    for (const key of existingKeys) {
+      if (key.name.startsWith('Desktop ·') || key.name === 'Kolasys Desktop') {
+        await caller.apiKeys.revoke({ id: key.id })
+      }
+    }
+
     const created = await caller.apiKeys.create({
       name: email ? `Desktop · ${email}` : 'Kolasys Desktop',
     })
