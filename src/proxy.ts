@@ -36,12 +36,16 @@ const isPublicRoute = createRouteMatcher([
 ])
 
 export default clerkMiddleware(async (auth, request) => {
-  // On app.kolasys.ai the root path has no page — redirect to sign-in.
+  // On app.kolasys.ai the root path has no page. Signed-in users go to their
+  // dashboard; everyone else lands on sign-in. (Mirrors the auth() check the
+  // marketing page uses on kolasys.ai — see commit a178732.)
   // On kolasys.ai / www.kolasys.ai, allow through to the marketing page.
   const host = request.headers.get('host') ?? ''
   const isAppSubdomain = host.startsWith('app.')
   if (isAppSubdomain && request.nextUrl.pathname === '/') {
-    return NextResponse.redirect(new URL('/sign-in', request.url))
+    const { userId } = await auth()
+    const dest = userId ? '/dashboard' : '/sign-in'
+    return NextResponse.redirect(new URL(dest, request.url))
   }
 
   if (!isPublicRoute(request)) {
