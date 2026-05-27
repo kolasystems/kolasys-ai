@@ -58,6 +58,7 @@ export type RecordingMinAggregateOutputType = {
   isPublic: boolean | null
   publicSlug: string | null
   shareExpiresAt: Date | null
+  personalNotes: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -84,6 +85,7 @@ export type RecordingMaxAggregateOutputType = {
   isPublic: boolean | null
   publicSlug: string | null
   shareExpiresAt: Date | null
+  personalNotes: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -111,6 +113,7 @@ export type RecordingCountAggregateOutputType = {
   publicSlug: number
   sharePermissions: number
   shareExpiresAt: number
+  personalNotes: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -149,6 +152,7 @@ export type RecordingMinAggregateInputType = {
   isPublic?: true
   publicSlug?: true
   shareExpiresAt?: true
+  personalNotes?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -175,6 +179,7 @@ export type RecordingMaxAggregateInputType = {
   isPublic?: true
   publicSlug?: true
   shareExpiresAt?: true
+  personalNotes?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -202,6 +207,7 @@ export type RecordingCountAggregateInputType = {
   publicSlug?: true
   sharePermissions?: true
   shareExpiresAt?: true
+  personalNotes?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -316,6 +322,7 @@ export type RecordingGroupByOutputType = {
   publicSlug: string | null
   sharePermissions: runtime.JsonValue | null
   shareExpiresAt: Date | null
+  personalNotes: string | null
   createdAt: Date
   updatedAt: Date
   _count: RecordingCountAggregateOutputType | null
@@ -366,6 +373,7 @@ export type RecordingWhereInput = {
   publicSlug?: Prisma.StringNullableFilter<"Recording"> | string | null
   sharePermissions?: Prisma.JsonNullableFilter<"Recording">
   shareExpiresAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
+  personalNotes?: Prisma.StringNullableFilter<"Recording"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   org?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -401,6 +409,7 @@ export type RecordingOrderByWithRelationInput = {
   publicSlug?: Prisma.SortOrderInput | Prisma.SortOrder
   sharePermissions?: Prisma.SortOrderInput | Prisma.SortOrder
   shareExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  personalNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   org?: Prisma.OrganizationOrderByWithRelationInput
@@ -439,6 +448,7 @@ export type RecordingWhereUniqueInput = Prisma.AtLeast<{
   isPublic?: Prisma.BoolFilter<"Recording"> | boolean
   sharePermissions?: Prisma.JsonNullableFilter<"Recording">
   shareExpiresAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
+  personalNotes?: Prisma.StringNullableFilter<"Recording"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   org?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -474,6 +484,7 @@ export type RecordingOrderByWithAggregationInput = {
   publicSlug?: Prisma.SortOrderInput | Prisma.SortOrder
   sharePermissions?: Prisma.SortOrderInput | Prisma.SortOrder
   shareExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  personalNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.RecordingCountOrderByAggregateInput
@@ -509,6 +520,7 @@ export type RecordingScalarWhereWithAggregatesInput = {
   publicSlug?: Prisma.StringNullableWithAggregatesFilter<"Recording"> | string | null
   sharePermissions?: Prisma.JsonNullableWithAggregatesFilter<"Recording">
   shareExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Recording"> | Date | string | null
+  personalNotes?: Prisma.StringNullableWithAggregatesFilter<"Recording"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Recording"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Recording"> | Date | string
 }
@@ -535,6 +547,7 @@ export type RecordingCreateInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -570,6 +583,7 @@ export type RecordingUncheckedCreateInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -603,6 +617,7 @@ export type RecordingUpdateInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -638,6 +653,7 @@ export type RecordingUncheckedUpdateInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -672,6 +688,7 @@ export type RecordingCreateManyInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -698,6 +715,7 @@ export type RecordingUpdateManyMutationInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -725,6 +743,7 @@ export type RecordingUncheckedUpdateManyInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -762,6 +781,7 @@ export type RecordingCountOrderByAggregateInput = {
   publicSlug?: Prisma.SortOrder
   sharePermissions?: Prisma.SortOrder
   shareExpiresAt?: Prisma.SortOrder
+  personalNotes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -793,6 +813,7 @@ export type RecordingMaxOrderByAggregateInput = {
   isPublic?: Prisma.SortOrder
   publicSlug?: Prisma.SortOrder
   shareExpiresAt?: Prisma.SortOrder
+  personalNotes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -819,6 +840,7 @@ export type RecordingMinOrderByAggregateInput = {
   isPublic?: Prisma.SortOrder
   publicSlug?: Prisma.SortOrder
   shareExpiresAt?: Prisma.SortOrder
+  personalNotes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1015,6 +1037,7 @@ export type RecordingCreateWithoutOrgInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptCreateNestedOneWithoutRecordingInput
@@ -1048,6 +1071,7 @@ export type RecordingUncheckedCreateWithoutOrgInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -1111,6 +1135,7 @@ export type RecordingScalarWhereInput = {
   publicSlug?: Prisma.StringNullableFilter<"Recording"> | string | null
   sharePermissions?: Prisma.JsonNullableFilter<"Recording">
   shareExpiresAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
+  personalNotes?: Prisma.StringNullableFilter<"Recording"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
 }
@@ -1137,6 +1162,7 @@ export type RecordingCreateWithoutTranscriptInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1171,6 +1197,7 @@ export type RecordingUncheckedCreateWithoutTranscriptInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutRecordingInput
@@ -1219,6 +1246,7 @@ export type RecordingUpdateWithoutTranscriptInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1253,6 +1281,7 @@ export type RecordingUncheckedUpdateWithoutTranscriptInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NoteUncheckedUpdateManyWithoutRecordingNestedInput
@@ -1285,6 +1314,7 @@ export type RecordingCreateWithoutSpeakerLabelsInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1319,6 +1349,7 @@ export type RecordingUncheckedCreateWithoutSpeakerLabelsInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -1367,6 +1398,7 @@ export type RecordingUpdateWithoutSpeakerLabelsInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1401,6 +1433,7 @@ export type RecordingUncheckedUpdateWithoutSpeakerLabelsInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -1433,6 +1466,7 @@ export type RecordingCreateWithoutNotesInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1467,6 +1501,7 @@ export type RecordingUncheckedCreateWithoutNotesInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -1515,6 +1550,7 @@ export type RecordingUpdateWithoutNotesInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1549,6 +1585,7 @@ export type RecordingUncheckedUpdateWithoutNotesInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -1581,6 +1618,7 @@ export type RecordingCreateWithoutJobsInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1615,6 +1653,7 @@ export type RecordingUncheckedCreateWithoutJobsInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -1663,6 +1702,7 @@ export type RecordingUpdateWithoutJobsInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1697,6 +1737,7 @@ export type RecordingUncheckedUpdateWithoutJobsInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -1729,6 +1770,7 @@ export type RecordingCreateWithoutKnowledgeLinksInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1763,6 +1805,7 @@ export type RecordingUncheckedCreateWithoutKnowledgeLinksInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -1811,6 +1854,7 @@ export type RecordingUpdateWithoutKnowledgeLinksInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1845,6 +1889,7 @@ export type RecordingUncheckedUpdateWithoutKnowledgeLinksInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -1877,6 +1922,7 @@ export type RecordingCreateWithoutSoundbitesInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1911,6 +1957,7 @@ export type RecordingUncheckedCreateWithoutSoundbitesInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -1959,6 +2006,7 @@ export type RecordingUpdateWithoutSoundbitesInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1993,6 +2041,7 @@ export type RecordingUncheckedUpdateWithoutSoundbitesInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -2025,6 +2074,7 @@ export type RecordingCreateWithoutShareInvitesInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -2059,6 +2109,7 @@ export type RecordingUncheckedCreateWithoutShareInvitesInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -2107,6 +2158,7 @@ export type RecordingUpdateWithoutShareInvitesInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -2141,6 +2193,7 @@ export type RecordingUncheckedUpdateWithoutShareInvitesInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -2173,6 +2226,7 @@ export type RecordingCreateManyOrgInput = {
   publicSlug?: string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -2199,6 +2253,7 @@ export type RecordingUpdateWithoutOrgInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUpdateOneWithoutRecordingNestedInput
@@ -2232,6 +2287,7 @@ export type RecordingUncheckedUpdateWithoutOrgInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -2265,6 +2321,7 @@ export type RecordingUncheckedUpdateManyWithoutOrgInput = {
   publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2368,6 +2425,7 @@ export type RecordingSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   publicSlug?: boolean
   sharePermissions?: boolean
   shareExpiresAt?: boolean
+  personalNotes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -2404,6 +2462,7 @@ export type RecordingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   publicSlug?: boolean
   sharePermissions?: boolean
   shareExpiresAt?: boolean
+  personalNotes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -2432,6 +2491,7 @@ export type RecordingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   publicSlug?: boolean
   sharePermissions?: boolean
   shareExpiresAt?: boolean
+  personalNotes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -2460,11 +2520,12 @@ export type RecordingSelectScalar = {
   publicSlug?: boolean
   sharePermissions?: boolean
   shareExpiresAt?: boolean
+  personalNotes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RecordingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "userId" | "title" | "description" | "source" | "status" | "platform" | "meetingUrl" | "botId" | "s3Key" | "s3Bucket" | "duration" | "fileSize" | "mimeType" | "scheduledAt" | "startedAt" | "endedAt" | "isPublic" | "publicSlug" | "sharePermissions" | "shareExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["recording"]>
+export type RecordingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "userId" | "title" | "description" | "source" | "status" | "platform" | "meetingUrl" | "botId" | "s3Key" | "s3Bucket" | "duration" | "fileSize" | "mimeType" | "scheduledAt" | "startedAt" | "endedAt" | "isPublic" | "publicSlug" | "sharePermissions" | "shareExpiresAt" | "personalNotes" | "createdAt" | "updatedAt", ExtArgs["result"]["recording"]>
 export type RecordingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   transcript?: boolean | Prisma.Recording$transcriptArgs<ExtArgs>
@@ -2518,6 +2579,7 @@ export type $RecordingPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     publicSlug: string | null
     sharePermissions: runtime.JsonValue | null
     shareExpiresAt: Date | null
+    personalNotes: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["recording"]>
@@ -2973,6 +3035,7 @@ export interface RecordingFieldRefs {
   readonly publicSlug: Prisma.FieldRef<"Recording", 'String'>
   readonly sharePermissions: Prisma.FieldRef<"Recording", 'Json'>
   readonly shareExpiresAt: Prisma.FieldRef<"Recording", 'DateTime'>
+  readonly personalNotes: Prisma.FieldRef<"Recording", 'String'>
   readonly createdAt: Prisma.FieldRef<"Recording", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Recording", 'DateTime'>
 }

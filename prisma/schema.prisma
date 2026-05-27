@@ -195,6 +195,9 @@ model Recording {
   // Expiry — the public page renders a "link expired" view past this point.
   // null = never expires.
   shareExpiresAt   DateTime?
+  // Free-form personal notes typed by the user (desktop/web). Distinct from
+  // the AI-generated `notes` relation below. null until first edited.
+  personalNotes    String?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 

@@ -160,6 +160,7 @@ export const RecordingScalarFieldEnum = {
   publicSlug: 'publicSlug',
   sharePermissions: 'sharePermissions',
   shareExpiresAt: 'shareExpiresAt',
+  personalNotes: 'personalNotes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

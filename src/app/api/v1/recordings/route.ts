@@ -29,6 +29,7 @@ export async function GET(request: Request) {
       status: true,
       source: true,
       duration: true,
+      personalNotes: true,
       createdAt: true,
       startedAt: true,
       endedAt: true,
