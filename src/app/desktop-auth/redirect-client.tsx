@@ -16,10 +16,14 @@ export function DesktopAuthRedirect({ url, email }: { url: string; email: string
       window.location.href = url
       setLaunched(true)
     }, 500)
-    // Best-effort: close this tab 1.5s after the redirect fires. Browsers only
-    // honor window.close() for script-opened windows, so a tab the OS opened
-    // directly may stay open — the UI below covers that case.
-    const closeTimer = setTimeout(() => window.close(), 2000)
+    // 1.5s after the redirect: best-effort close, then fall back to the
+    // dashboard. Browsers only honor window.close() for script-opened windows,
+    // so a tab the OS opened directly stays put — rather than strand the user
+    // on the spinner, send them to the dashboard.
+    const closeTimer = setTimeout(() => {
+      window.close()
+      window.location.href = 'https://app.kolasys.ai/dashboard'
+    }, 2000)
     return () => {
       clearTimeout(redirectTimer)
       clearTimeout(closeTimer)
