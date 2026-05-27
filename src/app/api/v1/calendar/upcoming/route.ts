@@ -34,6 +34,8 @@ export async function GET(request: Request) {
   const auth = await authenticateApiKey(request)
   if (!auth) return unauthorizedResponse()
 
+  console.log('[calendar/upcoming] orgId:', auth.orgId)
+
   const now = new Date()
   const cutoff = new Date(now.getTime() + 8 * 60 * 60 * 1000)
   const events: UpcomingEvent[] = []
@@ -44,8 +46,11 @@ export async function GET(request: Request) {
       where: { orgId: auth.orgId, googleRefreshToken: { not: null } },
       select: { id: true, googleRefreshToken: true },
     })
+    console.log('[calendar/upcoming] google token exists:', !!member?.googleRefreshToken)
     if (member?.googleRefreshToken) {
-      events.push(...(await fetchGoogleEvents(member.id, member.googleRefreshToken, now, cutoff)))
+      const googleEvents = await fetchGoogleEvents(member.id, member.googleRefreshToken, now, cutoff)
+      events.push(...googleEvents)
+      console.log('[calendar/upcoming] google events:', googleEvents.length)
     }
   } catch (err) {
     console.error('[v1/calendar] google failed:', err)
@@ -57,8 +62,11 @@ export async function GET(request: Request) {
       where: { orgId: auth.orgId, microsoftRefreshToken: { not: null } },
       select: { id: true, microsoftRefreshToken: true },
     })
+    console.log('[calendar/upcoming] microsoft token exists:', !!member?.microsoftRefreshToken)
     if (member?.microsoftRefreshToken) {
-      events.push(...(await fetchMicrosoftEvents(member.id, member.microsoftRefreshToken, now, cutoff)))
+      const msEvents = await fetchMicrosoftEvents(member.id, member.microsoftRefreshToken, now, cutoff)
+      events.push(...msEvents)
+      console.log('[calendar/upcoming] microsoft events:', msEvents.length)
     }
   } catch (err) {
     console.error('[v1/calendar] microsoft failed:', err)
