@@ -11,11 +11,19 @@ export function DesktopAuthRedirect({ url, email }: { url: string; email: string
   const [launched, setLaunched] = useState(false)
 
   useEffect(() => {
-    const t = setTimeout(() => {
+    // Hand off to the desktop app.
+    const redirectTimer = setTimeout(() => {
       window.location.href = url
       setLaunched(true)
     }, 500)
-    return () => clearTimeout(t)
+    // Best-effort: close this tab 1.5s after the redirect fires. Browsers only
+    // honor window.close() for script-opened windows, so a tab the OS opened
+    // directly may stay open — the UI below covers that case.
+    const closeTimer = setTimeout(() => window.close(), 2000)
+    return () => {
+      clearTimeout(redirectTimer)
+      clearTimeout(closeTimer)
+    }
   }, [url])
 
   return (
