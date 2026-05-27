@@ -75,6 +75,11 @@ export async function GET(request: Request) {
       data: { microsoftRefreshToken: refreshToken },
     })
   } catch (err) {
+    // redirect() throws a NEXT_REDIRECT control-flow error — let it propagate
+    // instead of masking the inner guards (no_refresh_token / org_not_found /
+    // member_not_found) as a generic token_exchange_failed.
+    if (err instanceof Error && err.message === 'NEXT_REDIRECT') throw err
+    console.error('[microsoft/callback] error:', err)
     console.error('[microsoft/callback] Token exchange failed:', err)
     redirect('/dashboard/calendar?error=token_exchange_failed')
   }
