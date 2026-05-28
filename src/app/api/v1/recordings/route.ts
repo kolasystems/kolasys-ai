@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url)
   const limit = Math.min(parseInt(url.searchParams.get('limit') ?? '50', 10) || 50, 200)
 
-  const recordings = await db.recording.findMany({
+  const rows = await db.recording.findMany({
     where: { orgId: auth.orgId },
     orderBy: { createdAt: 'desc' },
     take: limit,
@@ -44,6 +44,16 @@ export async function GET(request: Request) {
       },
     },
   })
+
+  // Truncate the AI summary to 280 chars in-process — Prisma can't substring
+  // inside a select, and shipping multi-KB summaries per row balloons list
+  // payloads (e.g. ?limit=200 → hundreds of KB). Ellipsis when truncated.
+  const recordings = rows.map((r) => ({
+    ...r,
+    notes: r.notes[0]?.summary
+      ? [{ summary: r.notes[0].summary.slice(0, 280) + (r.notes[0].summary.length > 280 ? '…' : '') }]
+      : [],
+  }))
 
   return Response.json({ recordings })
 }
