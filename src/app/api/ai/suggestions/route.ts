@@ -6,6 +6,7 @@
 import { auth } from '@clerk/nextjs/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { db } from '@/lib/db'
+import { authenticateApiKey } from '@/lib/api-auth'
 
 let _anthropic: Anthropic | null = null
 function getAnthropic() {
@@ -24,8 +25,33 @@ export type Suggestions = {
 }
 
 export async function POST(request: Request) {
-  const { userId, orgId: clerkOrgId } = await auth()
-  if (!userId || !clerkOrgId) {
+  // Dual auth: Bearer API key (desktop app) tried first — it's a cheap header
+  // check — falls back to Clerk session (web). Both branches resolve to the
+  // internal DB org id so the downstream recording lookup is uniform.
+  let orgId: string | null = null
+  let userId: string | null = null
+
+  const bearerAuth = await authenticateApiKey(request)
+  if (bearerAuth) {
+    orgId = bearerAuth.orgId
+    // ApiKeyAuth (src/lib/api-auth.ts) has no userId field — use orgId as the
+    // gate placeholder per the fallback in this route's spec.
+    userId = bearerAuth.orgId
+  } else {
+    const session = await auth()
+    userId = session.userId
+    if (session.orgId) {
+      // Clerk gives us the Clerk org id; translate to the internal DB id so
+      // the recording lookup below matches the bearer branch's contract.
+      const o = await db.organization.findFirst({
+        where: { clerkOrgId: session.orgId },
+        select: { id: true },
+      })
+      orgId = o?.id ?? null
+    }
+  }
+
+  if (!userId || !orgId) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -34,14 +60,8 @@ export async function POST(request: Request) {
     return Response.json({ error: 'Missing recordingId' }, { status: 400 })
   }
 
-  const org = await db.organization.findFirst({
-    where: { clerkOrgId },
-    select: { id: true },
-  })
-  if (!org) return Response.json({ error: 'Organization not found' }, { status: 404 })
-
   const recording = await db.recording.findFirst({
-    where: { id: recordingId, orgId: org.id },
+    where: { id: recordingId, orgId },
     select: {
       id: true,
       title: true,
