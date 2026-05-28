@@ -19,6 +19,10 @@ const isPublicRoute = createRouteMatcher([
   // The route handlers themselves call `authenticateApiKey` and return 401
   // on missing/invalid tokens.
   '/api/v1/(.*)',
+  // AI endpoints — dual auth: bearer (desktop app) tried first, then Clerk
+  // session (web). Route handlers gate themselves; Clerk middleware would
+  // otherwise 404 bearer-only requests before the handler runs.
+  '/api/ai/(.*)',
   // Stripe routes — webhook is signature-verified (no Clerk session
   // possible from Stripe's IPs), checkout/portal handlers gate themselves
   // via auth() and return 401 if missing.
