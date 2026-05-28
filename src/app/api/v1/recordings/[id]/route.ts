@@ -31,6 +31,12 @@ export async function GET(
       createdAt: true,
       startedAt: true,
       endedAt: true,
+      // Speaker labels for this recording — { speakerId, displayName } per
+      // labeled speaker, sorted by speakerId so SPEAKER_0..N render in order.
+      speakerLabels: {
+        select: { speakerId: true, displayName: true },
+        orderBy: { speakerId: 'asc' },
+      },
       // AI note — full untruncated payload. Mirrors the shape the web detail
       // page renders (src/app/dashboard/recordings/[id]/page.tsx → noteProp):
       // Note-level { id, summary, templateId }, sections[] with order so the
@@ -68,5 +74,22 @@ export async function GET(
     return Response.json({ error: 'Not found' }, { status: 404 })
   }
 
-  return Response.json(recording)
+  // Top knowledge entities mentioned in this recording — separate query
+  // because Recording → Note (for notes) and Recording → KnowledgeEntity
+  // (via KnowledgeEntityRecording) are independent edges. Capped at 20 to
+  // bound payload size on busy recordings.
+  const entityLinks = await db.knowledgeEntityRecording.findMany({
+    where: { recordingId: id },
+    include: { entity: { select: { id: true, type: true, name: true } } },
+    orderBy: { mentions: 'desc' },
+    take: 20,
+  })
+  const entities = entityLinks.map((e) => ({
+    id: e.entity.id,
+    type: e.entity.type,
+    name: e.entity.name,
+    mentions: e.mentions,
+  }))
+
+  return Response.json({ ...recording, entities })
 }
