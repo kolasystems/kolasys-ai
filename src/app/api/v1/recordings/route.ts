@@ -33,6 +33,15 @@ export async function GET(request: Request) {
       createdAt: true,
       startedAt: true,
       endedAt: true,
+      // AI-generated meeting summary (Note.summary) for row previews. Mirrors
+      // the shape used everywhere else in the codebase — one-to-many relation,
+      // latest note first. `notes` is `[{ summary }]` or `[]` if not generated
+      // yet; desktop reads `recording.notes[0]?.summary`.
+      notes: {
+        orderBy: { createdAt: 'desc' },
+        take: 1,
+        select: { summary: true },
+      },
     },
   })
 
