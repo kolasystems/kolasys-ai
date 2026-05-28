@@ -31,10 +31,35 @@ export async function GET(
       createdAt: true,
       startedAt: true,
       endedAt: true,
+      // AI note — full untruncated payload. Mirrors the shape the web detail
+      // page renders (src/app/dashboard/recordings/[id]/page.tsx → noteProp):
+      // Note-level { id, summary, templateId }, sections[] with order so the
+      // desktop can sort independently, and action items with status/priority/
+      // dueDate. Sorted server-side: sections by order asc, action items by
+      // priority asc — same as the dashboard query.
       notes: {
         orderBy: { createdAt: 'desc' },
         take: 1,
-        select: { summary: true },
+        select: {
+          id: true,
+          summary: true,
+          templateId: true,
+          sections: {
+            orderBy: { order: 'asc' },
+            select: { id: true, title: true, content: true, order: true },
+          },
+          actionItems: {
+            orderBy: { priority: 'asc' },
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              status: true,
+              priority: true,
+              dueDate: true,
+            },
+          },
+        },
       },
     },
   })
