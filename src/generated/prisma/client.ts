@@ -57,6 +57,16 @@ export type OrgMember = Prisma.OrgMemberModel
  */
 export type Recording = Prisma.RecordingModel
 /**
+ * Model MeetingSeries
+ * 
+ */
+export type MeetingSeries = Prisma.MeetingSeriesModel
+/**
+ * Model RecordingSeriesMembership
+ * 
+ */
+export type RecordingSeriesMembership = Prisma.RecordingSeriesMembershipModel
+/**
  * Model Transcript
  * 
  */

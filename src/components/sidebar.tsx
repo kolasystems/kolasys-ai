@@ -10,6 +10,8 @@ import {
   UserButton,
   OrganizationSwitcher,
 } from '@clerk/nextjs'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import {
   BarChart2,
   Brain,
@@ -18,6 +20,7 @@ import {
   ChevronRight,
   CreditCard,
   LayoutDashboard,
+  Layers,
   ListChecks,
   Mic2,
   Plug,
@@ -28,6 +31,7 @@ import {
   Wand2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { trpc } from '@/lib/trpc'
 import { DashboardNavLink } from '@/components/dashboard-nav-link'
 import { DarkModeToggle } from '@/components/dark-mode-toggle'
 import { KolasysLogoMark } from '@/components/kolasys-logo'
@@ -161,6 +165,7 @@ export function CollapsibleSidebar() {
           label="Meetings"
           collapsed={collapsed}
         />
+        <SeriesNavSection collapsed={collapsed} />
         <DashboardNavLink
           href="/dashboard/action-items"
           icon={<ListChecks className={ICON} strokeWidth={STROKE} />}
@@ -259,5 +264,70 @@ export function CollapsibleSidebar() {
         <UserButton appearance={{ elements: { userButtonAvatarBox: 'h-8 w-8' } }} />
       </div>
     </aside>
+  )
+}
+
+// ── Series nav section ────────────────────────────────────────────────────
+// Hidden entirely until at least one series exists. Shows up to 5 series
+// directly in the sidebar with a meeting-count badge; everything else
+// reachable via the per-series page.
+function SeriesNavSection({ collapsed }: { collapsed: boolean }) {
+  const { data } = trpc.series.list.useQuery(undefined, {
+    // Sidebar mounts on every dashboard page — keep the query cheap and
+    // tolerant of org-switching by deduping aggressively.
+    staleTime: 60_000,
+  })
+  const pathname = usePathname()
+
+  if (!data || data.length === 0) return null
+
+  const visible = data.slice(0, 5)
+
+  if (collapsed) {
+    // Collapsed sidebar: surface a single grouped icon pointing at
+    // /dashboard/recordings (no series index page exists yet).
+    return (
+      <Link
+        href={`/dashboard/series/${visible[0].id}`}
+        className="flex h-9 w-9 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-50 hover:text-neutral-700 dark:text-gray-500 dark:hover:bg-white/5 dark:hover:text-white"
+        aria-label="Meeting series"
+        title="Meeting series"
+      >
+        <Layers className={ICON} strokeWidth={STROKE} />
+      </Link>
+    )
+  }
+
+  return (
+    <div className="mt-1">
+      <div className="flex items-center gap-2 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-gray-500">
+        <Layers className="h-3 w-3" strokeWidth={STROKE} />
+        Series
+      </div>
+      <ul className="flex flex-col">
+        {visible.map((s) => {
+          const href = `/dashboard/series/${s.id}`
+          const active = pathname === href
+          return (
+            <li key={s.id}>
+              <Link
+                href={href}
+                className={cn(
+                  'flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
+                  active
+                    ? 'bg-neutral-100 text-neutral-900 dark:bg-white/10 dark:text-white'
+                    : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-white',
+                )}
+              >
+                <span className="truncate">{s.name}</span>
+                <span className="flex-shrink-0 rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-500 dark:bg-white/10 dark:text-gray-400">
+                  {s.meetingCount}
+                </span>
+              </Link>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
   )
 }

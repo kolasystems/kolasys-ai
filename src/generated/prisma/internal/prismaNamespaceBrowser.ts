@@ -54,6 +54,8 @@ export const ModelName = {
   Organization: 'Organization',
   OrgMember: 'OrgMember',
   Recording: 'Recording',
+  MeetingSeries: 'MeetingSeries',
+  RecordingSeriesMembership: 'RecordingSeriesMembership',
   Transcript: 'Transcript',
   TranscriptSegment: 'TranscriptSegment',
   SpeakerLabel: 'SpeakerLabel',
@@ -166,6 +168,29 @@ export const RecordingScalarFieldEnum = {
 } as const
 
 export type RecordingScalarFieldEnum = (typeof RecordingScalarFieldEnum)[keyof typeof RecordingScalarFieldEnum]
+
+
+export const MeetingSeriesScalarFieldEnum = {
+  id: 'id',
+  orgId: 'orgId',
+  name: 'name',
+  description: 'description',
+  autoDetected: 'autoDetected',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MeetingSeriesScalarFieldEnum = (typeof MeetingSeriesScalarFieldEnum)[keyof typeof MeetingSeriesScalarFieldEnum]
+
+
+export const RecordingSeriesMembershipScalarFieldEnum = {
+  id: 'id',
+  seriesId: 'seriesId',
+  recordingId: 'recordingId',
+  createdAt: 'createdAt'
+} as const
+
+export type RecordingSeriesMembershipScalarFieldEnum = (typeof RecordingSeriesMembershipScalarFieldEnum)[keyof typeof RecordingSeriesMembershipScalarFieldEnum]
 
 
 export const TranscriptScalarFieldEnum = {

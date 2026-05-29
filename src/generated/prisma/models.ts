@@ -11,6 +11,8 @@
 export type * from './models/Organization'
 export type * from './models/OrgMember'
 export type * from './models/Recording'
+export type * from './models/MeetingSeries'
+export type * from './models/RecordingSeriesMembership'
 export type * from './models/Transcript'
 export type * from './models/TranscriptSegment'
 export type * from './models/SpeakerLabel'

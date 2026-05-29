@@ -387,6 +387,8 @@ export const ModelName = {
   Organization: 'Organization',
   OrgMember: 'OrgMember',
   Recording: 'Recording',
+  MeetingSeries: 'MeetingSeries',
+  RecordingSeriesMembership: 'RecordingSeriesMembership',
   Transcript: 'Transcript',
   TranscriptSegment: 'TranscriptSegment',
   SpeakerLabel: 'SpeakerLabel',
@@ -420,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "organization" | "orgMember" | "recording" | "transcript" | "transcriptSegment" | "speakerLabel" | "note" | "noteSection" | "actionItem" | "noteComment" | "noteTemplate" | "processingJob" | "apiKey" | "transcriptEmbedding" | "knowledgeEntity" | "knowledgeEntityRecording" | "adminUser" | "adminAuditLog" | "soundbite" | "sharedInvite" | "webPushSubscription"
+    modelProps: "organization" | "orgMember" | "recording" | "meetingSeries" | "recordingSeriesMembership" | "transcript" | "transcriptSegment" | "speakerLabel" | "note" | "noteSection" | "actionItem" | "noteComment" | "noteTemplate" | "processingJob" | "apiKey" | "transcriptEmbedding" | "knowledgeEntity" | "knowledgeEntityRecording" | "adminUser" | "adminAuditLog" | "soundbite" | "sharedInvite" | "webPushSubscription"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -643,6 +645,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.RecordingCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.RecordingCountAggregateOutputType> | number
+        }
+      }
+    }
+    MeetingSeries: {
+      payload: Prisma.$MeetingSeriesPayload<ExtArgs>
+      fields: Prisma.MeetingSeriesFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MeetingSeriesFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeetingSeriesPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MeetingSeriesFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeetingSeriesPayload>
+        }
+        findFirst: {
+          args: Prisma.MeetingSeriesFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeetingSeriesPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MeetingSeriesFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeetingSeriesPayload>
+        }
+        findMany: {
+          args: Prisma.MeetingSeriesFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeetingSeriesPayload>[]
+        }
+        create: {
+          args: Prisma.MeetingSeriesCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeetingSeriesPayload>
+        }
+        createMany: {
+          args: Prisma.MeetingSeriesCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MeetingSeriesCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeetingSeriesPayload>[]
+        }
+        delete: {
+          args: Prisma.MeetingSeriesDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeetingSeriesPayload>
+        }
+        update: {
+          args: Prisma.MeetingSeriesUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeetingSeriesPayload>
+        }
+        deleteMany: {
+          args: Prisma.MeetingSeriesDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MeetingSeriesUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MeetingSeriesUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeetingSeriesPayload>[]
+        }
+        upsert: {
+          args: Prisma.MeetingSeriesUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MeetingSeriesPayload>
+        }
+        aggregate: {
+          args: Prisma.MeetingSeriesAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMeetingSeries>
+        }
+        groupBy: {
+          args: Prisma.MeetingSeriesGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MeetingSeriesGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MeetingSeriesCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MeetingSeriesCountAggregateOutputType> | number
+        }
+      }
+    }
+    RecordingSeriesMembership: {
+      payload: Prisma.$RecordingSeriesMembershipPayload<ExtArgs>
+      fields: Prisma.RecordingSeriesMembershipFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RecordingSeriesMembershipFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingSeriesMembershipPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RecordingSeriesMembershipFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingSeriesMembershipPayload>
+        }
+        findFirst: {
+          args: Prisma.RecordingSeriesMembershipFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingSeriesMembershipPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RecordingSeriesMembershipFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingSeriesMembershipPayload>
+        }
+        findMany: {
+          args: Prisma.RecordingSeriesMembershipFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingSeriesMembershipPayload>[]
+        }
+        create: {
+          args: Prisma.RecordingSeriesMembershipCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingSeriesMembershipPayload>
+        }
+        createMany: {
+          args: Prisma.RecordingSeriesMembershipCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RecordingSeriesMembershipCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingSeriesMembershipPayload>[]
+        }
+        delete: {
+          args: Prisma.RecordingSeriesMembershipDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingSeriesMembershipPayload>
+        }
+        update: {
+          args: Prisma.RecordingSeriesMembershipUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingSeriesMembershipPayload>
+        }
+        deleteMany: {
+          args: Prisma.RecordingSeriesMembershipDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RecordingSeriesMembershipUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RecordingSeriesMembershipUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingSeriesMembershipPayload>[]
+        }
+        upsert: {
+          args: Prisma.RecordingSeriesMembershipUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingSeriesMembershipPayload>
+        }
+        aggregate: {
+          args: Prisma.RecordingSeriesMembershipAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRecordingSeriesMembership>
+        }
+        groupBy: {
+          args: Prisma.RecordingSeriesMembershipGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecordingSeriesMembershipGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RecordingSeriesMembershipCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecordingSeriesMembershipCountAggregateOutputType> | number
         }
       }
     }
@@ -2095,6 +2245,29 @@ export const RecordingScalarFieldEnum = {
 export type RecordingScalarFieldEnum = (typeof RecordingScalarFieldEnum)[keyof typeof RecordingScalarFieldEnum]
 
 
+export const MeetingSeriesScalarFieldEnum = {
+  id: 'id',
+  orgId: 'orgId',
+  name: 'name',
+  description: 'description',
+  autoDetected: 'autoDetected',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MeetingSeriesScalarFieldEnum = (typeof MeetingSeriesScalarFieldEnum)[keyof typeof MeetingSeriesScalarFieldEnum]
+
+
+export const RecordingSeriesMembershipScalarFieldEnum = {
+  id: 'id',
+  seriesId: 'seriesId',
+  recordingId: 'recordingId',
+  createdAt: 'createdAt'
+} as const
+
+export type RecordingSeriesMembershipScalarFieldEnum = (typeof RecordingSeriesMembershipScalarFieldEnum)[keyof typeof RecordingSeriesMembershipScalarFieldEnum]
+
+
 export const TranscriptScalarFieldEnum = {
   id: 'id',
   recordingId: 'recordingId',
@@ -2728,6 +2901,8 @@ export type GlobalOmitConfig = {
   organization?: Prisma.OrganizationOmit
   orgMember?: Prisma.OrgMemberOmit
   recording?: Prisma.RecordingOmit
+  meetingSeries?: Prisma.MeetingSeriesOmit
+  recordingSeriesMembership?: Prisma.RecordingSeriesMembershipOmit
   transcript?: Prisma.TranscriptOmit
   transcriptSegment?: Prisma.TranscriptSegmentOmit
   speakerLabel?: Prisma.SpeakerLabelOmit

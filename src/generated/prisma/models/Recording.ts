@@ -384,6 +384,7 @@ export type RecordingWhereInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingListRelationFilter
   soundbites?: Prisma.SoundbiteListRelationFilter
   shareInvites?: Prisma.SharedInviteListRelationFilter
+  seriesMemberships?: Prisma.RecordingSeriesMembershipListRelationFilter
 }
 
 export type RecordingOrderByWithRelationInput = {
@@ -420,6 +421,7 @@ export type RecordingOrderByWithRelationInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingOrderByRelationAggregateInput
   soundbites?: Prisma.SoundbiteOrderByRelationAggregateInput
   shareInvites?: Prisma.SharedInviteOrderByRelationAggregateInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipOrderByRelationAggregateInput
 }
 
 export type RecordingWhereUniqueInput = Prisma.AtLeast<{
@@ -459,6 +461,7 @@ export type RecordingWhereUniqueInput = Prisma.AtLeast<{
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingListRelationFilter
   soundbites?: Prisma.SoundbiteListRelationFilter
   shareInvites?: Prisma.SharedInviteListRelationFilter
+  seriesMemberships?: Prisma.RecordingSeriesMembershipListRelationFilter
 }, "id" | "publicSlug">
 
 export type RecordingOrderByWithAggregationInput = {
@@ -558,6 +561,7 @@ export type RecordingCreateInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateInput = {
@@ -593,6 +597,7 @@ export type RecordingUncheckedCreateInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteUncheckedCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUpdateInput = {
@@ -628,6 +633,7 @@ export type RecordingUpdateInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateInput = {
@@ -663,6 +669,7 @@ export type RecordingUncheckedUpdateInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUncheckedUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateManyInput = {
@@ -917,6 +924,20 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type RecordingCreateNestedOneWithoutSeriesMembershipsInput = {
+  create?: Prisma.XOR<Prisma.RecordingCreateWithoutSeriesMembershipsInput, Prisma.RecordingUncheckedCreateWithoutSeriesMembershipsInput>
+  connectOrCreate?: Prisma.RecordingCreateOrConnectWithoutSeriesMembershipsInput
+  connect?: Prisma.RecordingWhereUniqueInput
+}
+
+export type RecordingUpdateOneRequiredWithoutSeriesMembershipsNestedInput = {
+  create?: Prisma.XOR<Prisma.RecordingCreateWithoutSeriesMembershipsInput, Prisma.RecordingUncheckedCreateWithoutSeriesMembershipsInput>
+  connectOrCreate?: Prisma.RecordingCreateOrConnectWithoutSeriesMembershipsInput
+  upsert?: Prisma.RecordingUpsertWithoutSeriesMembershipsInput
+  connect?: Prisma.RecordingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RecordingUpdateToOneWithWhereWithoutSeriesMembershipsInput, Prisma.RecordingUpdateWithoutSeriesMembershipsInput>, Prisma.RecordingUncheckedUpdateWithoutSeriesMembershipsInput>
+}
+
 export type RecordingCreateNestedOneWithoutTranscriptInput = {
   create?: Prisma.XOR<Prisma.RecordingCreateWithoutTranscriptInput, Prisma.RecordingUncheckedCreateWithoutTranscriptInput>
   connectOrCreate?: Prisma.RecordingCreateOrConnectWithoutTranscriptInput
@@ -1047,6 +1068,7 @@ export type RecordingCreateWithoutOrgInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutOrgInput = {
@@ -1081,6 +1103,7 @@ export type RecordingUncheckedCreateWithoutOrgInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteUncheckedCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutOrgInput = {
@@ -1140,6 +1163,162 @@ export type RecordingScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
 }
 
+export type RecordingCreateWithoutSeriesMembershipsInput = {
+  id?: string
+  userId: string
+  title: string
+  description?: string | null
+  source: $Enums.RecordingSource
+  status?: $Enums.RecordingStatus
+  platform?: $Enums.MeetingPlatform | null
+  meetingUrl?: string | null
+  botId?: string | null
+  s3Key?: string | null
+  s3Bucket?: string | null
+  duration?: number | null
+  fileSize?: number | null
+  mimeType?: string | null
+  scheduledAt?: Date | string | null
+  startedAt?: Date | string | null
+  endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
+  sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
+  transcript?: Prisma.TranscriptCreateNestedOneWithoutRecordingInput
+  notes?: Prisma.NoteCreateNestedManyWithoutRecordingInput
+  jobs?: Prisma.ProcessingJobCreateNestedManyWithoutRecordingInput
+  speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
+  knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
+  shareInvites?: Prisma.SharedInviteCreateNestedManyWithoutRecordingInput
+}
+
+export type RecordingUncheckedCreateWithoutSeriesMembershipsInput = {
+  id?: string
+  orgId: string
+  userId: string
+  title: string
+  description?: string | null
+  source: $Enums.RecordingSource
+  status?: $Enums.RecordingStatus
+  platform?: $Enums.MeetingPlatform | null
+  meetingUrl?: string | null
+  botId?: string | null
+  s3Key?: string | null
+  s3Bucket?: string | null
+  duration?: number | null
+  fileSize?: number | null
+  mimeType?: string | null
+  scheduledAt?: Date | string | null
+  startedAt?: Date | string | null
+  endedAt?: Date | string | null
+  isPublic?: boolean
+  publicSlug?: string | null
+  sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  shareExpiresAt?: Date | string | null
+  personalNotes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
+  notes?: Prisma.NoteUncheckedCreateNestedManyWithoutRecordingInput
+  jobs?: Prisma.ProcessingJobUncheckedCreateNestedManyWithoutRecordingInput
+  speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
+  knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
+  soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
+  shareInvites?: Prisma.SharedInviteUncheckedCreateNestedManyWithoutRecordingInput
+}
+
+export type RecordingCreateOrConnectWithoutSeriesMembershipsInput = {
+  where: Prisma.RecordingWhereUniqueInput
+  create: Prisma.XOR<Prisma.RecordingCreateWithoutSeriesMembershipsInput, Prisma.RecordingUncheckedCreateWithoutSeriesMembershipsInput>
+}
+
+export type RecordingUpsertWithoutSeriesMembershipsInput = {
+  update: Prisma.XOR<Prisma.RecordingUpdateWithoutSeriesMembershipsInput, Prisma.RecordingUncheckedUpdateWithoutSeriesMembershipsInput>
+  create: Prisma.XOR<Prisma.RecordingCreateWithoutSeriesMembershipsInput, Prisma.RecordingUncheckedCreateWithoutSeriesMembershipsInput>
+  where?: Prisma.RecordingWhereInput
+}
+
+export type RecordingUpdateToOneWithWhereWithoutSeriesMembershipsInput = {
+  where?: Prisma.RecordingWhereInput
+  data: Prisma.XOR<Prisma.RecordingUpdateWithoutSeriesMembershipsInput, Prisma.RecordingUncheckedUpdateWithoutSeriesMembershipsInput>
+}
+
+export type RecordingUpdateWithoutSeriesMembershipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumRecordingSourceFieldUpdateOperationsInput | $Enums.RecordingSource
+  status?: Prisma.EnumRecordingStatusFieldUpdateOperationsInput | $Enums.RecordingStatus
+  platform?: Prisma.NullableEnumMeetingPlatformFieldUpdateOperationsInput | $Enums.MeetingPlatform | null
+  meetingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  botId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  s3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  s3Bucket?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
+  transcript?: Prisma.TranscriptUpdateOneWithoutRecordingNestedInput
+  notes?: Prisma.NoteUpdateManyWithoutRecordingNestedInput
+  jobs?: Prisma.ProcessingJobUpdateManyWithoutRecordingNestedInput
+  speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
+  knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
+  shareInvites?: Prisma.SharedInviteUpdateManyWithoutRecordingNestedInput
+}
+
+export type RecordingUncheckedUpdateWithoutSeriesMembershipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  orgId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumRecordingSourceFieldUpdateOperationsInput | $Enums.RecordingSource
+  status?: Prisma.EnumRecordingStatusFieldUpdateOperationsInput | $Enums.RecordingStatus
+  platform?: Prisma.NullableEnumMeetingPlatformFieldUpdateOperationsInput | $Enums.MeetingPlatform | null
+  meetingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  botId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  s3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  s3Bucket?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileSize?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publicSlug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sharePermissions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  shareExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  personalNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
+  notes?: Prisma.NoteUncheckedUpdateManyWithoutRecordingNestedInput
+  jobs?: Prisma.ProcessingJobUncheckedUpdateManyWithoutRecordingNestedInput
+  speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
+  knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
+  soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
+  shareInvites?: Prisma.SharedInviteUncheckedUpdateManyWithoutRecordingNestedInput
+}
+
 export type RecordingCreateWithoutTranscriptInput = {
   id?: string
   userId: string
@@ -1172,6 +1351,7 @@ export type RecordingCreateWithoutTranscriptInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutTranscriptInput = {
@@ -1206,6 +1386,7 @@ export type RecordingUncheckedCreateWithoutTranscriptInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteUncheckedCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutTranscriptInput = {
@@ -1256,6 +1437,7 @@ export type RecordingUpdateWithoutTranscriptInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutTranscriptInput = {
@@ -1290,6 +1472,7 @@ export type RecordingUncheckedUpdateWithoutTranscriptInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUncheckedUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateWithoutSpeakerLabelsInput = {
@@ -1324,6 +1507,7 @@ export type RecordingCreateWithoutSpeakerLabelsInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutSpeakerLabelsInput = {
@@ -1358,6 +1542,7 @@ export type RecordingUncheckedCreateWithoutSpeakerLabelsInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteUncheckedCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutSpeakerLabelsInput = {
@@ -1408,6 +1593,7 @@ export type RecordingUpdateWithoutSpeakerLabelsInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutSpeakerLabelsInput = {
@@ -1442,6 +1628,7 @@ export type RecordingUncheckedUpdateWithoutSpeakerLabelsInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUncheckedUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateWithoutNotesInput = {
@@ -1476,6 +1663,7 @@ export type RecordingCreateWithoutNotesInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutNotesInput = {
@@ -1510,6 +1698,7 @@ export type RecordingUncheckedCreateWithoutNotesInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteUncheckedCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutNotesInput = {
@@ -1560,6 +1749,7 @@ export type RecordingUpdateWithoutNotesInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutNotesInput = {
@@ -1594,6 +1784,7 @@ export type RecordingUncheckedUpdateWithoutNotesInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUncheckedUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateWithoutJobsInput = {
@@ -1628,6 +1819,7 @@ export type RecordingCreateWithoutJobsInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutJobsInput = {
@@ -1662,6 +1854,7 @@ export type RecordingUncheckedCreateWithoutJobsInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteUncheckedCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutJobsInput = {
@@ -1712,6 +1905,7 @@ export type RecordingUpdateWithoutJobsInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutJobsInput = {
@@ -1746,6 +1940,7 @@ export type RecordingUncheckedUpdateWithoutJobsInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUncheckedUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateWithoutKnowledgeLinksInput = {
@@ -1780,6 +1975,7 @@ export type RecordingCreateWithoutKnowledgeLinksInput = {
   speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutKnowledgeLinksInput = {
@@ -1814,6 +2010,7 @@ export type RecordingUncheckedCreateWithoutKnowledgeLinksInput = {
   speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteUncheckedCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutKnowledgeLinksInput = {
@@ -1864,6 +2061,7 @@ export type RecordingUpdateWithoutKnowledgeLinksInput = {
   speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutKnowledgeLinksInput = {
@@ -1898,6 +2096,7 @@ export type RecordingUncheckedUpdateWithoutKnowledgeLinksInput = {
   speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUncheckedUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateWithoutSoundbitesInput = {
@@ -1932,6 +2131,7 @@ export type RecordingCreateWithoutSoundbitesInput = {
   speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutSoundbitesInput = {
@@ -1966,6 +2166,7 @@ export type RecordingUncheckedCreateWithoutSoundbitesInput = {
   speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
   shareInvites?: Prisma.SharedInviteUncheckedCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutSoundbitesInput = {
@@ -2016,6 +2217,7 @@ export type RecordingUpdateWithoutSoundbitesInput = {
   speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutSoundbitesInput = {
@@ -2050,6 +2252,7 @@ export type RecordingUncheckedUpdateWithoutSoundbitesInput = {
   speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUncheckedUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateWithoutShareInvitesInput = {
@@ -2084,6 +2287,7 @@ export type RecordingCreateWithoutShareInvitesInput = {
   speakerLabels?: Prisma.SpeakerLabelCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingUncheckedCreateWithoutShareInvitesInput = {
@@ -2118,6 +2322,7 @@ export type RecordingUncheckedCreateWithoutShareInvitesInput = {
   speakerLabels?: Prisma.SpeakerLabelUncheckedCreateNestedManyWithoutRecordingInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedCreateNestedManyWithoutRecordingInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutRecordingInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedCreateNestedManyWithoutRecordingInput
 }
 
 export type RecordingCreateOrConnectWithoutShareInvitesInput = {
@@ -2168,6 +2373,7 @@ export type RecordingUpdateWithoutShareInvitesInput = {
   speakerLabels?: Prisma.SpeakerLabelUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutShareInvitesInput = {
@@ -2202,6 +2408,7 @@ export type RecordingUncheckedUpdateWithoutShareInvitesInput = {
   speakerLabels?: Prisma.SpeakerLabelUncheckedUpdateManyWithoutRecordingNestedInput
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingCreateManyOrgInput = {
@@ -2263,6 +2470,7 @@ export type RecordingUpdateWithoutOrgInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateWithoutOrgInput = {
@@ -2297,6 +2505,7 @@ export type RecordingUncheckedUpdateWithoutOrgInput = {
   knowledgeLinks?: Prisma.KnowledgeEntityRecordingUncheckedUpdateManyWithoutRecordingNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutRecordingNestedInput
   shareInvites?: Prisma.SharedInviteUncheckedUpdateManyWithoutRecordingNestedInput
+  seriesMemberships?: Prisma.RecordingSeriesMembershipUncheckedUpdateManyWithoutRecordingNestedInput
 }
 
 export type RecordingUncheckedUpdateManyWithoutOrgInput = {
@@ -2338,6 +2547,7 @@ export type RecordingCountOutputType = {
   knowledgeLinks: number
   soundbites: number
   shareInvites: number
+  seriesMemberships: number
 }
 
 export type RecordingCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2347,6 +2557,7 @@ export type RecordingCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensi
   knowledgeLinks?: boolean | RecordingCountOutputTypeCountKnowledgeLinksArgs
   soundbites?: boolean | RecordingCountOutputTypeCountSoundbitesArgs
   shareInvites?: boolean | RecordingCountOutputTypeCountShareInvitesArgs
+  seriesMemberships?: boolean | RecordingCountOutputTypeCountSeriesMembershipsArgs
 }
 
 /**
@@ -2401,6 +2612,13 @@ export type RecordingCountOutputTypeCountShareInvitesArgs<ExtArgs extends runtim
   where?: Prisma.SharedInviteWhereInput
 }
 
+/**
+ * RecordingCountOutputType without action
+ */
+export type RecordingCountOutputTypeCountSeriesMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RecordingSeriesMembershipWhereInput
+}
+
 
 export type RecordingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2436,6 +2654,7 @@ export type RecordingSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   knowledgeLinks?: boolean | Prisma.Recording$knowledgeLinksArgs<ExtArgs>
   soundbites?: boolean | Prisma.Recording$soundbitesArgs<ExtArgs>
   shareInvites?: boolean | Prisma.Recording$shareInvitesArgs<ExtArgs>
+  seriesMemberships?: boolean | Prisma.Recording$seriesMembershipsArgs<ExtArgs>
   _count?: boolean | Prisma.RecordingCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["recording"]>
 
@@ -2535,6 +2754,7 @@ export type RecordingInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   knowledgeLinks?: boolean | Prisma.Recording$knowledgeLinksArgs<ExtArgs>
   soundbites?: boolean | Prisma.Recording$soundbitesArgs<ExtArgs>
   shareInvites?: boolean | Prisma.Recording$shareInvitesArgs<ExtArgs>
+  seriesMemberships?: boolean | Prisma.Recording$seriesMembershipsArgs<ExtArgs>
   _count?: boolean | Prisma.RecordingCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RecordingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2555,6 +2775,7 @@ export type $RecordingPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     knowledgeLinks: Prisma.$KnowledgeEntityRecordingPayload<ExtArgs>[]
     soundbites: Prisma.$SoundbitePayload<ExtArgs>[]
     shareInvites: Prisma.$SharedInvitePayload<ExtArgs>[]
+    seriesMemberships: Prisma.$RecordingSeriesMembershipPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2984,6 +3205,7 @@ export interface Prisma__RecordingClient<T, Null = never, ExtArgs extends runtim
   knowledgeLinks<T extends Prisma.Recording$knowledgeLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Recording$knowledgeLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KnowledgeEntityRecordingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   soundbites<T extends Prisma.Recording$soundbitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Recording$soundbitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SoundbitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   shareInvites<T extends Prisma.Recording$shareInvitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Recording$shareInvitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SharedInvitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  seriesMemberships<T extends Prisma.Recording$seriesMembershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Recording$seriesMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecordingSeriesMembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3599,6 +3821,30 @@ export type Recording$shareInvitesArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.SharedInviteScalarFieldEnum | Prisma.SharedInviteScalarFieldEnum[]
+}
+
+/**
+ * Recording.seriesMemberships
+ */
+export type Recording$seriesMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RecordingSeriesMembership
+   */
+  select?: Prisma.RecordingSeriesMembershipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RecordingSeriesMembership
+   */
+  omit?: Prisma.RecordingSeriesMembershipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RecordingSeriesMembershipInclude<ExtArgs> | null
+  where?: Prisma.RecordingSeriesMembershipWhereInput
+  orderBy?: Prisma.RecordingSeriesMembershipOrderByWithRelationInput | Prisma.RecordingSeriesMembershipOrderByWithRelationInput[]
+  cursor?: Prisma.RecordingSeriesMembershipWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RecordingSeriesMembershipScalarFieldEnum | Prisma.RecordingSeriesMembershipScalarFieldEnum[]
 }
 
 /**

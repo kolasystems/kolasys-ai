@@ -30,6 +30,7 @@ import { captureServerEvent } from '@/lib/posthog'
 import { sendExpoPush } from '@/services/push.service'
 import { sendWebPushToMember } from '@/lib/web-push'
 import { extractKnowledge } from '@/services/knowledge.service'
+import { detectAndAssignSeries } from '@/services/series-detection.service'
 import { KnowledgeEntityType } from '@/generated/prisma/client'
 import { findBestTemplate } from '@/services/template-matcher.service'
 import { clerkClient } from '@clerk/nextjs/server'
@@ -299,6 +300,16 @@ async function processSummarization(job: Job<SummarizationJobData>) {
     } catch (titleErr) {
       console.error('[summarization] Title generation failed (non-fatal):', titleErr)
     }
+  }
+
+  // ── 8.45. Meeting series auto-detection ─────────────────────────────────
+  // Runs after the AI title (8.4) so similarity matching uses the topical
+  // title rather than the default placeholder. Fire-and-forget — series
+  // detection failure must never block the transcription pipeline.
+  try {
+    await detectAndAssignSeries(recordingId)
+  } catch (err) {
+    console.error('[series] detection failed (non-fatal):', err)
   }
 
   // ── 8.5. Mobile push (Apple Watch Phase 2) ───────────────────────────────

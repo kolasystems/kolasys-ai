@@ -142,6 +142,7 @@ model Organization {
   templates        NoteTemplate[]
   knowledgeEntities KnowledgeEntity[]
   soundbites       Soundbite[]
+  meetingSeries    MeetingSeries[]
 }
 
 model OrgMember {
@@ -209,9 +210,43 @@ model Recording {
   knowledgeLinks KnowledgeEntityRecording[]
   soundbites   Soundbite[]
   shareInvites SharedInvite[]
+  seriesMemberships RecordingSeriesMembership[]
 
   @@index([orgId, status])
   @@index([orgId, createdAt(sort: Desc)])
+}
+
+// ── Meeting Series ─────────────────────────────────────────────────────────
+// Auto-detected groupings of related recordings (e.g. recurring standups,
+// project syncs). Created by the summarization worker's title-similarity
+// pass; renameable + curatable from /dashboard/series.
+
+model MeetingSeries {
+  id           String    @id @default(cuid())
+  orgId        String
+  name         String
+  description  String?
+  autoDetected Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  org          Organization                @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  recordings   RecordingSeriesMembership[]
+
+  @@index([orgId])
+}
+
+model RecordingSeriesMembership {
+  id          String   @id @default(cuid())
+  seriesId    String
+  recordingId String
+  createdAt   DateTime @default(now())
+
+  series      MeetingSeries @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  recording   Recording     @relation(fields: [recordingId], references: [id], onDelete: Cascade)
+
+  @@unique([seriesId, recordingId])
+  @@index([recordingId])
 }
 
 model Transcript {
