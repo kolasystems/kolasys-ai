@@ -5,8 +5,10 @@
 // Mirrors the tail of `recordings.confirmUpload` so downstream pipeline
 // (Whisper → notes → push) doesn't know the recording came from a bot.
 //
-// Each step is wrapped in its own try/catch with `[ingest] step N` log
-// markers so partial failures pinpoint exactly where they died.
+// Step numbering matches the original spec 1:1 so log-grep across docs ↔
+// code lines up. Each step is wrapped in its own try/catch with
+// `[ingest] step N` markers so partial failures pinpoint exactly where
+// they died.
 
 import { db } from '@/lib/db'
 import { generateRecordingKey, uploadToS3 } from '@/lib/storage'
@@ -34,9 +36,10 @@ export async function ingestBotMedia(botId: string): Promise<void> {
     console.error('[ingest] step 1 FAILED (lookup):', err)
     throw err
   }
-  console.log('[ingest] step 2: recording found:', recording?.id)
+  console.log('[ingest] step 1: recording found:', recording?.id)
   if (!recording) {
-    console.warn(`[ingest] no recording found for bot ${botId}`)
+    // Promoted from warn → error so Railway/Vercel log filters surface it.
+    console.error(`[ingest] no recording found for bot ${botId}`)
     return
   }
 
@@ -60,30 +63,33 @@ export async function ingestBotMedia(botId: string): Promise<void> {
     return
   }
 
-  // ── Step 3: ask Recall.ai for the bot's media URL ──────────────────────
+  // ── Step 2: ask Recall.ai for the bot's media URL ──────────────────────
   let media: Awaited<ReturnType<typeof getBotMediaUrl>>
   try {
     media = await getBotMediaUrl(botId)
   } catch (err) {
-    console.error('[ingest] step 3 FAILED (getBotMediaUrl threw):', err)
+    console.error('[ingest] step 2 FAILED (getBotMediaUrl threw):', err)
     await markFailed(recording.id)
     throw err
   }
-  console.log('[ingest] step 3: media URL resolved:', media?.url ?? null)
+  console.log('[ingest] step 2: media URL resolved:', media?.url ?? null)
   if (!media) {
+    // Recall sometimes returns no media URL immediately after bot.done — the
+    // media takes a few seconds to populate. Throw (instead of returning
+    // void) so BullMQ retries the job rather than silently dropping it.
     console.error(`[ingest] bot ${botId} 'done' but no media URL on the response`)
     await markFailed(recording.id)
-    return
+    throw new Error('Recall media URL not available yet — will retry')
   }
 
-  // ── Step 4: download the audio bytes ───────────────────────────────────
+  // ── Step 3: download the audio bytes ───────────────────────────────────
   let buffer: Buffer
   let responseContentType: string
   try {
     const res = await fetch(media.url)
     if (!res.ok) {
       console.error(
-        `[ingest] step 4 FAILED (download non-OK): ${res.status} ${res.statusText}`,
+        `[ingest] step 3 FAILED (download non-OK): ${res.status} ${res.statusText}`,
       )
       await markFailed(recording.id)
       throw new Error(`Recall media download failed: ${res.status}`)
@@ -92,25 +98,25 @@ export async function ingestBotMedia(botId: string): Promise<void> {
     buffer = Buffer.from(arrayBuf)
     responseContentType = res.headers.get('content-type') ?? media.contentType
   } catch (err) {
-    console.error('[ingest] step 4 FAILED (fetch threw):', err)
+    console.error('[ingest] step 3 FAILED (fetch threw):', err)
     await markFailed(recording.id)
     throw err
   }
-  console.log('[ingest] step 4: audio downloaded, size:', buffer.length)
+  console.log('[ingest] step 3: audio downloaded, size:', buffer.length)
   const fileSize = buffer.byteLength
 
-  // ── Step 5: upload to S3 ───────────────────────────────────────────────
+  // ── Step 4: upload to S3 ───────────────────────────────────────────────
   const s3Key = generateRecordingKey(recording.orgId, recording.id, media.extension)
   try {
     await uploadToS3(s3Key, buffer, responseContentType)
   } catch (err) {
-    console.error('[ingest] step 5 FAILED (S3 upload):', err)
+    console.error('[ingest] step 4 FAILED (S3 upload):', err)
     await markFailed(recording.id)
     throw err
   }
-  console.log('[ingest] step 5: S3 upload complete, key:', s3Key)
+  console.log('[ingest] step 4: S3 upload complete, key:', s3Key)
 
-  // ── Step 6: persist + enqueue transcription ────────────────────────────
+  // ── Step 5: persist s3Key + flip status to TRANSCRIBING ────────────────
   try {
     await db.recording.update({
       where: { id: recording.id },
@@ -123,7 +129,18 @@ export async function ingestBotMedia(botId: string): Promise<void> {
         endedAt: new Date(),
       },
     })
+  } catch (err) {
+    console.error('[ingest] step 5 FAILED (DB update):', err)
+    throw err
+  }
+  console.log('[ingest] step 5: DB updated (s3Key set, status=TRANSCRIBING)')
 
+  // ── Step 6: enqueue transcription job ──────────────────────────────────
+  // s3Key is already persisted from step 5, so on failure here markFailed
+  // flips status to FAILED while leaving s3Key intact — a BullMQ retry will
+  // then hit the already-ingested early-return branch above and re-enqueue
+  // cleanly without re-downloading from Recall.
+  try {
     // Resolve language: org default (matches the upload-path confirmUpload
     // behaviour). 'auto' becomes undefined so Whisper auto-detects.
     const org = await db.organization.findFirst({
@@ -139,7 +156,8 @@ export async function ingestBotMedia(botId: string): Promise<void> {
       language: language === 'auto' ? undefined : language,
     })
   } catch (err) {
-    console.error('[ingest] step 6 FAILED (DB update / queue):', err)
+    console.error('[ingest] step 6 FAILED (queue add):', err)
+    await markFailed(recording.id)
     throw err
   }
   console.log('[ingest] step 6: queued for transcription')
@@ -152,7 +170,9 @@ export async function ingestBotMedia(botId: string): Promise<void> {
 /**
  * Best-effort flip the recording to FAILED so the dashboard stops showing
  * it as in-progress. Wrapped because we don't want a failed-status update
- * to hide the actual root-cause log line.
+ * to hide the actual root-cause log line. Only writes `status` — leaves
+ * s3Key (and every other column) untouched, so a recording that failed
+ * AFTER step 4's S3 upload keeps its s3Key for retry / cleanup.
  */
 async function markFailed(recordingId: string): Promise<void> {
   try {
