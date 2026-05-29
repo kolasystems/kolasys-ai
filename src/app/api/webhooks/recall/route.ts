@@ -30,32 +30,25 @@ type RecallEvent =
 export async function POST(request: Request) {
   const rawBody = await request.text()
 
-  // ⚠️ TEMPORARY — signature verification is downgraded from "block" to
-  // "log" while we debug why Recall.ai webhooks are 401-ing. This route
-  // is in the public proxy list, so for the duration this stays live an
-  // attacker who knows a valid botId could forge bot events. REMOVE THIS
-  // BLOCK and restore the throw-on-failure path once the secret mismatch
-  // is resolved.
+  // Strict Svix verification. The route lives in the public proxy list, so
+  // this signature check is the only thing standing between Recall's
+  // webhooks and anyone who can guess a botId. Missing secret → 500 (config
+  // error); invalid/missing signature → 400 (rejected payload).
   const secret = process.env.RECALLAI_WEBHOOK_SECRET
-  console.log('[recall] secret present:', !!secret)
-  console.log(
-    '[recall] all headers:',
-    JSON.stringify(Object.fromEntries(request.headers.entries())),
-  )
-
-  if (secret) {
-    const wh = new Webhook(secret)
-    try {
-      wh.verify(rawBody, {
-        'svix-id': request.headers.get('svix-id') ?? '',
-        'svix-timestamp': request.headers.get('svix-timestamp') ?? '',
-        'svix-signature': request.headers.get('svix-signature') ?? '',
-      })
-      console.log('[recall] signature OK')
-    } catch (err) {
-      console.error('[recall] signature FAILED:', err)
-      // TEMP: log but don't block — remove after debugging
-    }
+  if (!secret) {
+    console.error('[recall] RECALLAI_WEBHOOK_SECRET not set')
+    return new Response('Webhook secret not configured', { status: 500 })
+  }
+  const wh = new Webhook(secret)
+  try {
+    wh.verify(rawBody, {
+      'svix-id': request.headers.get('svix-id') ?? '',
+      'svix-timestamp': request.headers.get('svix-timestamp') ?? '',
+      'svix-signature': request.headers.get('svix-signature') ?? '',
+    })
+  } catch (err) {
+    console.error('[recall] signature FAILED:', err)
+    return new Response('Invalid signature', { status: 400 })
   }
 
   let event: RecallEvent
