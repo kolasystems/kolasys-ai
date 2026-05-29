@@ -2,8 +2,9 @@
 
 // Kolasys AI — Ask AI: full-page semantic search + streaming chat
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, Suspense } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Send, Bot, User, Loader2, Sparkles, ExternalLink } from 'lucide-react'
 import { cn, formatDuration } from '@/lib/utils'
 import { useAIChat, type ChatSource, type ChatMessage } from '@/hooks/use-ai-chat'
@@ -16,14 +17,50 @@ const SUGGESTED_QUESTIONS = [
 ]
 
 export default function AskAIPage() {
+  // Suspense is required because AskAIPageInner reads ?q= via useSearchParams,
+  // which the Next.js App Router only allows inside a Suspense boundary.
+  // Pattern mirrors src/providers/posthog-provider.tsx.
+  return (
+    <Suspense fallback={null}>
+      <AskAIPageInner />
+    </Suspense>
+  )
+}
+
+function AskAIPageInner() {
   const { messages, input, handleInputChange, handleSubmit, isLoading, error, setInput } =
     useAIChat()
 
   const bottomRef = useRef<HTMLDivElement>(null)
+  const formRef = useRef<HTMLFormElement>(null)
+  const searchParams = useSearchParams()
+  const q = searchParams.get('q')
+  const autoSubmittedRef = useRef(false)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  // ?q= prefill — prime `input` from the URL on first render after the
+  // param resolves. Series detail page navigates here with a synthesized
+  // prompt; chat input components can do the same.
+  useEffect(() => {
+    if (q && !autoSubmittedRef.current) {
+      setInput(q)
+    }
+  }, [q, setInput])
+
+  // Two-phase: once React has committed the prefilled value into `input`,
+  // fire the form's submit exactly once. requestSubmit() goes through the
+  // existing <form onSubmit={handleSubmit}>, so the prefilled value flows
+  // through useAIChat the same way a normal submission would. The ref
+  // guard makes this idempotent across re-renders / input edits.
+  useEffect(() => {
+    if (q && input === q && !autoSubmittedRef.current) {
+      autoSubmittedRef.current = true
+      formRef.current?.requestSubmit()
+    }
+  }, [q, input])
 
   return (
     <div className="flex h-full flex-col dark:bg-[#0F0F13]">
@@ -75,7 +112,7 @@ export default function AskAIPage() {
       {/* Input area */}
       <div className="border-t border-neutral-200 bg-white px-4 py-3 dark:border-white/10 dark:bg-[#1A1A24] sm:px-8 sm:py-4">
         <div className="mx-auto max-w-3xl">
-          <form onSubmit={handleSubmit}>
+          <form ref={formRef} onSubmit={handleSubmit}>
             <div className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3 shadow-sm transition-shadow focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-white/10 dark:bg-white/5 dark:focus-within:border-accent dark:focus-within:ring-accent/30">
               <input
                 className="flex-1 bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none dark:text-white dark:placeholder:text-gray-500"
