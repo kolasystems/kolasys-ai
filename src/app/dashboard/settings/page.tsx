@@ -10,6 +10,7 @@ import { PostMeetingEmailToggle } from '@/components/post-meeting-email-toggle'
 import { DailyDigestToggle } from '@/components/daily-digest-toggle'
 import { DefaultLanguageSelector } from '@/components/default-language-selector'
 import { BotDisplayNameInput } from '@/components/bot-display-name-input'
+import { AutoRecordMeetingsToggle } from '@/components/auto-record-meetings-toggle'
 import { SsoSettings } from '@/components/sso-settings'
 import { ApiKeysSection } from '@/components/api-keys-section'
 
@@ -34,6 +35,7 @@ export default async function SettingsPage() {
         dailyDigest: true,
         defaultTranscriptionLanguage: true,
         botDisplayName: true,
+        autoRecordMeetings: true,
         ssoEnabled: true,
         ssoDomain: true,
         samlMetadataUrl: true,
@@ -104,6 +106,11 @@ export default async function SettingsPage() {
         {/* Daily digest */}
         <DailyDigestToggle
           initialDailyDigest={org?.dailyDigest ?? true}
+        />
+
+        {/* Auto-record calendar meetings */}
+        <AutoRecordMeetingsToggle
+          initialAutoRecordMeetings={org?.autoRecordMeetings ?? true}
         />
 
         {/* Recording capture — bot display name */}

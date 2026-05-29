@@ -59,6 +59,8 @@ export type OrganizationMinAggregateOutputType = {
   stripeSubscriptionId: string | null
   suspended: boolean | null
   suspendedReason: string | null
+  autoRecordMeetings: boolean | null
+  lastCalendarBotRun: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -88,6 +90,8 @@ export type OrganizationMaxAggregateOutputType = {
   stripeSubscriptionId: string | null
   suspended: boolean | null
   suspendedReason: string | null
+  autoRecordMeetings: boolean | null
+  lastCalendarBotRun: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -117,6 +121,8 @@ export type OrganizationCountAggregateOutputType = {
   stripeSubscriptionId: number
   suspended: number
   suspendedReason: number
+  autoRecordMeetings: number
+  lastCalendarBotRun: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -156,6 +162,8 @@ export type OrganizationMinAggregateInputType = {
   stripeSubscriptionId?: true
   suspended?: true
   suspendedReason?: true
+  autoRecordMeetings?: true
+  lastCalendarBotRun?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -185,6 +193,8 @@ export type OrganizationMaxAggregateInputType = {
   stripeSubscriptionId?: true
   suspended?: true
   suspendedReason?: true
+  autoRecordMeetings?: true
+  lastCalendarBotRun?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -214,6 +224,8 @@ export type OrganizationCountAggregateInputType = {
   stripeSubscriptionId?: true
   suspended?: true
   suspendedReason?: true
+  autoRecordMeetings?: true
+  lastCalendarBotRun?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -330,6 +342,8 @@ export type OrganizationGroupByOutputType = {
   stripeSubscriptionId: string | null
   suspended: boolean
   suspendedReason: string | null
+  autoRecordMeetings: boolean
+  lastCalendarBotRun: Date | null
   createdAt: Date
   updatedAt: Date
   _count: OrganizationCountAggregateOutputType | null
@@ -382,6 +396,8 @@ export type OrganizationWhereInput = {
   stripeSubscriptionId?: Prisma.StringNullableFilter<"Organization"> | string | null
   suspended?: Prisma.BoolFilter<"Organization"> | boolean
   suspendedReason?: Prisma.StringNullableFilter<"Organization"> | string | null
+  autoRecordMeetings?: Prisma.BoolFilter<"Organization"> | boolean
+  lastCalendarBotRun?: Prisma.DateTimeNullableFilter<"Organization"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -418,6 +434,8 @@ export type OrganizationOrderByWithRelationInput = {
   stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   suspended?: Prisma.SortOrder
   suspendedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  autoRecordMeetings?: Prisma.SortOrder
+  lastCalendarBotRun?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   members?: Prisma.OrgMemberOrderByRelationAggregateInput
@@ -457,6 +475,8 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   stripeSubscriptionId?: Prisma.StringNullableFilter<"Organization"> | string | null
   suspended?: Prisma.BoolFilter<"Organization"> | boolean
   suspendedReason?: Prisma.StringNullableFilter<"Organization"> | string | null
+  autoRecordMeetings?: Prisma.BoolFilter<"Organization"> | boolean
+  lastCalendarBotRun?: Prisma.DateTimeNullableFilter<"Organization"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -493,6 +513,8 @@ export type OrganizationOrderByWithAggregationInput = {
   stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   suspended?: Prisma.SortOrder
   suspendedReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  autoRecordMeetings?: Prisma.SortOrder
+  lastCalendarBotRun?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationCountOrderByAggregateInput
@@ -530,6 +552,8 @@ export type OrganizationScalarWhereWithAggregatesInput = {
   stripeSubscriptionId?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
   suspended?: Prisma.BoolWithAggregatesFilter<"Organization"> | boolean
   suspendedReason?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
+  autoRecordMeetings?: Prisma.BoolWithAggregatesFilter<"Organization"> | boolean
+  lastCalendarBotRun?: Prisma.DateTimeNullableWithAggregatesFilter<"Organization"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
 }
@@ -559,6 +583,8 @@ export type OrganizationCreateInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -595,6 +621,8 @@ export type OrganizationUncheckedCreateInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -631,6 +659,8 @@ export type OrganizationUpdateInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -667,6 +697,8 @@ export type OrganizationUncheckedUpdateInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -703,6 +735,8 @@ export type OrganizationCreateManyInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -732,6 +766,8 @@ export type OrganizationUpdateManyMutationInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -761,6 +797,8 @@ export type OrganizationUncheckedUpdateManyInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -790,6 +828,8 @@ export type OrganizationCountOrderByAggregateInput = {
   stripeSubscriptionId?: Prisma.SortOrder
   suspended?: Prisma.SortOrder
   suspendedReason?: Prisma.SortOrder
+  autoRecordMeetings?: Prisma.SortOrder
+  lastCalendarBotRun?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -823,6 +863,8 @@ export type OrganizationMaxOrderByAggregateInput = {
   stripeSubscriptionId?: Prisma.SortOrder
   suspended?: Prisma.SortOrder
   suspendedReason?: Prisma.SortOrder
+  autoRecordMeetings?: Prisma.SortOrder
+  lastCalendarBotRun?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -852,6 +894,8 @@ export type OrganizationMinOrderByAggregateInput = {
   stripeSubscriptionId?: Prisma.SortOrder
   suspended?: Prisma.SortOrder
   suspendedReason?: Prisma.SortOrder
+  autoRecordMeetings?: Prisma.SortOrder
+  lastCalendarBotRun?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1027,6 +1071,8 @@ export type OrganizationCreateWithoutMembersInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
@@ -1062,6 +1108,8 @@ export type OrganizationUncheckedCreateWithoutMembersInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
@@ -1113,6 +1161,8 @@ export type OrganizationUpdateWithoutMembersInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
@@ -1148,6 +1198,8 @@ export type OrganizationUncheckedUpdateWithoutMembersInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
@@ -1183,6 +1235,8 @@ export type OrganizationCreateWithoutRecordingsInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1218,6 +1272,8 @@ export type OrganizationUncheckedCreateWithoutRecordingsInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1269,6 +1325,8 @@ export type OrganizationUpdateWithoutRecordingsInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1304,6 +1362,8 @@ export type OrganizationUncheckedUpdateWithoutRecordingsInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1339,6 +1399,8 @@ export type OrganizationCreateWithoutMeetingSeriesInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1374,6 +1436,8 @@ export type OrganizationUncheckedCreateWithoutMeetingSeriesInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1425,6 +1489,8 @@ export type OrganizationUpdateWithoutMeetingSeriesInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1460,6 +1526,8 @@ export type OrganizationUncheckedUpdateWithoutMeetingSeriesInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1495,6 +1563,8 @@ export type OrganizationCreateWithoutTemplatesInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1530,6 +1600,8 @@ export type OrganizationUncheckedCreateWithoutTemplatesInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1581,6 +1653,8 @@ export type OrganizationUpdateWithoutTemplatesInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1616,6 +1690,8 @@ export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1651,6 +1727,8 @@ export type OrganizationCreateWithoutApiKeysInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1686,6 +1764,8 @@ export type OrganizationUncheckedCreateWithoutApiKeysInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1737,6 +1817,8 @@ export type OrganizationUpdateWithoutApiKeysInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1772,6 +1854,8 @@ export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1807,6 +1891,8 @@ export type OrganizationCreateWithoutKnowledgeEntitiesInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1842,6 +1928,8 @@ export type OrganizationUncheckedCreateWithoutKnowledgeEntitiesInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1893,6 +1981,8 @@ export type OrganizationUpdateWithoutKnowledgeEntitiesInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1928,6 +2018,8 @@ export type OrganizationUncheckedUpdateWithoutKnowledgeEntitiesInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1963,6 +2055,8 @@ export type OrganizationCreateWithoutSoundbitesInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1998,6 +2092,8 @@ export type OrganizationUncheckedCreateWithoutSoundbitesInput = {
   stripeSubscriptionId?: string | null
   suspended?: boolean
   suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -2049,6 +2145,8 @@ export type OrganizationUpdateWithoutSoundbitesInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -2084,6 +2182,8 @@ export type OrganizationUncheckedUpdateWithoutSoundbitesInput = {
   stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -2204,6 +2304,8 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   stripeSubscriptionId?: boolean
   suspended?: boolean
   suspendedReason?: boolean
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
@@ -2241,6 +2343,8 @@ export type OrganizationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   stripeSubscriptionId?: boolean
   suspended?: boolean
   suspendedReason?: boolean
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -2270,6 +2374,8 @@ export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   stripeSubscriptionId?: boolean
   suspended?: boolean
   suspendedReason?: boolean
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -2299,11 +2405,13 @@ export type OrganizationSelectScalar = {
   stripeSubscriptionId?: boolean
   suspended?: boolean
   suspendedReason?: boolean
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "dailyDigest" | "defaultTranscriptionLanguage" | "botDisplayName" | "ssoEnabled" | "ssoDomain" | "samlMetadataUrl" | "trialStartedAt" | "trialEndsAt" | "notes" | "maxRecordingsPerMonth" | "stripeCustomerId" | "stripeSubscriptionId" | "suspended" | "suspendedReason" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "dailyDigest" | "defaultTranscriptionLanguage" | "botDisplayName" | "ssoEnabled" | "ssoDomain" | "samlMetadataUrl" | "trialStartedAt" | "trialEndsAt" | "notes" | "maxRecordingsPerMonth" | "stripeCustomerId" | "stripeSubscriptionId" | "suspended" | "suspendedReason" | "autoRecordMeetings" | "lastCalendarBotRun" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
 export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
   recordings?: boolean | Prisma.Organization$recordingsArgs<ExtArgs>
@@ -2353,6 +2461,8 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     stripeSubscriptionId: string | null
     suspended: boolean
     suspendedReason: string | null
+    autoRecordMeetings: boolean
+    lastCalendarBotRun: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["organization"]>
@@ -2809,6 +2919,8 @@ export interface OrganizationFieldRefs {
   readonly stripeSubscriptionId: Prisma.FieldRef<"Organization", 'String'>
   readonly suspended: Prisma.FieldRef<"Organization", 'Boolean'>
   readonly suspendedReason: Prisma.FieldRef<"Organization", 'String'>
+  readonly autoRecordMeetings: Prisma.FieldRef<"Organization", 'Boolean'>
+  readonly lastCalendarBotRun: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Organization", 'DateTime'>
 }

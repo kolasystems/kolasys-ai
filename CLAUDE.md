@@ -360,6 +360,28 @@ Both run on Railway `glorious-serenity` (us-west2) 24/7. Heartbeat every 60s.
 - Stores segments + `wordsJson` per segment
 - Enqueues summarization job
 
+### calendar-bot.worker.ts
+- Poll-based (no queue) — `setInterval(pollCalendars, 60_000)`
+- Walks every Org with `autoRecordMeetings=true` + `suspended=false` + at
+  least one OrgMember with a Google or Microsoft refresh token
+- Pulls events 0–15 min out; for each event 4–6 min from start with a
+  Zoom/Teams/Meet URL, calls `deployBot` (meetingbot.service) so the same
+  `webhook_url` wiring as the manual /dashboard/calendar deploy path is
+  used → Recall `bot.done` → `botIngestionQueue` → bot-ingest service
+- Dedupes by `(orgId, meetingUrl, status ∈ active, createdAt > now-30min)`
+  so re-deliveries / Google+Microsoft dual-surfacing don't double-deploy
+- Bumps `Organization.lastCalendarBotRun` per org on each successful poll
+- Heartbeat: `[calendar-bot] alive — processed N polls` every 60s
+
+**Railway deployment:**
+| Setting | Value |
+|---|---|
+| Repo | `kolasys-ai` (web) |
+| Start command | `npx tsx src/workers/calendar-bot.worker.ts` |
+| Service name | `calendar-bot-worker` |
+| Region | US East (Virginia) — same as the other workers |
+| Env | Copy all env vars from `summarization-worker` (~30) — needs `DATABASE_URL`, `REDIS_URL`, `NEXT_PUBLIC_APP_URL=https://app.kolasys.ai`, `RECALLAI_API_KEY`, `GOOGLE_CLIENT_ID`/`SECRET`, `MICROSOFT_CLIENT_ID`/`SECRET`/`TENANT_ID`, `SENTRY_DSN` |
+
 ### summarization.worker.ts
 - Calls Claude to generate structured notes (markdown)
 - Extracts action items, contacts, knowledge entities

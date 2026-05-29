@@ -117,6 +117,8 @@ export const OrganizationScalarFieldEnum = {
   stripeSubscriptionId: 'stripeSubscriptionId',
   suspended: 'suspended',
   suspendedReason: 'suspendedReason',
+  autoRecordMeetings: 'autoRecordMeetings',
+  lastCalendarBotRun: 'lastCalendarBotRun',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

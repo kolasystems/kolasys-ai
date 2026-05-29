@@ -133,6 +133,14 @@ model Organization {
   // tRPC enforcement is intentionally separate (not in scope here).
   suspended                     Boolean   @default(false)
   suspendedReason               String?
+  // Calendar bot — when true (default), the calendar-bot Railway worker
+  // auto-deploys a Recall.ai bot to upcoming calendar meetings 4-6 minutes
+  // before they start. Org members must have a calendar (Google/Microsoft)
+  // refresh token saved for the worker to discover their events.
+  autoRecordMeetings            Boolean   @default(true)
+  // Last time the calendar-bot worker successfully completed a poll for
+  // this org. Surfaced in /admin for at-a-glance worker visibility.
+  lastCalendarBotRun            DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 

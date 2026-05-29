@@ -16,6 +16,7 @@ export const settingsRouter = router({
         dailyDigest: true,
         defaultTranscriptionLanguage: true,
         botDisplayName: true,
+        autoRecordMeetings: true,
         ssoEnabled: true,
         ssoDomain: true,
         samlMetadataUrl: true,
@@ -28,6 +29,7 @@ export const settingsRouter = router({
       dailyDigest: org.dailyDigest,
       defaultTranscriptionLanguage: org.defaultTranscriptionLanguage,
       botDisplayName: org.botDisplayName,
+      autoRecordMeetings: org.autoRecordMeetings,
       ssoEnabled: org.ssoEnabled,
       ssoDomain: org.ssoDomain,
       samlMetadataUrl: org.samlMetadataUrl,
@@ -74,6 +76,7 @@ export const settingsRouter = router({
           dailyDigest: z.boolean().optional(),
           defaultTranscriptionLanguage: z.string().min(2).max(10).optional(),
           botDisplayName: z.string().min(1).max(64).optional(),
+          autoRecordMeetings: z.boolean().optional(),
           ssoEnabled: z.boolean().optional(),
           // domain + metadata are nullable so the UI can clear them explicitly
           ssoDomain: z.string().max(253).nullable().optional(),
@@ -102,6 +105,9 @@ export const settingsRouter = router({
           ...(input.botDisplayName !== undefined && {
             botDisplayName: input.botDisplayName,
           }),
+          ...(input.autoRecordMeetings !== undefined && {
+            autoRecordMeetings: input.autoRecordMeetings,
+          }),
           ...(input.ssoEnabled !== undefined && {
             ssoEnabled: input.ssoEnabled,
           }),
@@ -118,6 +124,7 @@ export const settingsRouter = router({
           dailyDigest: true,
           defaultTranscriptionLanguage: true,
           botDisplayName: true,
+          autoRecordMeetings: true,
           ssoEnabled: true,
           ssoDomain: true,
           samlMetadataUrl: true,

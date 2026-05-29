@@ -29,6 +29,14 @@ export const botIngestionQueue = new Queue('bot-ingestion', {
   defaultJobOptions,
 })
 
+// Calendar bot poller — scaffolding only. The calendar-bot worker on Railway
+// drives itself off a setInterval, not BullMQ jobs, so nothing currently
+// enqueues onto this. Reserved for future use (manual triggers, etc.).
+export const calendarBotQueue = new Queue('calendar-bot', {
+  connection: bullmqConnection,
+  defaultJobOptions,
+})
+
 export type TranscriptionQuality = 'standard' | 'high'
 
 export type TranscriptionJobData = {
