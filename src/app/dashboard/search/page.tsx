@@ -35,29 +35,33 @@ function AskAIPageInner() {
   const formRef = useRef<HTMLFormElement>(null)
   const searchParams = useSearchParams()
   const q = searchParams.get('q')
-  const autoSubmittedRef = useRef(false)
+  // Track the last q we auto-submitted (instead of a one-shot boolean) so a
+  // client-side navigation to a NEW ?q= value — when the page is already
+  // mounted — still triggers a fresh submit. Same-q nav stays a no-op.
+  const lastSubmittedQ = useRef<string | null>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // ?q= prefill — prime `input` from the URL on first render after the
-  // param resolves. Series detail page navigates here with a synthesized
-  // prompt; chat input components can do the same.
+  // ?q= prefill — prime `input` from the URL whenever q changes to a value
+  // we haven't auto-submitted yet. Series detail page navigates here with a
+  // synthesized prompt; chat input components can do the same.
   useEffect(() => {
-    if (q && !autoSubmittedRef.current) {
+    if (q && lastSubmittedQ.current !== q) {
       setInput(q)
     }
   }, [q, setInput])
 
   // Two-phase: once React has committed the prefilled value into `input`,
-  // fire the form's submit exactly once. requestSubmit() goes through the
-  // existing <form onSubmit={handleSubmit}>, so the prefilled value flows
-  // through useAIChat the same way a normal submission would. The ref
-  // guard makes this idempotent across re-renders / input edits.
+  // fire the form's submit exactly once per unique q. requestSubmit() goes
+  // through the existing <form onSubmit={handleSubmit}>, so the prefilled
+  // value flows through useAIChat the same way a normal submission would.
+  // Storing q itself (not a bool) makes this idempotent for the current q
+  // while still firing on subsequent q changes.
   useEffect(() => {
-    if (q && input === q && !autoSubmittedRef.current) {
-      autoSubmittedRef.current = true
+    if (q && input === q && lastSubmittedQ.current !== q) {
+      lastSubmittedQ.current = q
       formRef.current?.requestSubmit()
     }
   }, [q, input])
