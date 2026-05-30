@@ -1,10 +1,14 @@
-// Kolasys AI — Public REST API: fetch a single recording (full untruncated).
+// Kolasys AI — Public REST API: fetch / delete a single recording.
 // Auth: `Authorization: Bearer kol_…`
 //
-// GET /api/v1/recordings/{id} — returns the same shape as the list endpoint,
-// but with the AI summary at its full length (the list trims to 280 chars to
-// keep payloads small). The desktop app calls this when opening a meeting's
-// detail page so the full markdown body renders.
+// GET    /api/v1/recordings/{id} — full untruncated payload (list endpoint
+//        trims summary to 280 chars; this is the detail-page source).
+// DELETE /api/v1/recordings/{id} — drop the row. Postgres cascades every
+//        Recording child (Note → ActionItem/NoteSection, Transcript,
+//        Soundbite, SpeakerLabel, SharedInvite, ProcessingJob,
+//        KnowledgeEntityRecording, RecordingSeriesMembership) via
+//        onDelete: Cascade. S3 object is intentionally NOT removed —
+//        deferred to a future async cleanup pass.
 
 import { db } from '@/lib/db'
 import { authenticateApiKey, unauthorizedResponse } from '@/lib/api-auth'
@@ -92,4 +96,35 @@ export async function GET(
   }))
 
   return Response.json({ ...recording, entities })
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const auth = await authenticateApiKey(request)
+  if (!auth) return unauthorizedResponse()
+
+  const { id } = await params
+
+  // Org-scope the lookup so a bearer key can only delete its own org's rows.
+  // findFirst + select: { id } — no need to pull s3Key since the spec
+  // explicitly defers S3 cleanup to a later async pass.
+  const recording = await db.recording.findFirst({
+    where: { id, orgId: auth.orgId },
+    select: { id: true },
+  })
+  if (!recording) {
+    return Response.json({ error: 'Not found' }, { status: 404 })
+  }
+
+  // Single cascade-aware delete — Postgres drops every dependent row via the
+  // onDelete: Cascade declarations on the FKs (verified on Transcript,
+  // Soundbite, SpeakerLabel, SharedInvite, ProcessingJob,
+  // KnowledgeEntityRecording, RecordingSeriesMembership, Note; Note then
+  // cascades to NoteSection + ActionItem). Mirrors recordings.delete (tRPC)
+  // minus the S3 deletion.
+  await db.recording.delete({ where: { id: recording.id } })
+
+  return Response.json({ success: true })
 }
