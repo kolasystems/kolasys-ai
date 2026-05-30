@@ -61,11 +61,28 @@ export async function detectAndAssignSeries(recordingId: string): Promise<void> 
     take: 50,
   })
 
+  // First meaningful word of the new recording — used as a recurring-meeting
+  // signal. Matching first words almost always indicate the same series
+  // ("Standup — May 4" vs "Standup — May 11"), so we boost +0.2 when both
+  // titles' leading meaningful words are identical.
+  const firstA = normalizeTitle(recording.title)
+    .split(' ')
+    .find((w) => w.length > 2)
+
   let bestMatch: { recording: (typeof recentRecordings)[number]; score: number } | null = null
   for (const recent of recentRecordings) {
     const score = titleSimilarity(recording.title, recent.title)
-    if (score >= 0.5 && (!bestMatch || score > bestMatch.score)) {
-      bestMatch = { recording: recent, score }
+    const firstB = normalizeTitle(recent.title)
+      .split(' ')
+      .find((w) => w.length > 2)
+    const boostedScore =
+      firstA && firstB && firstA === firstB ? score + 0.2 : score
+    // Threshold lowered 0.5 → 0.3 (with boost) so recurring meetings that
+    // share a first word but otherwise diverge ("Standup — sprint planning"
+    // vs "Standup — retro") still group. We rank by boostedScore so a
+    // first-word match can beat a slightly-higher raw similarity.
+    if (boostedScore >= 0.3 && (!bestMatch || boostedScore > bestMatch.score)) {
+      bestMatch = { recording: recent, score: boostedScore }
     }
   }
 
