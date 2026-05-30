@@ -3,19 +3,16 @@
 // Two accepted Bearer formats:
 //
 //   1. `Authorization: Bearer kol_<hex>` — long-lived org-scoped API key
-//      (desktop app, CI integrations). Hash → DB lookup → orgId. Existing
-//      behavior, unchanged on the wire.
+//      (desktop app, CI integrations). Hash → DB lookup → orgId.
 //
 //   2. `Authorization: Bearer <clerk-session-jwt>` — short-lived per-user
-//      Clerk session JWT. Validated via `auth({ acceptsToken: 'session_token' })`
-//      against Clerk's JWKs; the JWT's `org_id` claim is translated to the
-//      internal DB org id. Mirrors the dual-auth pattern already in use on
-//      /api/stripe/checkout, /api/stripe/portal, and /api/ai/suggestions.
+//      Clerk session JWT. Verified via createClerkClient().verifyToken();
+//      userId resolved to org via OrgMember lookup.
 //
 // Returns null on any failure so callers short-circuit with a 401.
 
 import { db } from '@/lib/db'
-import { auth } from '@clerk/nextjs/server'
+import { verifyToken } from '@clerk/nextjs/server'
 import { hashApiKey } from '@/server/routers/apikeys.router'
 
 export type ApiKeyAuth = {
@@ -35,15 +32,12 @@ export async function authenticateApiKey(request: Request): Promise<ApiKeyAuth |
   const raw = match[1]
 
   // ── Path A: long-lived kol_ API key ──────────────────────────────────────
-  // Same hash + lookup + suspension gate the original implementation used.
   if (raw.startsWith('kol_')) {
     return verifyKolApiKey(raw)
   }
 
   // ── Path B: Clerk session JWT ────────────────────────────────────────────
-  // Anything else falls through here. Mobile (`@clerk/clerk-expo` getToken)
-  // and any future third-party session-token integrations land in this path.
-  return verifyClerkSession()
+  return verifyClerkSession(raw)
 }
 
 // ── kol_ verification (original implementation, factored out) ─────────────
@@ -86,41 +80,27 @@ async function verifyKolApiKey(raw: string): Promise<ApiKeyAuth | null> {
 
 // ── Clerk session-JWT verification ────────────────────────────────────────
 
-async function verifyClerkSession(): Promise<ApiKeyAuth | null> {
-  // `auth({ acceptsToken: 'session_token' })` accepts a Bearer JWT in the
-  // Authorization header (in addition to the browser session cookie) and
-  // verifies it against Clerk's JWKs. clerkClient.verifyToken isn't a real
-  // method in Clerk 7 — this is the idiomatic equivalent and matches the
-  // pattern used in /api/stripe/checkout + /api/stripe/portal.
-  let session: Awaited<ReturnType<typeof auth>>
+async function verifyClerkSession(token: string): Promise<ApiKeyAuth | null> {
+  let verified: Awaited<ReturnType<typeof verifyToken>>
   try {
-    session = await auth({ acceptsToken: 'session_token' })
+    verified = await verifyToken(token, { secretKey: process.env.CLERK_SECRET_KEY })
   } catch (err) {
-    console.error('[api-auth] clerk session verification threw:', err)
+    console.error('[api-auth] clerk verifyToken threw:', err)
     return null
   }
 
-  if (!session.userId || !session.orgId) return null
+  if (!verified?.sub) return null
 
-  // Translate Clerk org id → internal DB org id. Same lookup
-  // `orgProcedure` does (src/server/trpc.ts), but without the org/member
-  // auto-bootstrap: a mobile-only user who has never opened the dashboard
-  // won't have an Organization row yet and will get a 401 here. Worth
-  // flagging if it bites.
-  const org = await db.organization.findFirst({
-    where: { clerkOrgId: session.orgId },
-    select: { id: true, suspended: true },
+  const member = await db.orgMember.findFirst({
+    where: { userId: verified.sub },
+    include: { org: true },
   })
-  if (!org || org.suspended) return null
+  if (!member || member.org.suspended) return null
 
-  // Synthetic keyId so existing audit attribution that reads `auth.keyId`
-  // (e.g. /api/v1/recordings POST → `userId: \`apikey:${auth.keyId}\``)
-  // still produces a traceable identifier. Also expose userId directly for
-  // routes that want proper attribution.
   return {
-    orgId: org.id,
-    keyId: `clerk:${session.userId}`,
-    userId: session.userId,
+    orgId: member.org.id,
+    keyId: `clerk:${verified.sub}`,
+    userId: verified.sub,
   }
 }
 
