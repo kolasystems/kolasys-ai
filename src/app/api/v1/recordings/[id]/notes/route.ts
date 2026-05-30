@@ -19,17 +19,17 @@ export async function PATCH(
 
   const { id } = await params
 
-  let body: { notes?: unknown } = {}
+  let body: { personalNotes?: unknown } = {}
   try {
-    body = (await request.json()) as { notes?: unknown }
+    body = (await request.json()) as { personalNotes?: unknown }
   } catch {
     return Response.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
 
-  if (typeof body.notes !== 'string') {
-    return Response.json({ error: '`notes` must be a string' }, { status: 400 })
+  if (typeof body.personalNotes !== 'string') {
+    return Response.json({ error: '`personalNotes` must be a string' }, { status: 400 })
   }
-  const notes = body.notes.slice(0, MAX_NOTES)
+  const notes = body.personalNotes.slice(0, MAX_NOTES)
 
   // Org-scope the write so a key can only touch its own org's recordings.
   const recording = await db.recording.findFirst({
