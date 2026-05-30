@@ -19,6 +19,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CreditCard,
+  FolderPlus,
   LayoutDashboard,
   Layers,
   ListChecks,
@@ -35,6 +36,7 @@ import { trpc } from '@/lib/trpc'
 import { DashboardNavLink } from '@/components/dashboard-nav-link'
 import { DarkModeToggle } from '@/components/dark-mode-toggle'
 import { KolasysLogoMark } from '@/components/kolasys-logo'
+import { SeriesCreateModal } from '@/components/series-create-modal'
 
 const STORAGE_KEY = 'kolasys-sidebar-collapsed'
 
@@ -268,9 +270,11 @@ export function CollapsibleSidebar() {
 }
 
 // ── Series nav section ────────────────────────────────────────────────────
-// Hidden entirely until at least one series exists. Shows up to 5 series
-// directly in the sidebar with a meeting-count badge; everything else
-// reachable via the per-series page.
+// Renders once `series.list` has resolved. When no series exist we still
+// show the "Series" header + "+ Add folder" entry point so users can seed
+// the first folder without leaving the sidebar. Up to 5 existing series
+// surface directly with a meeting-count badge; the rest are reachable
+// via their per-series detail page.
 function SeriesNavSection({ collapsed }: { collapsed: boolean }) {
   const { data } = trpc.series.list.useQuery(undefined, {
     // Sidebar mounts on every dashboard page — keep the query cheap and
@@ -278,23 +282,46 @@ function SeriesNavSection({ collapsed }: { collapsed: boolean }) {
     staleTime: 60_000,
   })
   const pathname = usePathname()
+  const [createOpen, setCreateOpen] = useState(false)
 
-  if (!data || data.length === 0) return null
+  // Wait for the first resolve so we don't flash an empty section while
+  // loading. `data === undefined` means still loading; an empty array
+  // means resolved-but-empty (show the header + Add button).
+  if (data === undefined) return null
 
   const visible = data.slice(0, 5)
 
   if (collapsed) {
-    // Collapsed sidebar: surface a single grouped icon pointing at
-    // /dashboard/recordings (no series index page exists yet).
+    // Collapsed sidebar: surface a single grouped icon. When at least one
+    // series exists, link to the most recent; otherwise the icon opens the
+    // create modal.
+    if (visible.length === 0) {
+      return (
+        <>
+          <button
+            type="button"
+            onClick={() => setCreateOpen(true)}
+            aria-label="Create folder"
+            title="Create folder"
+            className="flex h-9 w-9 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-50 hover:text-neutral-700 dark:text-gray-500 dark:hover:bg-white/5 dark:hover:text-white"
+          >
+            <FolderPlus className={ICON} strokeWidth={STROKE} />
+          </button>
+          <SeriesCreateModal open={createOpen} onOpenChange={setCreateOpen} />
+        </>
+      )
+    }
     return (
-      <Link
-        href={`/dashboard/series/${visible[0].id}`}
-        className="flex h-9 w-9 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-50 hover:text-neutral-700 dark:text-gray-500 dark:hover:bg-white/5 dark:hover:text-white"
-        aria-label="Meeting series"
-        title="Meeting series"
-      >
-        <Layers className={ICON} strokeWidth={STROKE} />
-      </Link>
+      <>
+        <Link
+          href={`/dashboard/series/${visible[0].id}`}
+          className="flex h-9 w-9 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-50 hover:text-neutral-700 dark:text-gray-500 dark:hover:bg-white/5 dark:hover:text-white"
+          aria-label="Meeting series"
+          title="Meeting series"
+        >
+          <Layers className={ICON} strokeWidth={STROKE} />
+        </Link>
+      </>
     )
   }
 
@@ -327,7 +354,18 @@ function SeriesNavSection({ collapsed }: { collapsed: boolean }) {
             </li>
           )
         })}
+        <li>
+          <button
+            type="button"
+            onClick={() => setCreateOpen(true)}
+            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-neutral-700 dark:text-gray-500 dark:hover:bg-white/5 dark:hover:text-gray-300"
+          >
+            <FolderPlus className="h-3.5 w-3.5" strokeWidth={STROKE} />
+            Add folder
+          </button>
+        </li>
       </ul>
+      <SeriesCreateModal open={createOpen} onOpenChange={setCreateOpen} />
     </div>
   )
 }

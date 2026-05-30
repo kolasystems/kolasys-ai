@@ -11,6 +11,7 @@ import { RetryStuckButton } from '@/components/retry-stuck-button'
 import { NewRecordingModal } from '@/components/new-recording-modal'
 import { QuickVoiceUploadButton } from '@/components/quick-voice-upload-button'
 import { MobileRecorder } from '@/components/mobile-recorder'
+import { AddToFolderButton } from '@/components/add-to-folder-button'
 import { formatDuration, relativeTime } from '@/lib/utils'
 
 const TERMINAL = ['READY', 'FAILED']
@@ -335,11 +336,16 @@ function RecordingRow({ r }: { r: RowRecording }) {
           </div>
         </div>
       </Link>
+      {/* Add-to-folder dropdown sits at the right edge of every row, sibling
+          to the Link, with its own click-capture handlers so the row never
+          navigates. */}
+      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+        <AddToFolderButton recordingId={r.id} />
+      </div>
       {stuck && (
-        // Sits over the row's right edge so the click never reaches the
-        // outer Link. RetryStuckButton renders its own <button>.
+        // Shifted one slot left so it doesn't overlap the dropdown above.
         <div
-          className="absolute right-3 top-1/2 -translate-y-1/2"
+          className="absolute right-12 top-1/2 -translate-y-1/2"
           onClickCapture={(e) => {
             e.stopPropagation()
             e.preventDefault()

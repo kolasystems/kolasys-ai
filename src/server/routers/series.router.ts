@@ -77,6 +77,28 @@ export const seriesRouter = router({
       })
     }),
 
+  // Manual creation — the REST counterpart is POST /api/v1/series. Default
+  // `autoDetected` to false because anything created through the API or the
+  // dashboard is by definition not auto-detected.
+  create: orgProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).max(100),
+        description: z.string().max(500).optional(),
+        autoDetected: z.boolean().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.meetingSeries.create({
+        data: {
+          orgId: ctx.orgId,
+          name: input.name.trim(),
+          description: input.description?.trim() || null,
+          autoDetected: input.autoDetected ?? false,
+        },
+      })
+    }),
+
   rename: orgProcedure
     .input(z.object({ id: z.string(), name: z.string().min(1).max(100) }))
     .mutation(async ({ ctx, input }) => {
