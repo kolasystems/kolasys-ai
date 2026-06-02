@@ -32,7 +32,8 @@ export const RecordingSource = {
   UPLOAD: 'UPLOAD',
   BROWSER: 'BROWSER',
   MEETING_BOT: 'MEETING_BOT',
-  DESKTOP: 'DESKTOP'
+  DESKTOP: 'DESKTOP',
+  IMPORT: 'IMPORT'
 } as const
 
 export type RecordingSource = (typeof RecordingSource)[keyof typeof RecordingSource]

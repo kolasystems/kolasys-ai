@@ -30,6 +30,7 @@ enum RecordingSource {
   BROWSER
   MEETING_BOT
   DESKTOP
+  IMPORT
 }
 
 enum RecordingStatus {
@@ -212,6 +213,8 @@ model Recording {
   // Free-form personal notes typed by the user (desktop/web). Distinct from
   // the AI-generated `notes` relation below. null until first edited.
   personalNotes    String?
+  importPlatform   String?
+  importedAt       DateTime?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 

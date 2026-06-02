@@ -28,6 +28,7 @@ import {
   Scissors,
   Settings,
   Sparkles,
+  Upload,
   Users,
   Wand2,
 } from 'lucide-react'
@@ -216,6 +217,12 @@ export function CollapsibleSidebar() {
           href="/dashboard/calendar"
           icon={<Calendar className={ICON} strokeWidth={STROKE} />}
           label="Calendar"
+          collapsed={collapsed}
+        />
+        <DashboardNavLink
+          href="/dashboard/import"
+          icon={<Upload className={ICON} strokeWidth={STROKE} />}
+          label="Import"
           collapsed={collapsed}
         />
         <DashboardNavLink

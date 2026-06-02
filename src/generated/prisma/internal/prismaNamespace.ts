@@ -2243,6 +2243,8 @@ export const RecordingScalarFieldEnum = {
   sharePermissions: 'sharePermissions',
   shareExpiresAt: 'shareExpiresAt',
   personalNotes: 'personalNotes',
+  importPlatform: 'importPlatform',
+  importedAt: 'importedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
