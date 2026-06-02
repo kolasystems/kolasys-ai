@@ -2194,6 +2194,9 @@ export const OrganizationScalarFieldEnum = {
   suspendedReason: 'suspendedReason',
   autoRecordMeetings: 'autoRecordMeetings',
   lastCalendarBotRun: 'lastCalendarBotRun',
+  internalJargon: 'internalJargon',
+  companyDescription: 'companyDescription',
+  autoDeleteTranscriptsDays: 'autoDeleteTranscriptsDays',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -141,6 +141,11 @@ model Organization {
   // Last time the calendar-bot worker successfully completed a poll for
   // this org. Surfaced in /admin for at-a-glance worker visibility.
   lastCalendarBotRun            DateTime?
+  // AI context — used in Claude prompts to improve transcription/summary quality.
+  internalJargon                String?
+  companyDescription            String?
+  // Auto-delete transcripts after N days (null = keep forever).
+  autoDeleteTranscriptsDays     Int?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 

@@ -20,6 +20,9 @@ export const settingsRouter = router({
         ssoEnabled: true,
         ssoDomain: true,
         samlMetadataUrl: true,
+        internalJargon: true,
+        companyDescription: true,
+        autoDeleteTranscriptsDays: true,
       },
     })
     if (!org) throw new TRPCError({ code: 'NOT_FOUND' })
@@ -33,6 +36,9 @@ export const settingsRouter = router({
       ssoEnabled: org.ssoEnabled,
       ssoDomain: org.ssoDomain,
       samlMetadataUrl: org.samlMetadataUrl,
+      internalJargon: org.internalJargon,
+      companyDescription: org.companyDescription,
+      autoDeleteTranscriptsDays: org.autoDeleteTranscriptsDays,
     }
   }),
 
@@ -81,6 +87,9 @@ export const settingsRouter = router({
           // domain + metadata are nullable so the UI can clear them explicitly
           ssoDomain: z.string().max(253).nullable().optional(),
           samlMetadataUrl: z.string().url().max(2048).nullable().optional(),
+          internalJargon: z.string().max(2000).nullable().optional(),
+          companyDescription: z.string().max(2000).nullable().optional(),
+          autoDeleteTranscriptsDays: z.number().int().min(1).max(3650).nullable().optional(),
         })
         .refine((v) => Object.keys(v).length > 0, {
           message: 'At least one field must be provided.',
@@ -117,6 +126,15 @@ export const settingsRouter = router({
           ...(input.samlMetadataUrl !== undefined && {
             samlMetadataUrl: input.samlMetadataUrl,
           }),
+          ...(input.internalJargon !== undefined && {
+            internalJargon: input.internalJargon,
+          }),
+          ...(input.companyDescription !== undefined && {
+            companyDescription: input.companyDescription,
+          }),
+          ...(input.autoDeleteTranscriptsDays !== undefined && {
+            autoDeleteTranscriptsDays: input.autoDeleteTranscriptsDays,
+          }),
         },
         select: {
           deleteAudioAfterTranscription: true,
@@ -128,6 +146,9 @@ export const settingsRouter = router({
           ssoEnabled: true,
           ssoDomain: true,
           samlMetadataUrl: true,
+          internalJargon: true,
+          companyDescription: true,
+          autoDeleteTranscriptsDays: true,
         },
       })
       return updated

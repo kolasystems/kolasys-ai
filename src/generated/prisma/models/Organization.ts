@@ -28,10 +28,12 @@ export type AggregateOrganization = {
 
 export type OrganizationAvgAggregateOutputType = {
   maxRecordingsPerMonth: number | null
+  autoDeleteTranscriptsDays: number | null
 }
 
 export type OrganizationSumAggregateOutputType = {
   maxRecordingsPerMonth: number | null
+  autoDeleteTranscriptsDays: number | null
 }
 
 export type OrganizationMinAggregateOutputType = {
@@ -61,6 +63,9 @@ export type OrganizationMinAggregateOutputType = {
   suspendedReason: string | null
   autoRecordMeetings: boolean | null
   lastCalendarBotRun: Date | null
+  internalJargon: string | null
+  companyDescription: string | null
+  autoDeleteTranscriptsDays: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -92,6 +97,9 @@ export type OrganizationMaxAggregateOutputType = {
   suspendedReason: string | null
   autoRecordMeetings: boolean | null
   lastCalendarBotRun: Date | null
+  internalJargon: string | null
+  companyDescription: string | null
+  autoDeleteTranscriptsDays: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -123,6 +131,9 @@ export type OrganizationCountAggregateOutputType = {
   suspendedReason: number
   autoRecordMeetings: number
   lastCalendarBotRun: number
+  internalJargon: number
+  companyDescription: number
+  autoDeleteTranscriptsDays: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -131,10 +142,12 @@ export type OrganizationCountAggregateOutputType = {
 
 export type OrganizationAvgAggregateInputType = {
   maxRecordingsPerMonth?: true
+  autoDeleteTranscriptsDays?: true
 }
 
 export type OrganizationSumAggregateInputType = {
   maxRecordingsPerMonth?: true
+  autoDeleteTranscriptsDays?: true
 }
 
 export type OrganizationMinAggregateInputType = {
@@ -164,6 +177,9 @@ export type OrganizationMinAggregateInputType = {
   suspendedReason?: true
   autoRecordMeetings?: true
   lastCalendarBotRun?: true
+  internalJargon?: true
+  companyDescription?: true
+  autoDeleteTranscriptsDays?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -195,6 +211,9 @@ export type OrganizationMaxAggregateInputType = {
   suspendedReason?: true
   autoRecordMeetings?: true
   lastCalendarBotRun?: true
+  internalJargon?: true
+  companyDescription?: true
+  autoDeleteTranscriptsDays?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -226,6 +245,9 @@ export type OrganizationCountAggregateInputType = {
   suspendedReason?: true
   autoRecordMeetings?: true
   lastCalendarBotRun?: true
+  internalJargon?: true
+  companyDescription?: true
+  autoDeleteTranscriptsDays?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -344,6 +366,9 @@ export type OrganizationGroupByOutputType = {
   suspendedReason: string | null
   autoRecordMeetings: boolean
   lastCalendarBotRun: Date | null
+  internalJargon: string | null
+  companyDescription: string | null
+  autoDeleteTranscriptsDays: number | null
   createdAt: Date
   updatedAt: Date
   _count: OrganizationCountAggregateOutputType | null
@@ -398,6 +423,9 @@ export type OrganizationWhereInput = {
   suspendedReason?: Prisma.StringNullableFilter<"Organization"> | string | null
   autoRecordMeetings?: Prisma.BoolFilter<"Organization"> | boolean
   lastCalendarBotRun?: Prisma.DateTimeNullableFilter<"Organization"> | Date | string | null
+  internalJargon?: Prisma.StringNullableFilter<"Organization"> | string | null
+  companyDescription?: Prisma.StringNullableFilter<"Organization"> | string | null
+  autoDeleteTranscriptsDays?: Prisma.IntNullableFilter<"Organization"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -436,6 +464,9 @@ export type OrganizationOrderByWithRelationInput = {
   suspendedReason?: Prisma.SortOrderInput | Prisma.SortOrder
   autoRecordMeetings?: Prisma.SortOrder
   lastCalendarBotRun?: Prisma.SortOrderInput | Prisma.SortOrder
+  internalJargon?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyDescription?: Prisma.SortOrderInput | Prisma.SortOrder
+  autoDeleteTranscriptsDays?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   members?: Prisma.OrgMemberOrderByRelationAggregateInput
@@ -477,6 +508,9 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   suspendedReason?: Prisma.StringNullableFilter<"Organization"> | string | null
   autoRecordMeetings?: Prisma.BoolFilter<"Organization"> | boolean
   lastCalendarBotRun?: Prisma.DateTimeNullableFilter<"Organization"> | Date | string | null
+  internalJargon?: Prisma.StringNullableFilter<"Organization"> | string | null
+  companyDescription?: Prisma.StringNullableFilter<"Organization"> | string | null
+  autoDeleteTranscriptsDays?: Prisma.IntNullableFilter<"Organization"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Organization"> | Date | string
   members?: Prisma.OrgMemberListRelationFilter
@@ -515,6 +549,9 @@ export type OrganizationOrderByWithAggregationInput = {
   suspendedReason?: Prisma.SortOrderInput | Prisma.SortOrder
   autoRecordMeetings?: Prisma.SortOrder
   lastCalendarBotRun?: Prisma.SortOrderInput | Prisma.SortOrder
+  internalJargon?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyDescription?: Prisma.SortOrderInput | Prisma.SortOrder
+  autoDeleteTranscriptsDays?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrganizationCountOrderByAggregateInput
@@ -554,6 +591,9 @@ export type OrganizationScalarWhereWithAggregatesInput = {
   suspendedReason?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
   autoRecordMeetings?: Prisma.BoolWithAggregatesFilter<"Organization"> | boolean
   lastCalendarBotRun?: Prisma.DateTimeNullableWithAggregatesFilter<"Organization"> | Date | string | null
+  internalJargon?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
+  companyDescription?: Prisma.StringNullableWithAggregatesFilter<"Organization"> | string | null
+  autoDeleteTranscriptsDays?: Prisma.IntNullableWithAggregatesFilter<"Organization"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Organization"> | Date | string
 }
@@ -585,6 +625,9 @@ export type OrganizationCreateInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -623,6 +666,9 @@ export type OrganizationUncheckedCreateInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -661,6 +707,9 @@ export type OrganizationUpdateInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -699,6 +748,9 @@ export type OrganizationUncheckedUpdateInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -737,6 +789,9 @@ export type OrganizationCreateManyInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -768,6 +823,9 @@ export type OrganizationUpdateManyMutationInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -799,6 +857,9 @@ export type OrganizationUncheckedUpdateManyInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -830,12 +891,16 @@ export type OrganizationCountOrderByAggregateInput = {
   suspendedReason?: Prisma.SortOrder
   autoRecordMeetings?: Prisma.SortOrder
   lastCalendarBotRun?: Prisma.SortOrder
+  internalJargon?: Prisma.SortOrder
+  companyDescription?: Prisma.SortOrder
+  autoDeleteTranscriptsDays?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type OrganizationAvgOrderByAggregateInput = {
   maxRecordingsPerMonth?: Prisma.SortOrder
+  autoDeleteTranscriptsDays?: Prisma.SortOrder
 }
 
 export type OrganizationMaxOrderByAggregateInput = {
@@ -865,6 +930,9 @@ export type OrganizationMaxOrderByAggregateInput = {
   suspendedReason?: Prisma.SortOrder
   autoRecordMeetings?: Prisma.SortOrder
   lastCalendarBotRun?: Prisma.SortOrder
+  internalJargon?: Prisma.SortOrder
+  companyDescription?: Prisma.SortOrder
+  autoDeleteTranscriptsDays?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -896,12 +964,16 @@ export type OrganizationMinOrderByAggregateInput = {
   suspendedReason?: Prisma.SortOrder
   autoRecordMeetings?: Prisma.SortOrder
   lastCalendarBotRun?: Prisma.SortOrder
+  internalJargon?: Prisma.SortOrder
+  companyDescription?: Prisma.SortOrder
+  autoDeleteTranscriptsDays?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type OrganizationSumOrderByAggregateInput = {
   maxRecordingsPerMonth?: Prisma.SortOrder
+  autoDeleteTranscriptsDays?: Prisma.SortOrder
 }
 
 export type OrganizationScalarRelationFilter = {
@@ -936,6 +1008,14 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
 
 export type IntFieldUpdateOperationsInput = {
   set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
   increment?: number
   decrement?: number
   multiply?: number
@@ -1073,6 +1153,9 @@ export type OrganizationCreateWithoutMembersInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
@@ -1110,6 +1193,9 @@ export type OrganizationUncheckedCreateWithoutMembersInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
@@ -1163,6 +1249,9 @@ export type OrganizationUpdateWithoutMembersInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
@@ -1200,6 +1289,9 @@ export type OrganizationUncheckedUpdateWithoutMembersInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
@@ -1237,6 +1329,9 @@ export type OrganizationCreateWithoutRecordingsInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1274,6 +1369,9 @@ export type OrganizationUncheckedCreateWithoutRecordingsInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1327,6 +1425,9 @@ export type OrganizationUpdateWithoutRecordingsInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1364,6 +1465,9 @@ export type OrganizationUncheckedUpdateWithoutRecordingsInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1401,6 +1505,9 @@ export type OrganizationCreateWithoutMeetingSeriesInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1438,6 +1545,9 @@ export type OrganizationUncheckedCreateWithoutMeetingSeriesInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1491,6 +1601,9 @@ export type OrganizationUpdateWithoutMeetingSeriesInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1528,6 +1641,9 @@ export type OrganizationUncheckedUpdateWithoutMeetingSeriesInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1565,6 +1681,9 @@ export type OrganizationCreateWithoutTemplatesInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1602,6 +1721,9 @@ export type OrganizationUncheckedCreateWithoutTemplatesInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1655,6 +1777,9 @@ export type OrganizationUpdateWithoutTemplatesInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1692,6 +1817,9 @@ export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1729,6 +1857,9 @@ export type OrganizationCreateWithoutApiKeysInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1766,6 +1897,9 @@ export type OrganizationUncheckedCreateWithoutApiKeysInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1819,6 +1953,9 @@ export type OrganizationUpdateWithoutApiKeysInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -1856,6 +1993,9 @@ export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -1893,6 +2033,9 @@ export type OrganizationCreateWithoutKnowledgeEntitiesInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -1930,6 +2073,9 @@ export type OrganizationUncheckedCreateWithoutKnowledgeEntitiesInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -1983,6 +2129,9 @@ export type OrganizationUpdateWithoutKnowledgeEntitiesInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -2020,6 +2169,9 @@ export type OrganizationUncheckedUpdateWithoutKnowledgeEntitiesInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -2057,6 +2209,9 @@ export type OrganizationCreateWithoutSoundbitesInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
@@ -2094,6 +2249,9 @@ export type OrganizationUncheckedCreateWithoutSoundbitesInput = {
   suspendedReason?: string | null
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
@@ -2147,6 +2305,9 @@ export type OrganizationUpdateWithoutSoundbitesInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
@@ -2184,6 +2345,9 @@ export type OrganizationUncheckedUpdateWithoutSoundbitesInput = {
   suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
@@ -2306,6 +2470,9 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   suspendedReason?: boolean
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: boolean
+  internalJargon?: boolean
+  companyDescription?: boolean
+  autoDeleteTranscriptsDays?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
@@ -2345,6 +2512,9 @@ export type OrganizationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   suspendedReason?: boolean
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: boolean
+  internalJargon?: boolean
+  companyDescription?: boolean
+  autoDeleteTranscriptsDays?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -2376,6 +2546,9 @@ export type OrganizationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   suspendedReason?: boolean
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: boolean
+  internalJargon?: boolean
+  companyDescription?: boolean
+  autoDeleteTranscriptsDays?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["organization"]>
@@ -2407,11 +2580,14 @@ export type OrganizationSelectScalar = {
   suspendedReason?: boolean
   autoRecordMeetings?: boolean
   lastCalendarBotRun?: boolean
+  internalJargon?: boolean
+  companyDescription?: boolean
+  autoDeleteTranscriptsDays?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "dailyDigest" | "defaultTranscriptionLanguage" | "botDisplayName" | "ssoEnabled" | "ssoDomain" | "samlMetadataUrl" | "trialStartedAt" | "trialEndsAt" | "notes" | "maxRecordingsPerMonth" | "stripeCustomerId" | "stripeSubscriptionId" | "suspended" | "suspendedReason" | "autoRecordMeetings" | "lastCalendarBotRun" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
+export type OrganizationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "plan" | "clerkOrgId" | "slackWebhookUrl" | "notionApiKey" | "notionDatabaseId" | "deleteAudioAfterTranscription" | "postMeetingEmail" | "dailyDigest" | "defaultTranscriptionLanguage" | "botDisplayName" | "ssoEnabled" | "ssoDomain" | "samlMetadataUrl" | "trialStartedAt" | "trialEndsAt" | "notes" | "maxRecordingsPerMonth" | "stripeCustomerId" | "stripeSubscriptionId" | "suspended" | "suspendedReason" | "autoRecordMeetings" | "lastCalendarBotRun" | "internalJargon" | "companyDescription" | "autoDeleteTranscriptsDays" | "createdAt" | "updatedAt", ExtArgs["result"]["organization"]>
 export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | Prisma.Organization$membersArgs<ExtArgs>
   recordings?: boolean | Prisma.Organization$recordingsArgs<ExtArgs>
@@ -2463,6 +2639,9 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     suspendedReason: string | null
     autoRecordMeetings: boolean
     lastCalendarBotRun: Date | null
+    internalJargon: string | null
+    companyDescription: string | null
+    autoDeleteTranscriptsDays: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["organization"]>
@@ -2921,6 +3100,9 @@ export interface OrganizationFieldRefs {
   readonly suspendedReason: Prisma.FieldRef<"Organization", 'String'>
   readonly autoRecordMeetings: Prisma.FieldRef<"Organization", 'Boolean'>
   readonly lastCalendarBotRun: Prisma.FieldRef<"Organization", 'DateTime'>
+  readonly internalJargon: Prisma.FieldRef<"Organization", 'String'>
+  readonly companyDescription: Prisma.FieldRef<"Organization", 'String'>
+  readonly autoDeleteTranscriptsDays: Prisma.FieldRef<"Organization", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Organization", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Organization", 'DateTime'>
 }

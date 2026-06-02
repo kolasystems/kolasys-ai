@@ -916,14 +916,6 @@ export type NullableEnumMeetingPlatformFieldUpdateOperationsInput = {
   set?: $Enums.MeetingPlatform | null
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type RecordingCreateNestedOneWithoutSeriesMembershipsInput = {
   create?: Prisma.XOR<Prisma.RecordingCreateWithoutSeriesMembershipsInput, Prisma.RecordingUncheckedCreateWithoutSeriesMembershipsInput>
   connectOrCreate?: Prisma.RecordingCreateOrConnectWithoutSeriesMembershipsInput
