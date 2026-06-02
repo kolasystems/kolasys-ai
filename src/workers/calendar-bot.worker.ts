@@ -314,6 +314,7 @@ async function maybeSendPreMeetingBrief(
   const briefKey = `premeet:${member.id}:${titleSlug}:${startDate.toISOString().slice(0, 10)}`
   const brief = {
     seriesName: matchedSeries.name,
+    lastMeetingId: last.id,
     lastMeetingDate: last.createdAt.toISOString(),
     openActionItems: openItems.map((a) => ({
       id: a.id,

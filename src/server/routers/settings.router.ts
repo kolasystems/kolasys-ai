@@ -26,7 +26,14 @@ export const settingsRouter = router({
       },
     })
     if (!org) throw new TRPCError({ code: 'NOT_FOUND' })
+
+    const member = await ctx.db.orgMember.findFirst({
+      where: { orgId: ctx.orgId, userId: ctx.userId },
+      select: { id: true },
+    })
+
     return {
+      memberId: member?.id ?? null,
       deleteAudioAfterTranscription: org.deleteAudioAfterTranscription,
       postMeetingEmail: org.postMeetingEmail,
       dailyDigest: org.dailyDigest,

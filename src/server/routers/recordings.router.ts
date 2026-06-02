@@ -57,6 +57,7 @@ export const recordingsRouter = router({
           duration: true,
           createdAt: true,
           updatedAt: true,
+          importPlatform: true,
           // hasTranscript: one-to-one; select only id to avoid loading text
           transcript: { select: { id: true } },
           _count: { select: { notes: true } },
