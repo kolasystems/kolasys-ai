@@ -6,7 +6,7 @@
 **Production:** https://app.kolasys.ai  
 **tRPC API:** `https://app.kolasys.ai/api/trpc`  
 **Mobile repo:** `~/Desktop/kolasys-ai-mobile` · `github.com/kolasystems/kolasys-ai-mobile`  
-**Last updated:** 2026-05-05
+**Last updated:** 2026-06-02
 
 ---
 
@@ -919,3 +919,106 @@ send is independently non-fatal — failures log but never fail the job.
 | `83ef4d4` | "Recordings" → "Meetings" rename (sidebar + mobile + heading) |
 | `5d6bf01` | Stripe checkout accepts Bearer tokens from mobile |
 | `6f51991` | Stripe portal accepts Bearer tokens from mobile |
+| `c6706ca` | api-auth — Clerk session JWTs accepted alongside kol_ API keys |
+
+## Commit history — June 2026
+
+| Hash | Description |
+|---|---|
+| `a951643` | fix: api-auth — verifyToken via standalone import (correct Clerk 7 API) |
+| `e474977` | fix: PATCH /api/v1/recordings/[id]/notes — body field `notes` → `personalNotes` |
+| `ba93043` | fix: series.addRecording — upsert → findUnique+create (Neon HTTP compat) |
+| `5cb0012` | feat: pre-meeting intelligence — series-aware brief + Expo push 30 min before |
+| `02c64d3` | feat: GET /api/v1/premeet-brief — serve pre-meeting brief from Redis |
+| `147fe7f` | feat: org settings schema (internalJargon / companyDescription / autoDeleteTranscriptsDays) |
+| `afc5113` | feat: DELETE /api/v1/calendar — disconnect Google/Microsoft calendar via REST |
+| `a45fb35` | feat: meeting import tool — Fireflies, Otter.ai, Fathom, Read AI |
+| `a8331ec` | feat: dashboard — warm bg (#EEEAE3), white cards, client-side humorous greeting pool |
+
+---
+
+## api-auth — dual Bearer support (2026-06-01)
+
+`src/lib/api-auth.ts` accepts two Bearer formats:
+
+1. `kol_<hex>` — long-lived API key (hash lookup, same as before)
+2. `<clerk-session-jwt>` — Clerk session token verified via `verifyToken(token, { secretKey })` from `@clerk/nextjs/server` (standalone export, NOT a method on ClerkClient). On success, resolves org via `db.orgMember.findFirst({ where: { userId: verified.sub } })`.
+
+When a Clerk JWT is used, `auth.userId` is populated and `auth.keyId = \`clerk:${userId}\``.
+
+---
+
+## Pre-meeting intelligence (2026-06-02)
+
+### Calendar-bot worker additions (`src/workers/calendar-bot.ts`)
+- `LOOKAHEAD_MS` bumped 15 → 35 min to cover the pre-meeting window
+- Member select gains `id` + `expoPushToken`
+- **28–32 min window**: `maybeSendPreMeetingBrief()` fires before the 4–6 min deploy window
+  - `findMatchingSeriesForEvent()` — queries all org series, runs `titleSimilarity` (0.3 threshold, same as detection)
+  - Fetches last meeting in matched series with `notes: { include: { actionItems: true } }`
+  - Stores Redis brief at `premeet:{memberId}:{titleSlug}:{YYYY-MM-DD}` (TTL 2 h)
+  - Redis dedupe at `premeet-sent:{orgId}:{externalId}` (TTL 90 min) prevents re-fire
+  - Sends Expo push: `"📋 [title] starts in 30 min"` + open action item count
+
+### `normalizeTitle` + `titleSimilarity` exported from series-detection.service.ts
+Both functions are now `export` so the calendar-bot can import them without duplication.
+
+### GET /api/v1/premeet-brief
+Query params: `memberId`, `titleSlug`, `date` (YYYY-MM-DD).
+Reads Redis key `premeet:{memberId}:{titleSlug}:{date}` → 200 with parsed JSON or 404.
+Brief shape: `{ seriesName, lastMeetingDate, openActionItems[], summary }`.
+
+---
+
+## Org settings — new fields (2026-06-02)
+
+Three new nullable columns on `Organization` (pushed to Neon, Prisma client regenerated):
+
+| Field | Type | Purpose |
+|---|---|---|
+| `internalJargon` | `String?` | Org-specific terms fed into Claude prompts |
+| `companyDescription` | `String?` | Company context for Claude prompts |
+| `autoDeleteTranscriptsDays` | `Int?` | Auto-delete transcripts after N days (null = keep forever) |
+
+All three wired through `settings.getOrgSettings` (select + return) and `settings.updateOrgSettings` (zod: jargon/description max 2000 chars nullable, days int 1–3650 nullable).
+
+---
+
+## REST API additions (2026-06-02)
+
+### DELETE /api/v1/calendar
+`src/app/api/v1/calendar/route.ts` — disconnects Google and/or Microsoft calendar for the authenticated user. No separate CalendarIntegration model — tokens live on `OrgMember` (`googleRefreshToken`, `microsoftRefreshToken`). Uses `updateMany` so it works with both Clerk JWT auth (scoped to `userId`) and kol_ API keys (org-wide).
+
+Optional query param: `?provider=google|microsoft` — omit to clear both. Returns 404 if no calendar was connected (`result.count === 0`).
+
+### PATCH /api/v1/recordings/[id]/notes
+Body field is `{ personalNotes: string }` (NOT `{ notes }`). Writes to `Recording.personalNotes`.
+
+---
+
+## Meeting import tool (2026-06-02)
+
+### Schema
+- `RecordingSource` enum gains `IMPORT`
+- `Recording` model gains `importPlatform String?` and `importedAt DateTime?`
+
+### Files
+- `src/app/dashboard/import/page.tsx` — 4 platform cards + drag-and-drop upload modal. Client component, POSTs to `/api/v1/import`.
+- `src/app/api/v1/import/route.ts` — multipart POST (`platform` + `file`). Routes to parser, persists `Recording → Note → Transcript → TranscriptSegment → ActionItem[]` sequentially (no transactions).
+- `src/services/import-parsers.ts` — four parsers:
+  - **Fireflies** (`fireflies`): ZIP → JSON files. Fields: `title`, `date`, `duration`, `summary`, `transcript[]`, `action_items[]`.
+  - **Otter.ai** (`otter`): TXT (speaker + HH:MM lines) or SRT (numbered timestamp blocks).
+  - **Fathom** (`fathom`): CSV with inline RFC-4180 parser. Columns: Title, Date, Duration, Summary, Action Items.
+  - **Read AI** (`readai`): PDF via `require('pdf-parse/lib/pdf-parse.js')` (avoids Next.js webpack test-file issue). Section extraction by heading regex.
+
+Response: `{ imported: number, skipped: number, meetings: [{ id, title }] }`.
+
+Sidebar: "Import" link with Upload icon added above Templates in Group 3.
+
+---
+
+## Dashboard UI (2026-06-02)
+
+- **Background**: layout `<main>` changed `#F8F9FC` → `#EEEAE3` (warm linen). Dark stays `#0F0F13`.
+- **Cards**: stat cards, AI feature cards, recent meetings list, empty state — all now `bg-white shadow-sm border-neutral-100/60`. Stat cards get `hover:shadow-md`.
+- **Greeting**: `DashboardGreeting` client component (`src/components/dashboard-greeting.tsx`) replaces server-side `greetingFor(new Date())`. Uses `useEffect` + `new Date().getHours()` for the user's local timezone. 20 humorous greetings in 3 time-of-day pools (morning / afternoon / evening). Renders an invisible placeholder during SSR to prevent layout shift.
