@@ -205,9 +205,7 @@ function parseDurationToSeconds(s: string): number | undefined {
 // Sections: Meeting Summary, Key Topics, Action Items, Transcript
 
 export async function parseReadAIExport(buffer: Buffer): Promise<ImportedMeeting[]> {
-  // Avoid Next.js webpack bundling the pdf-parse index which loads test files.
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const pdfParse = require('pdf-parse/lib/pdf-parse.js') as (
+  const pdfParse = (await import('pdf-parse')) as unknown as (
     buf: Buffer,
     opts?: object,
   ) => Promise<{ text: string }>

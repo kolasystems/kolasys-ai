@@ -1,3 +1,5 @@
+export const runtime = 'nodejs'
+
 // Kolasys AI — Meeting import API.
 //
 // POST /api/v1/import   multipart/form-data: { platform, file }
