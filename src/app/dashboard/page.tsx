@@ -16,19 +16,13 @@ import {
 import Link from 'next/link'
 import { StuckRecordingsBanner } from '@/components/stuck-recordings-banner'
 import { KolasysLogoMark } from '@/components/kolasys-logo'
+import { DashboardGreeting } from '@/components/dashboard-greeting'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
 const STUCK_THRESHOLD_MS = 30 * 60_000
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-
-function greetingFor(date: Date): string {
-  const hour = date.getHours()
-  if (hour < 12) return 'Good morning'
-  if (hour < 17) return 'Good afternoon'
-  return 'Good evening'
-}
 
 // First letter of a title, uppercased — used by the Recent Meetings avatar.
 function initialOf(title: string): string {
@@ -82,7 +76,6 @@ export default async function DashboardPage() {
       })
     : []
 
-  const greeting = greetingFor(new Date())
   const firstName = user?.firstName ?? 'there'
 
   return (
@@ -105,9 +98,7 @@ export default async function DashboardPage() {
             at the very top of the main content area (the banner is flush
             against the top edge, so internal padding is the only margin). */}
         <div className="pt-8 sm:pt-10">
-          <h1 className="text-xl font-semibold text-neutral-800 dark:text-white/95 sm:text-2xl">
-            {`${greeting}, ${firstName}!`}
-          </h1>
+          <DashboardGreeting firstName={firstName} />
           <p className="mt-1 text-sm text-neutral-600 dark:text-white/70">
             Here&apos;s your meeting intelligence for today.
           </p>
@@ -222,7 +213,7 @@ export default async function DashboardPage() {
         </div>
 
         {recentRecordings.length === 0 ? (
-          <div className="mt-4 flex flex-col items-center justify-center rounded-xl border border-neutral-200 bg-neutral-50 py-10 text-center dark:border-white/10 dark:bg-white/5 sm:py-12">
+          <div className="mt-4 flex flex-col items-center justify-center rounded-xl border border-neutral-100/60 bg-white py-10 text-center shadow-sm dark:border-white/10 dark:bg-[#1A1A24] sm:py-12">
             <p className="text-sm font-medium text-neutral-500 dark:text-gray-400">
               No meetings yet
             </p>
@@ -237,7 +228,7 @@ export default async function DashboardPage() {
             </Link>
           </div>
         ) : (
-          <ul className="mt-4 divide-y divide-neutral-100 rounded-xl border border-neutral-100 bg-white dark:divide-white/10 dark:border-white/10 dark:bg-[#1A1A24]">
+          <ul className="mt-4 divide-y divide-neutral-100 rounded-xl border border-neutral-100/60 bg-white shadow-sm dark:divide-white/10 dark:border-white/10 dark:bg-[#1A1A24]">
             {recentRecordings.map((r) => (
               <li key={r.id}>
                 <Link
@@ -286,7 +277,7 @@ function StatCard({
   value: number
 }) {
   const content = (
-    <div className="flex items-center gap-3 rounded-xl border border-neutral-100 bg-neutral-50 p-4 transition-colors hover:border-neutral-200 dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20">
+    <div className="flex items-center gap-3 rounded-xl border border-neutral-100/60 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-[#1A1A24] dark:hover:border-white/20">
       <div className="flex-shrink-0">{icon}</div>
       <div className="min-w-0">
         <p className="text-2xl font-bold tabular-nums leading-none text-neutral-900 dark:text-white">
@@ -318,7 +309,7 @@ function AIFeatureCard({
   active?: boolean
 }) {
   return (
-    <div className="rounded-2xl border border-neutral-100 bg-neutral-50 p-4 dark:border-white/10 dark:bg-white/5">
+    <div className="rounded-2xl border border-neutral-100/60 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#1A1A24]">
       <div className="flex items-start gap-3">
         <div
           className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${gradient}`}

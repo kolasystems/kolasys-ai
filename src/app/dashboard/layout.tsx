@@ -84,7 +84,7 @@ export default async function DashboardLayout({
       {/* Right-hand column: mobile top bar + scrollable content */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <MobileNav />
-        <main className="flex-1 overflow-y-auto bg-[#F8F9FC] dark:bg-[#0F0F13]">
+        <main className="flex-1 overflow-y-auto bg-[#EEEAE3] dark:bg-[#0F0F13]">
           <TrialBanner state={trialState} />
           <WebPushRegistrar />
           {children}
