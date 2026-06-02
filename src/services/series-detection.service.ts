@@ -13,7 +13,7 @@
 import { db } from '@/lib/db'
 
 // "May 18 — Rising Hope Board Reviews Financials" → "rising hope board"
-function normalizeTitle(title: string): string {
+export function normalizeTitle(title: string): string {
   return title
     .toLowerCase()
     .replace(/^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d+\s*[—-]\s*/i, '')
@@ -27,7 +27,7 @@ function normalizeTitle(title: string): string {
 }
 
 // Word-overlap similarity in [0, 1]. Words ≤ 2 chars are dropped as noise.
-function titleSimilarity(a: string, b: string): number {
+export function titleSimilarity(a: string, b: string): number {
   const wordsA = new Set(normalizeTitle(a).split(' ').filter((w) => w.length > 2))
   const wordsB = new Set(normalizeTitle(b).split(' ').filter((w) => w.length > 2))
   if (wordsA.size === 0 || wordsB.size === 0) return 0

@@ -26,13 +26,18 @@ Sentry.init({
 
 import { ConfidentialClientApplication } from '@azure/msal-node'
 import { db } from '@/lib/db'
+import { redis } from '@/lib/redis'
 import { deployBot } from '@/services/meetingbot.service'
+import { sendExpoPush } from '@/services/push.service'
+import { normalizeTitle, titleSimilarity } from '@/services/series-detection.service'
 import { RecordingSource, RecordingStatus } from '@/generated/prisma/client'
 
 const POLL_INTERVAL_MS = 60 * 1_000
-const LOOKAHEAD_MS = 15 * 60 * 1_000 // pull events for the next 15 minutes
+const LOOKAHEAD_MS = 35 * 60 * 1_000 // pull events for the next 35 minutes (covers pre-meeting window)
 const DEPLOY_WINDOW_MIN = 4 // deploy when 4 ≤ minutesUntilStart ≤ 6
 const DEPLOY_WINDOW_MAX = 6
+const PREMEET_WINDOW_MIN = 28 // pre-meeting brief when 28 ≤ minutesUntilStart ≤ 32
+const PREMEET_WINDOW_MAX = 32
 const DEDUPE_LOOKBACK_MS = 30 * 60 * 1_000 // don't double-deploy in 30 min
 
 // Status set we treat as "already-in-flight" when deciding whether to deploy.
@@ -236,6 +241,104 @@ function toIsoUtc(dt: string | undefined): string {
   return /[Zz]|[+-]\d{2}:?\d{2}$/.test(dt) ? dt : `${dt}Z`
 }
 
+// ── Pre-meeting intelligence ───────────────────────────────────────────────
+
+async function findMatchingSeriesForEvent(
+  orgId: string,
+  eventTitle: string,
+): Promise<{ id: string; name: string } | null> {
+  const allSeries = await db.meetingSeries.findMany({
+    where: { orgId },
+    select: { id: true, name: true },
+  })
+  let best: { id: string; name: string; score: number } | null = null
+  for (const series of allSeries) {
+    const score = titleSimilarity(eventTitle, series.name)
+    if (score >= 0.3 && (!best || score > best.score)) {
+      best = { id: series.id, name: series.name, score }
+    }
+  }
+  return best ? { id: best.id, name: best.name } : null
+}
+
+type CalendarMember = {
+  id: string
+  userId: string
+  expoPushToken: string | null
+  googleRefreshToken: string | null
+  microsoftRefreshToken: string | null
+}
+
+async function maybeSendPreMeetingBrief(
+  orgId: string,
+  member: CalendarMember,
+  event: UpcomingEvent,
+  startMs: number,
+): Promise<void> {
+  // One send per event per org — Redis dedupe key survives 90 min of polls.
+  const dedupeKey = `premeet-sent:${orgId}:${event.externalId}`
+  const alreadySent = await redis.get(dedupeKey)
+  if (alreadySent) return
+
+  const matchedSeries = await findMatchingSeriesForEvent(orgId, event.title)
+  if (!matchedSeries) return
+
+  const lastMembership = await db.recordingSeriesMembership.findFirst({
+    where: { seriesId: matchedSeries.id },
+    orderBy: { recording: { createdAt: 'desc' } },
+    include: {
+      recording: {
+        include: {
+          notes: {
+            include: { actionItems: true },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
+        },
+      },
+    },
+  })
+  if (!lastMembership) return
+
+  const { recording: last } = lastMembership
+  const lastNote = last.notes[0]
+  const openItems = (lastNote?.actionItems ?? []).filter((a) => a.status === 'OPEN')
+  const startDate = new Date(startMs)
+  const lastDate = new Date(last.createdAt).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+  })
+
+  // Store brief in Redis — mobile reads this when user opens the calendar event.
+  const titleSlug = event.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 50)
+  const briefKey = `premeet:${member.id}:${titleSlug}:${startDate.toISOString().slice(0, 10)}`
+  const brief = {
+    seriesName: matchedSeries.name,
+    lastMeetingDate: last.createdAt.toISOString(),
+    openActionItems: openItems.map((a) => ({
+      id: a.id,
+      description: a.description,
+      status: a.status,
+    })),
+    summary: lastNote?.summary ?? null,
+  }
+  await redis.set(briefKey, JSON.stringify(brief), 'EX', 2 * 60 * 60)
+  await redis.set(dedupeKey, '1', 'EX', 90 * 60)
+
+  console.log(
+    `[calendar-bot] pre-meeting brief stored for "${event.title}" → series "${matchedSeries.name}" (${openItems.length} open items)`,
+  )
+
+  if (!member.expoPushToken) return
+
+  await sendExpoPush({
+    token: member.expoPushToken,
+    title: `📋 ${event.title} starts in 30 min`,
+    body: `Last time: ${openItems.length} open action item${openItems.length !== 1 ? 's' : ''} from ${lastDate}`,
+    data: { type: 'pre_meeting_brief', briefKey },
+  }).catch((err) => console.error('[calendar-bot] pre-meeting push failed (non-fatal):', err))
+}
+
 // ── Deploy ─────────────────────────────────────────────────────────────────
 // Mirrors calendar.router.ts:deployBotForEvent so the calendar-bot worker
 // and the manual /dashboard/calendar "Deploy bot" button produce
@@ -308,9 +411,11 @@ async function pollCalendars(): Promise<void> {
             ],
           },
           select: {
+            id: true,
             userId: true,
             googleRefreshToken: true,
             microsoftRefreshToken: true,
+            expoPushToken: true,
           },
           // One member per org is enough — first member with calendar OAuth
           // owns the "view" the bot will join from.
@@ -337,6 +442,14 @@ async function pollCalendars(): Promise<void> {
           if (Number.isNaN(startMs)) continue
 
           const minutesUntilStart = (startMs - Date.now()) / 60_000
+
+          // Pre-meeting intelligence: ~30 min before the meeting, send a
+          // brief + push if the event belongs to a known series.
+          if (minutesUntilStart >= PREMEET_WINDOW_MIN && minutesUntilStart <= PREMEET_WINDOW_MAX) {
+            await maybeSendPreMeetingBrief(org.id, member, event, startMs)
+            continue
+          }
+
           if (minutesUntilStart < DEPLOY_WINDOW_MIN || minutesUntilStart > DEPLOY_WINDOW_MAX) {
             continue
           }
