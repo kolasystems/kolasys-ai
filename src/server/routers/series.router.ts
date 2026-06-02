@@ -151,11 +151,15 @@ export const seriesRouter = router({
       })
       if (!recording) throw new TRPCError({ code: 'NOT_FOUND' })
 
-      return ctx.db.recordingSeriesMembership.upsert({
-        where: { seriesId_recordingId: input },
-        create: input,
-        update: {},
+      const { seriesId, recordingId } = input
+      const existing = await ctx.db.recordingSeriesMembership.findUnique({
+        where: { seriesId_recordingId: { seriesId, recordingId } },
       })
+      if (!existing) {
+        await ctx.db.recordingSeriesMembership.create({
+          data: { seriesId, recordingId },
+        })
+      }
     }),
 
   removeRecording: orgProcedure

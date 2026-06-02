@@ -62,11 +62,14 @@ export async function POST(
   // generated key name from the declaration order, NOT the alphabetical
   // order. `update: {}` makes the upsert a no-op when the pair already
   // exists, so callers can retry without seeing a conflict.
-  await db.recordingSeriesMembership.upsert({
+  const existing = await db.recordingSeriesMembership.findUnique({
     where: { seriesId_recordingId: { seriesId, recordingId } },
-    create: { seriesId, recordingId },
-    update: {},
   })
+  if (!existing) {
+    await db.recordingSeriesMembership.create({
+      data: { seriesId, recordingId },
+    })
+  }
 
   return Response.json({ success: true })
 }
