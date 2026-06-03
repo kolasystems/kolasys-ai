@@ -8,6 +8,9 @@
 //
 // Optional query param: provider=google|microsoft
 //   Omit to disconnect both providers.
+//
+// Uses findFirst + update instead of updateMany — Neon HTTP adapter does
+// not support the implicit transaction updateMany uses internally.
 
 import { db } from '@/lib/db'
 import { authenticateApiKey, unauthorizedResponse } from '@/lib/api-auth'
@@ -32,17 +35,27 @@ export async function DELETE(request: Request): Promise<Response> {
         ? { microsoftRefreshToken: null }
         : { googleRefreshToken: null, microsoftRefreshToken: null }
 
-  const result = await db.orgMember.updateMany({
-    where: {
-      orgId: auth.orgId,
-      ...(auth.userId ? { userId: auth.userId } : {}),
-    },
-    data,
-  })
+  try {
+    const member = await db.orgMember.findFirst({
+      where: {
+        orgId: auth.orgId,
+        ...(auth.userId ? { userId: auth.userId } : {}),
+      },
+      select: { id: true },
+    })
 
-  if (result.count === 0) {
-    return Response.json({ error: 'No calendar integration found' }, { status: 404 })
+    if (!member) {
+      return Response.json({ error: 'No calendar integration found' }, { status: 404 })
+    }
+
+    await db.orgMember.update({
+      where: { id: member.id },
+      data,
+    })
+
+    return Response.json({ success: true })
+  } catch (err) {
+    console.error('[DELETE /api/v1/calendar] failed:', err)
+    return Response.json({ error: 'Internal server error' }, { status: 500 })
   }
-
-  return Response.json({ success: true })
 }
