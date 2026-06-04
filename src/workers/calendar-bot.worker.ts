@@ -224,7 +224,13 @@ async function getMicrosoftEvents(refreshToken: string): Promise<UpcomingEvent[]
       return []
     }
     const data = (await res.json()) as { value?: GraphEvent[] }
-    return (data.value ?? []).map<UpcomingEvent>((e) => {
+    const events = data.value ?? []
+    console.log('[calendar-bot] Microsoft events found:', events.map((e) => ({
+      title: e.subject,
+      start: e.start?.dateTime,
+      joinUrl: e.onlineMeeting?.joinUrl ? 'present' : 'missing',
+    })))
+    return events.map<UpcomingEvent>((e) => {
       const joinUrl = e.onlineMeeting?.joinUrl ?? e.onlineMeetingUrl ?? ''
       return {
         externalId: e.id ?? '',
