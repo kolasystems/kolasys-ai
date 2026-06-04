@@ -382,6 +382,9 @@ const worker = new Worker<TranscriptionJobData>(
   {
     connection: bullmqConnection,
     concurrency: 3,
+    lockDuration: 300_000,  // 5 min — prevents stall on large shared files
+    lockRenewTime: 60_000,  // renew every 60s
+    stalledInterval: 60_000, // check for stalled jobs every 60s
   }
 )
 
