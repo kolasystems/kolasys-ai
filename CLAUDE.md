@@ -6,7 +6,7 @@
 **Production:** https://app.kolasys.ai  
 **tRPC API:** `https://app.kolasys.ai/api/trpc`  
 **Mobile repo:** `~/Desktop/kolasys-ai-mobile` · `github.com/kolasystems/kolasys-ai-mobile`  
-**Last updated:** 2026-06-02
+**Last updated:** 2026-06-03
 
 ---
 
@@ -934,6 +934,33 @@ send is independently non-fatal — failures log but never fail the job.
 | `afc5113` | feat: DELETE /api/v1/calendar — disconnect Google/Microsoft calendar via REST |
 | `a45fb35` | feat: meeting import tool — Fireflies, Otter.ai, Fathom, Read AI |
 | `a8331ec` | feat: dashboard — warm bg (#EEEAE3), white cards, client-side humorous greeting pool |
+| `844a946` | fix: import parsers — pdf-parse dynamic import + nodejs runtime (Turbopack compat) |
+| `e15db07` | feat: importPlatform in recordings.list, memberId in getOrgSettings, lastMeetingId in premeet brief |
+| `871ce9c` | fix: DELETE /api/v1/calendar 500 (updateMany → findFirst+update) + /settings/calendar redirect |
+| `a4ed298` | docs: Neon HTTP limitation warning in src/lib/db.ts |
+
+---
+
+## Neon HTTP adapter — safe patterns (2026-06-03)
+
+Comment added to `src/lib/db.ts`. Operations that throw "Transactions are not supported in HTTP mode":
+- `prisma.$transaction()`
+- `upsert` (in some Prisma/Neon versions)
+- `updateMany` (uses implicit interactive transaction internally)
+
+**Instead of upsert:**
+```ts
+const existing = await db.model.findUnique({ where: {...} })
+if (!existing) await db.model.create({ data: {...} })
+```
+
+**Instead of updateMany:**
+```ts
+const record = await db.model.findFirst({ where: {...} })
+if (record) await db.model.update({ where: { id: record.id }, data: {...} })
+```
+
+Fixed so far: `series.addRecording` (ba93043), `DELETE /api/v1/calendar` (871ce9c).
 
 ---
 
