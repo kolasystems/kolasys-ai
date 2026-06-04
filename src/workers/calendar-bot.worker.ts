@@ -194,7 +194,10 @@ async function getMicrosoftEvents(refreshToken: string): Promise<UpcomingEvent[]
       refreshToken,
       scopes: GRAPH_SCOPES,
     })
-    if (!result?.accessToken) return []
+    if (!result?.accessToken) {
+      console.error('[calendar-bot] Microsoft token refresh returned no accessToken — token may be expired or revoked')
+      return []
+    }
 
     const now = new Date()
     const cutoff = new Date(now.getTime() + LOOKAHEAD_MS)
@@ -456,7 +459,10 @@ async function pollCalendars(): Promise<void> {
           }
 
           const meetingUrl = extractMeetingUrl(event)
-          if (!meetingUrl) continue
+          if (!meetingUrl) {
+            console.log(`[calendar-bot] skipping "${event.title}" — no video link found`)
+            continue
+          }
 
           // Dedupe by meetingUrl in the recent past — covers re-deploy after
           // a transient failure, the recording.done double-fire, and the
@@ -471,8 +477,12 @@ async function pollCalendars(): Promise<void> {
             },
             select: { id: true },
           })
-          if (existing) continue
+          if (existing) {
+            console.log(`[calendar-bot] skipping "${event.title}" — bot already deployed (recording ${existing.id})`)
+            continue
+          }
 
+          console.log(`[calendar-bot] deploying bot for "${event.title}" in ${minutesUntilStart.toFixed(1)} min (org ${org.id})`)
           await deployBotForMeeting(
             org.id,
             member.userId,
