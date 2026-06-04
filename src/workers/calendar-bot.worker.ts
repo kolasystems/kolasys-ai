@@ -34,8 +34,8 @@ import { RecordingSource, RecordingStatus } from '@/generated/prisma/client'
 
 const POLL_INTERVAL_MS = 60 * 1_000
 const LOOKAHEAD_MS = 35 * 60 * 1_000 // pull events for the next 35 minutes (covers pre-meeting window)
-const DEPLOY_WINDOW_MIN = 4 // deploy when 4 ≤ minutesUntilStart ≤ 6
-const DEPLOY_WINDOW_MAX = 6
+const DEPLOY_WINDOW_MIN = -2 // deploy up to 2 min after start (catches late-added meetings)
+const DEPLOY_WINDOW_MAX = 8  // deploy up to 8 min before start
 const PREMEET_WINDOW_MIN = 28 // pre-meeting brief when 28 ≤ minutesUntilStart ≤ 32
 const PREMEET_WINDOW_MAX = 32
 const DEDUPE_LOOKBACK_MS = 30 * 60 * 1_000 // don't double-deploy in 30 min
@@ -121,9 +121,10 @@ async function getGoogleEvents(refreshToken: string): Promise<UpcomingEvent[]> {
     if (!accessToken) return []
 
     const now = new Date()
+    const lookback = new Date(now.getTime() - 2 * 60_000) // 2 min back for late-added meetings
     const cutoff = new Date(now.getTime() + LOOKAHEAD_MS)
     const url = new URL('https://www.googleapis.com/calendar/v3/calendars/primary/events')
-    url.searchParams.set('timeMin', now.toISOString())
+    url.searchParams.set('timeMin', lookback.toISOString())
     url.searchParams.set('timeMax', cutoff.toISOString())
     url.searchParams.set('singleEvents', 'true')
     url.searchParams.set('orderBy', 'startTime')
@@ -200,9 +201,10 @@ async function getMicrosoftEvents(refreshToken: string): Promise<UpcomingEvent[]
     }
 
     const now = new Date()
+    const lookback = new Date(now.getTime() - 2 * 60_000) // 2 min back for late-added meetings
     const cutoff = new Date(now.getTime() + LOOKAHEAD_MS)
     const url = new URL('https://graph.microsoft.com/v1.0/me/calendarView')
-    url.searchParams.set('startDateTime', now.toISOString())
+    url.searchParams.set('startDateTime', lookback.toISOString())
     url.searchParams.set('endDateTime', cutoff.toISOString())
     url.searchParams.set(
       '$select',
@@ -457,6 +459,7 @@ async function pollCalendars(): Promise<void> {
           if (minutesUntilStart < DEPLOY_WINDOW_MIN || minutesUntilStart > DEPLOY_WINDOW_MAX) {
             continue
           }
+          // Window: -2 min (already started) to +8 min (about to start).
 
           const meetingUrl = extractMeetingUrl(event)
           if (!meetingUrl) {
