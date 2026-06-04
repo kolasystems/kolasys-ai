@@ -54,7 +54,7 @@ export async function deployBot(
       meeting_url: meetingUrl,
       webhook_url: webhookUrl,
       bot_name: botDisplayName || 'Kolasys AI',
-      bot_image_url: 'https://app.kolasys.ai/kolasys-bot-avatar.svg',
+      bot_image_url: 'https://app.kolasys.ai/bot-avatar.png',
     }),
   })
   return bot.id
