@@ -1,37 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kolasys AI — Web
 
-## Getting Started
+Next.js 16.2 web application for Kolasys AI — Claude-powered meeting intelligence. Transcribes, summarises, and surfaces action items from recorded meetings.
 
-First, run the development server:
+**Production:** https://app.kolasys.ai  
+**Repo:** https://github.com/kolasystems/kolasys-ai  
+**See CLAUDE.md for full architecture reference.**
+
+## Quick start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev          # Next.js on localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Workers (Railway 24/7 — only needed locally for pipeline debugging):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npx tsx src/workers/transcription.worker.ts
+npx tsx src/workers/summarization.worker.ts
+npx tsx src/workers/calendar-bot.worker.ts
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Stack
 
-## Learn More
+Next.js 16.2 · tRPC 11 · Prisma 7 (Neon HTTP) · Clerk 7 · Upstash Redis · AWS S3 · Anthropic Claude · Recall.ai · Vercel + Railway
 
-To learn more about Next.js, take a look at the following resources:
+## Key constraints
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
- 
+- **Prisma v7 / Neon HTTP**: no `$transaction`, no `upsert`, no `updateMany`. Use `findFirst` + `create`/`update` sequentially. See `src/lib/db.ts`.
+- **Railway env vars**: each Railway service has its own scope — Vercel vars don't propagate. `calendar-bot-worker` needs its own `MICROSOFT_CLIENT_ID/SECRET`, `GOOGLE_CLIENT_ID/SECRET`.
+- **Clerk keys**: never mix test (`pk_test_`) and live (`pk_live_`) keys across environments.

@@ -6,7 +6,7 @@
 **Production:** https://app.kolasys.ai  
 **tRPC API:** `https://app.kolasys.ai/api/trpc`  
 **Mobile repo:** `~/Desktop/kolasys-ai-mobile` · `github.com/kolasystems/kolasys-ai-mobile`  
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-05
 
 ---
 
@@ -1014,9 +1014,9 @@ All three wired through `settings.getOrgSettings` (select + return) and `setting
 ## REST API additions (2026-06-02)
 
 ### DELETE /api/v1/calendar
-`src/app/api/v1/calendar/route.ts` — disconnects Google and/or Microsoft calendar for the authenticated user. No separate CalendarIntegration model — tokens live on `OrgMember` (`googleRefreshToken`, `microsoftRefreshToken`). Uses `updateMany` so it works with both Clerk JWT auth (scoped to `userId`) and kol_ API keys (org-wide).
+`src/app/api/v1/calendar/route.ts` — disconnects Google and/or Microsoft calendar for the authenticated user. No separate CalendarIntegration model — tokens live on `OrgMember` (`googleRefreshToken`, `microsoftRefreshToken`). Uses `findFirst` + `update` (NOT `updateMany` — Neon HTTP adapter doesn't support it).
 
-Optional query param: `?provider=google|microsoft` — omit to clear both. Returns 404 if no calendar was connected (`result.count === 0`).
+Optional query param: `?provider=google|microsoft` — omit to clear both. Returns 404 if member not found.
 
 ### PATCH /api/v1/recordings/[id]/notes
 Body field is `{ personalNotes: string }` (NOT `{ notes }`). Writes to `Recording.personalNotes`.
@@ -1049,3 +1049,62 @@ Sidebar: "Import" link with Upload icon added above Templates in Group 3.
 - **Background**: layout `<main>` changed `#F8F9FC` → `#EEEAE3` (warm linen). Dark stays `#0F0F13`.
 - **Cards**: stat cards, AI feature cards, recent meetings list, empty state — all now `bg-white shadow-sm border-neutral-100/60`. Stat cards get `hover:shadow-md`.
 - **Greeting**: `DashboardGreeting` client component (`src/components/dashboard-greeting.tsx`) replaces server-side `greetingFor(new Date())`. Uses `useEffect` + `new Date().getHours()` for the user's local timezone. 20 humorous greetings in 3 time-of-day pools (morning / afternoon / evening). Renders an invisible placeholder during SSR to prevent layout shift.
+
+---
+
+## Session 2026-06-04 — Calendar bot operational
+
+### Commit history
+
+| Hash | Description |
+|---|---|
+| `ed20115` | fix: calendar-bot — log token expiry, skipped meetings, bot deploys |
+| `631bb35` | fix: bot avatar — use PNG instead of SVG for Recall.ai compatibility |
+| `4bb32cc` | fix: calendar-bot deploy window — catch late-added meetings (-2 to +8 min) |
+| `d8e2cf7` | debug: log Microsoft calendar events fetched by bot worker |
+| `d200744` | docs: session 2026-06-04 — calendar bot operational + visual redesign |
+
+### Calendar-bot-worker Railway env vars (CRITICAL)
+
+The `calendar-bot-worker` Railway service has its own env var scope — **Vercel vars do NOT propagate to Railway services**. The worker silently returned `[]` for all calendar lookups for weeks because these were missing:
+
+| Var | Required for |
+|---|---|
+| `MICROSOFT_CLIENT_ID` | makeMicrosoftCca() — returns null if absent |
+| `MICROSOFT_CLIENT_SECRET` | Microsoft Graph token exchange |
+| `MICROSOFT_TENANT_ID` | MSAL authority URL (use `common` for multi-tenant) |
+| `GOOGLE_CLIENT_ID` | Google Calendar OAuth token refresh |
+| `GOOGLE_CLIENT_SECRET` | Google Calendar OAuth token refresh |
+
+Set via: `railway variables set KEY=VALUE --service calendar-bot-worker`
+
+**Symptom when missing**: polls complete in ~400ms (DB-only), no "Microsoft events found" log, no bot deploys ever. With vars set: polls take ~900ms–1.4s, Graph events appear in logs.
+
+### Calendar-bot deploy window
+
+Changed from the original 4–6 min window to **-2 min → +8 min**:
+- `DEPLOY_WINDOW_MIN = -2` — catches meetings that started up to 2 min ago (late-added)
+- `DEPLOY_WINDOW_MAX = 8` — deploys up to 8 min before start
+- Both Google and Microsoft API calls now use `now - 2min` as `timeMin`/`startDateTime` so recently-started events are returned
+
+### Recall.ai bot avatar
+
+Must be a **publicly accessible PNG**. SVG is not supported by Recall.ai even if syntactically valid.
+- File: `public/bot-avatar.png` (176KB, copied from mobile `assets/adaptive-icon.png`)
+- URL: `https://app.kolasys.ai/bot-avatar.png`
+- Field: `bot_image_url` in the `deployBot()` POST body (`src/services/meetingbot.service.ts`)
+
+### BullMQ lockDuration fix
+
+Default BullMQ `lockDuration` is 30s — too short for large audio files going through S3 download → ffmpeg re-encode → Whisper. Increased in `transcription.worker.ts`:
+- `lockDuration: 300_000` (5 min)
+- `lockRenewTime: 60_000` (renew every 60s)
+- `stalledInterval: 60_000` (check stalled jobs every 60s)
+
+### autoRecordMeetings
+
+Schema default is `@default(true)` but orgs created before this was set may have `false`. Check via Settings → Calendar in the dashboard, or query: `db.organization.findMany({ select: { id: true, autoRecordMeetings: true } })`. The calendar-bot skips orgs with `autoRecordMeetings: false`.
+
+### Microsoft OAuth redirect URI (iOS — DO NOT UNIFY)
+
+Google OAuth uses `AuthSession.makeRedirectUri()`. Microsoft OAuth uses `Linking.createURL('/')`. These must remain different — they genuinely resolve to different redirect URI formats. Any attempt to unify them (commit `c2634cf`) breaks one provider. The correct state is in `54035a5`.
