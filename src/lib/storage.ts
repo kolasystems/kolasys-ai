@@ -73,3 +73,9 @@ export async function objectExists(key: string): Promise<boolean> {
     return false
   }
 }
+
+export async function downloadFromS3(key: string): Promise<Buffer> {
+  const res = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }))
+  const bytes = await (res.Body as { transformToByteArray(): Promise<Uint8Array> }).transformToByteArray()
+  return Buffer.from(bytes)
+}

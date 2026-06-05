@@ -170,6 +170,8 @@ model OrgMember {
   // each user's iPhone (and mirrored Apple Watch) gets its own ping when
   // their own recordings finish summarization.
   expoPushToken      String?
+  botDisplayName     String?    // overrides Organization.botDisplayName for this member's bot
+  botAvatarS3Key     String?    // S3 key of rendered 1280×720 camera JPEG
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
 

@@ -2,6 +2,8 @@
 
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import { db } from '@/lib/db'
+import { downloadFromS3 } from '@/lib/storage'
 
 // Account-region endpoint — the API key is registered to us-west-2, so all
 // API calls (deploy / status / media URL) must hit this base. The bot's
@@ -52,29 +54,45 @@ async function recallFetch(path: string, init?: RequestInit) {
 
 /**
  * Deploy a Recall.ai bot to a meeting URL.
- * Returns the bot ID to store on the Recording record.
+ * Pass memberId to use that member's custom display name + avatar; otherwise
+ * falls back to the org-level botDisplayName and the default camera frame.
  */
 export async function deployBot(
   meetingUrl: string,
   recordingId: string,
   webhookUrl: string,
-  botDisplayName: string = 'Kolasys AI'
+  botDisplayName: string = 'Kolasys AI',
+  memberId?: string,
 ): Promise<string> {
-  // We transcribe with Whisper in our own worker, so we deliberately do NOT
-  // ask Recall.ai to run their own transcription provider — both
-  // `transcription_options` and `real_time_transcription` would invoke it.
-  // The bot records, joins under the org's branded display name + avatar,
-  // and notifies our webhook on status changes.
+  let resolvedName = botDisplayName || 'Kolasys AI'
+  let cameraB64 = BOT_CAMERA_B64
+
+  if (memberId) {
+    try {
+      const member = await db.orgMember.findFirst({
+        where: { id: memberId },
+        select: { botDisplayName: true, botAvatarS3Key: true },
+      })
+      if (member?.botDisplayName) resolvedName = member.botDisplayName
+      if (member?.botAvatarS3Key) {
+        const buf = await downloadFromS3(member.botAvatarS3Key)
+        cameraB64 = buf.toString('base64')
+      }
+    } catch (err) {
+      console.error('[deployBot] failed to load member bot settings (non-fatal):', err)
+    }
+  }
+
   const bot: RecallBot = await recallFetch('/bot/', {
     method: 'POST',
     body: JSON.stringify({
       meeting_url: meetingUrl,
       webhook_url: webhookUrl,
-      bot_name: botDisplayName || 'Kolasys AI',
-      ...(BOT_CAMERA_B64 && {
+      bot_name: resolvedName,
+      ...(cameraB64 && {
         automatic_video_output: {
-          in_call_recording: { kind: 'jpeg', b64_data: BOT_CAMERA_B64 },
-          in_call_not_recording: { kind: 'jpeg', b64_data: BOT_CAMERA_B64 },
+          in_call_recording: { kind: 'jpeg', b64_data: cameraB64 },
+          in_call_not_recording: { kind: 'jpeg', b64_data: cameraB64 },
         },
       }),
     }),

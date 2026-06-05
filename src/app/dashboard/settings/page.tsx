@@ -13,6 +13,8 @@ import { BotDisplayNameInput } from '@/components/bot-display-name-input'
 import { AutoRecordMeetingsToggle } from '@/components/auto-record-meetings-toggle'
 import { SsoSettings } from '@/components/sso-settings'
 import { ApiKeysSection } from '@/components/api-keys-section'
+import { BotIdentitySection } from '@/components/bot-identity-section'
+import { getSignedDownloadUrl } from '@/lib/storage'
 
 export const metadata = { title: 'Settings — Kolasys AI' }
 
@@ -46,6 +48,17 @@ export default async function SettingsPage() {
   const memberCount = org
     ? await db.orgMember.count({ where: { orgId: org.id } })
     : 0
+
+  const memberBotSettings = org
+    ? await db.orgMember.findFirst({
+        where: { orgId: org.id, userId },
+        select: { botDisplayName: true, botAvatarS3Key: true },
+      })
+    : null
+
+  const memberBotAvatarUrl = memberBotSettings?.botAvatarS3Key
+    ? await getSignedDownloadUrl(memberBotSettings.botAvatarS3Key, 3600).catch(() => null)
+    : null
 
   return (
     <div className="max-w-2xl p-4 dark:bg-[#0F0F13] sm:p-8">
@@ -113,9 +126,15 @@ export default async function SettingsPage() {
           initialAutoRecordMeetings={org?.autoRecordMeetings ?? true}
         />
 
-        {/* Recording capture — bot display name */}
+        {/* Recording capture — bot display name (org default) */}
         <BotDisplayNameInput
           initialBotDisplayName={org?.botDisplayName ?? 'Kolasys AI'}
+        />
+
+        {/* Bot identity — per-user name + avatar */}
+        <BotIdentitySection
+          initialBotDisplayName={memberBotSettings?.botDisplayName ?? null}
+          initialBotAvatarUrl={memberBotAvatarUrl ?? null}
         />
 
         {/* Single Sign-On (Enterprise) */}

@@ -2212,6 +2212,8 @@ export const OrgMemberScalarFieldEnum = {
   googleRefreshToken: 'googleRefreshToken',
   microsoftRefreshToken: 'microsoftRefreshToken',
   expoPushToken: 'expoPushToken',
+  botDisplayName: 'botDisplayName',
+  botAvatarS3Key: 'botAvatarS3Key',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

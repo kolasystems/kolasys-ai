@@ -359,6 +359,7 @@ async function maybeSendPreMeetingBrief(
 async function deployBotForMeeting(
   orgId: string,
   userId: string,
+  memberId: string,
   botDisplayName: string,
   event: UpcomingEvent,
   meetingUrl: string,
@@ -376,7 +377,7 @@ async function deployBotForMeeting(
 
   try {
     const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/recall`
-    const botId = await deployBot(meetingUrl, recording.id, webhookUrl, botDisplayName)
+    const botId = await deployBot(meetingUrl, recording.id, webhookUrl, botDisplayName, memberId)
     await db.recording.update({
       where: { id: recording.id },
       data: { botId, status: RecordingStatus.PROCESSING },
@@ -495,6 +496,7 @@ async function pollCalendars(): Promise<void> {
           await deployBotForMeeting(
             org.id,
             member.userId,
+            member.id,
             org.botDisplayName,
             event,
             meetingUrl,
