@@ -1,9 +1,26 @@
 // Kolasys AI — Recall.ai meeting bot service
 
+import { readFileSync } from 'fs'
+import { join } from 'path'
+
 // Account-region endpoint — the API key is registered to us-west-2, so all
 // API calls (deploy / status / media URL) must hit this base. The bot's
 // runtime region is set separately via `region` in the deploy body.
 const RECALL_BASE_URL = 'https://us-west-2.recall.ai/api/v1'
+
+// Recall.ai requires base64-encoded JPEG for automatic_video_output.
+// bot_image_url is silently ignored — automatic_video_output is the
+// correct field for a custom bot camera frame. Must be 16:9, kind: 'jpeg'.
+// Image: public/bot-camera.jpg (1280×720, ~27KB).
+function loadBotCameraB64(): string | null {
+  try {
+    const imgPath = join(process.cwd(), 'public', 'bot-camera.jpg')
+    return readFileSync(imgPath).toString('base64')
+  } catch {
+    return null
+  }
+}
+const BOT_CAMERA_B64 = loadBotCameraB64()
 
 type RecallBot = {
   id: string
@@ -54,7 +71,12 @@ export async function deployBot(
       meeting_url: meetingUrl,
       webhook_url: webhookUrl,
       bot_name: botDisplayName || 'Kolasys AI',
-      bot_image_url: 'https://app.kolasys.ai/bot-avatar.png',
+      ...(BOT_CAMERA_B64 && {
+        automatic_video_output: {
+          in_call_recording: { kind: 'jpeg', b64_data: BOT_CAMERA_B64 },
+          in_call_not_recording: { kind: 'jpeg', b64_data: BOT_CAMERA_B64 },
+        },
+      }),
     }),
   })
   return bot.id
