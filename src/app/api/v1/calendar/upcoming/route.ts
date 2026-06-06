@@ -34,39 +34,71 @@ export async function GET(request: Request) {
   const auth = await authenticateApiKey(request)
   if (!auth) return unauthorizedResponse()
 
+  console.log('[v1/calendar/upcoming] orgId:', auth.orgId, 'userId:', auth.userId ?? 'none (kol_ key)')
+
   const now = new Date()
   const cutoff = new Date(now.getTime() + 48 * 60 * 60 * 1000)
   const events: UpcomingEvent[] = []
 
-  // ── Google ────────────────────────────────────────────────────────────────
-  try {
-    const member = await db.orgMember.findFirst({
-      where: { orgId: auth.orgId, googleRefreshToken: { not: null } },
-      select: { id: true, googleRefreshToken: true },
-    })
-    if (member?.googleRefreshToken) {
-      const googleEvents = await fetchGoogleEvents(member.id, member.googleRefreshToken, now, cutoff)
-      events.push(...googleEvents)
-    }
-  } catch (err) {
-    console.error('[v1/calendar] google failed:', err)
-  }
+  // Find all members in this org that have calendar tokens connected.
+  // When auth.userId is set (Clerk JWT), put that user's member first so their
+  // calendar is prioritised. kol_ API keys are org-scoped (no userId) so we
+  // gather tokens from all connected members — covers both solo and Team plans.
+  const allMembers = await db.orgMember.findMany({
+    where: {
+      orgId: auth.orgId,
+      OR: [
+        { googleRefreshToken: { not: null } },
+        { microsoftRefreshToken: { not: null } },
+      ],
+    },
+    select: { id: true, userId: true, googleRefreshToken: true, microsoftRefreshToken: true },
+  })
 
-  // ── Microsoft ───────────────────────────────────────────────────────────────
-  try {
-    const member = await db.orgMember.findFirst({
-      where: { orgId: auth.orgId, microsoftRefreshToken: { not: null } },
-      select: { id: true, microsoftRefreshToken: true },
-    })
-    if (member?.microsoftRefreshToken) {
-      const msEvents = await fetchMicrosoftEvents(member.id, member.microsoftRefreshToken, now, cutoff)
-      events.push(...msEvents)
+  console.log('[v1/calendar/upcoming] members with tokens:', allMembers.length)
+
+  // Prioritise the authenticated user's own member record when available.
+  const members = auth.userId
+    ? [...allMembers.filter((m) => m.userId === auth.userId), ...allMembers.filter((m) => m.userId !== auth.userId)]
+    : allMembers
+
+  // Deduplicate events from multiple members by event ID.
+  const seenIds = new Set<string>()
+
+  for (const member of members) {
+    // ── Google ───────────────────────────────────────────────────────────────
+    if (member.googleRefreshToken) {
+      try {
+        const googleEvents = await fetchGoogleEvents(member.id, member.googleRefreshToken, now, cutoff)
+        for (const e of googleEvents) {
+          if (!seenIds.has(e.id)) { seenIds.add(e.id); events.push(e) }
+        }
+        console.log('[v1/calendar/upcoming] google:', googleEvents.length, 'events for member', member.id)
+      } catch (err) {
+        console.error('[v1/calendar/upcoming] google failed for member', member.id, ':', err)
+      }
     }
-  } catch (err) {
-    console.error('[v1/calendar] microsoft failed:', err)
+
+    // ── Microsoft ────────────────────────────────────────────────────────────
+    if (member.microsoftRefreshToken) {
+      if (!process.env.MICROSOFT_CLIENT_ID || !process.env.MICROSOFT_CLIENT_SECRET) {
+        console.error('[v1/calendar/upcoming] MICROSOFT_CLIENT_ID/SECRET not set — skipping Microsoft')
+      } else {
+        try {
+          const msEvents = await fetchMicrosoftEvents(member.id, member.microsoftRefreshToken, now, cutoff)
+          for (const e of msEvents) {
+            if (!seenIds.has(e.id)) { seenIds.add(e.id); events.push(e) }
+          }
+          console.log('[v1/calendar/upcoming] microsoft:', msEvents.length, 'events for member', member.id)
+        } catch (err) {
+          console.error('[v1/calendar/upcoming] microsoft failed for member', member.id, ':', err)
+        }
+      }
+    }
   }
 
   events.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+  console.log('[v1/calendar/upcoming] returning', events.length, 'total events')
   return Response.json({ events })
 }
 
