@@ -139,7 +139,9 @@ export async function getBotMediaUrl(botId: string): Promise<BotMediaRef | null>
 
   const candidates: Array<{ url: string; preferred: boolean }> = []
 
-  // Newer shape: bot.recordings[].media_shortcuts.{audio_only|video_only|video}
+  // Newer shape: bot.recordings[].media_shortcuts.*
+  // audio_mixed / audio_only preferred (smaller, faster Whisper).
+  // video_mixed / video_only / video accepted as fallback — Whisper reads the audio track.
   const recordings: unknown[] = Array.isArray(
     (bot as { recordings?: unknown }).recordings,
   )
@@ -148,12 +150,14 @@ export async function getBotMediaUrl(botId: string): Promise<BotMediaRef | null>
   for (const rec of recordings) {
     const ms = (rec as { media_shortcuts?: Record<string, unknown> })?.media_shortcuts
     if (!ms) continue
-    const audioUrl = readDownloadUrl(ms.audio_only)
-    if (audioUrl) candidates.push({ url: audioUrl, preferred: true })
-    const videoOnly = readDownloadUrl(ms.video_only)
-    if (videoOnly) candidates.push({ url: videoOnly, preferred: false })
-    const video = readDownloadUrl(ms.video)
-    if (video) candidates.push({ url: video, preferred: false })
+    for (const key of ['audio_mixed', 'audio_only']) {
+      const u = readDownloadUrl(ms[key])
+      if (u) candidates.push({ url: u, preferred: true })
+    }
+    for (const key of ['video_mixed', 'video_only', 'video']) {
+      const u = readDownloadUrl(ms[key])
+      if (u) candidates.push({ url: u, preferred: false })
+    }
   }
 
   // Legacy shape: bot.video_url (string).
