@@ -89,12 +89,14 @@ export async function deployBot(
       meeting_url: meetingUrl,
       webhook_url: webhookUrl,
       bot_name: resolvedName,
-      ...(cameraB64 && {
-        automatic_video_output: {
-          in_call_recording: { kind: 'jpeg', b64_data: cameraB64 },
-          in_call_not_recording: { kind: 'jpeg', b64_data: cameraB64 },
-        },
-      }),
+      // automatic_video_output disabled — webhook_url was returning null when
+      // this field was present. Re-enable once Recall.ai confirms compatibility.
+      // ...(cameraB64 && {
+      //   automatic_video_output: {
+      //     in_call_recording: { kind: 'jpeg', b64_data: cameraB64 },
+      //     in_call_not_recording: { kind: 'jpeg', b64_data: cameraB64 },
+      //   },
+      // }),
     }),
   })
   return bot.id
