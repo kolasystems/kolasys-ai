@@ -6,7 +6,7 @@
 **Production:** https://app.kolasys.ai  
 **tRPC API:** `https://app.kolasys.ai/api/trpc`  
 **Mobile repo:** `~/Desktop/kolasys-ai-mobile` · `github.com/kolasystems/kolasys-ai-mobile`  
-**Last updated:** 2026-06-05
+**Last updated:** 2026-06-06
 
 ---
 
@@ -1108,3 +1108,60 @@ Schema default is `@default(true)` but orgs created before this was set may have
 ### Microsoft OAuth redirect URI (iOS — DO NOT UNIFY)
 
 Google OAuth uses `AuthSession.makeRedirectUri()`. Microsoft OAuth uses `Linking.createURL('/')`. These must remain different — they genuinely resolve to different redirect URI formats. Any attempt to unify them (commit `c2634cf`) breaks one provider. The correct state is in `54035a5`.
+
+---
+
+## Session 2026-06-05/06 — Bot pipeline fixes + custom identity
+
+### Commit history
+
+| Hash | Description |
+|---|---|
+| `25b7cfa` | feat: bot camera avatar — 1280×720 JPEG via automatic_video_output |
+| `933792b` | polish: bot camera — round logo, glass orb, radial gradient bg |
+| `22ce2be` | feat: custom bot name + avatar per user — schema, upload, render, settings UI |
+| `0283b69` | fix: disable automatic_video_output — was silently nulling webhook_url on Recall.ai |
+| `6bc4972` | fix: getBotMediaUrl — add audio_mixed + video_mixed to fallback chain |
+| `c413536` | docs: comprehensive pipeline status June 6 2026 |
+
+### Recall.ai — automatic_video_output DISABLED (critical)
+
+`automatic_video_output` with a base64 JPEG payload silently causes `webhook_url` to be stored as `null` on the Recall.ai bot. The bot joins and records but never fires any webhook → transcription queue is never populated → all MEETING_BOT recordings stuck at PROCESSING.
+
+**Current state**: commented out in `deployBot()` in `src/services/meetingbot.service.ts`. Do not re-enable until Recall.ai confirms the bug is fixed.
+
+**Symptom when present**: `webhook_url: null` on the Recall.ai bot object. All bot recordings stay at `PROCESSING` with no `s3Key`.
+
+**Diagnostic**: `curl -s "https://us-west-2.recall.ai/api/v1/bot/{botId}/" -H "Authorization: Token $RECALLAI_API_KEY" | jq '.webhook_url'` — should be non-null.
+
+### getBotMediaUrl — fallback chain extended
+
+Teams/Microsoft bots produce `video_mixed` (not `audio_only` or `video`). The old fallback chain missed this. Now checks in order:
+- Preferred: `audio_mixed`, `audio_only`
+- Fallback: `video_mixed`, `video_only`, `video`
+- Legacy: `bot.video_url`
+
+### Custom bot identity (2026-06-05)
+
+Per-user bot name + avatar. Schema additions on `OrgMember`:
+- `botDisplayName String?` — overrides `Organization.botDisplayName`
+- `botAvatarS3Key String?` — S3 key of rendered 1280×720 JPEG
+
+**Rendering pipeline** (`src/services/bot-avatar.service.ts`): sharp 0.34.5 (rsvg/pango bundled). Steps:
+1. Resize logo to 380×380, apply circular mask (SVG dest-in)
+2. Glass orb highlight (blurred SVG ellipse)
+3. Composite onto `public/bot-bg.jpg` (radial gradient `#4A1515 → #0A0A0A`)
+4. SVG text label (display name, pango-rendered)
+5. JPEG quality 90
+
+**Upload endpoint**: `POST /api/v1/bot-avatar/upload` — requires Clerk JWT (not kol_ key). Accepts PNG/JPEG/WebP ≤5MB. Returns `{ key, url }` (signed S3 URL for preview).
+
+**Settings UI**: `src/components/bot-identity-section.tsx` — name input + save button + 144×81px 16:9 preview + upload button.
+
+**`deployBot()`** now accepts `memberId?`. If provided, fetches member's `botDisplayName` + downloads `botAvatarS3Key` from S3 and base64-encodes for `automatic_video_output` (currently disabled).
+
+### Bot camera image
+
+`public/bot-camera.jpg` — 1280×720 JPEG, 54KB. Radial gradient background, circular logo with glass orb, "Kolasys Notetaker" text.
+`public/bot-bg.jpg` — background-only version (no logo) used by `bot-avatar.service.ts` as compositing base.
+Both generated with ImageMagick 7 (`magick` command, not `convert`).
