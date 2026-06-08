@@ -34,6 +34,7 @@ export type OrgMemberMinAggregateOutputType = {
   expoPushToken: string | null
   botDisplayName: string | null
   botAvatarS3Key: string | null
+  emailSummaryOnReady: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -48,6 +49,7 @@ export type OrgMemberMaxAggregateOutputType = {
   expoPushToken: string | null
   botDisplayName: string | null
   botAvatarS3Key: string | null
+  emailSummaryOnReady: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +64,7 @@ export type OrgMemberCountAggregateOutputType = {
   expoPushToken: number
   botDisplayName: number
   botAvatarS3Key: number
+  emailSummaryOnReady: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -78,6 +81,7 @@ export type OrgMemberMinAggregateInputType = {
   expoPushToken?: true
   botDisplayName?: true
   botAvatarS3Key?: true
+  emailSummaryOnReady?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -92,6 +96,7 @@ export type OrgMemberMaxAggregateInputType = {
   expoPushToken?: true
   botDisplayName?: true
   botAvatarS3Key?: true
+  emailSummaryOnReady?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -106,6 +111,7 @@ export type OrgMemberCountAggregateInputType = {
   expoPushToken?: true
   botDisplayName?: true
   botAvatarS3Key?: true
+  emailSummaryOnReady?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -193,6 +199,7 @@ export type OrgMemberGroupByOutputType = {
   expoPushToken: string | null
   botDisplayName: string | null
   botAvatarS3Key: string | null
+  emailSummaryOnReady: boolean
   createdAt: Date
   updatedAt: Date
   _count: OrgMemberCountAggregateOutputType | null
@@ -228,6 +235,7 @@ export type OrgMemberWhereInput = {
   expoPushToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   botDisplayName?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   botAvatarS3Key?: Prisma.StringNullableFilter<"OrgMember"> | string | null
+  emailSummaryOnReady?: Prisma.BoolFilter<"OrgMember"> | boolean
   createdAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   org?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -244,6 +252,7 @@ export type OrgMemberOrderByWithRelationInput = {
   expoPushToken?: Prisma.SortOrderInput | Prisma.SortOrder
   botDisplayName?: Prisma.SortOrderInput | Prisma.SortOrder
   botAvatarS3Key?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailSummaryOnReady?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   org?: Prisma.OrganizationOrderByWithRelationInput
@@ -264,6 +273,7 @@ export type OrgMemberWhereUniqueInput = Prisma.AtLeast<{
   expoPushToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   botDisplayName?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   botAvatarS3Key?: Prisma.StringNullableFilter<"OrgMember"> | string | null
+  emailSummaryOnReady?: Prisma.BoolFilter<"OrgMember"> | boolean
   createdAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   org?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -280,6 +290,7 @@ export type OrgMemberOrderByWithAggregationInput = {
   expoPushToken?: Prisma.SortOrderInput | Prisma.SortOrder
   botDisplayName?: Prisma.SortOrderInput | Prisma.SortOrder
   botAvatarS3Key?: Prisma.SortOrderInput | Prisma.SortOrder
+  emailSummaryOnReady?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.OrgMemberCountOrderByAggregateInput
@@ -300,6 +311,7 @@ export type OrgMemberScalarWhereWithAggregatesInput = {
   expoPushToken?: Prisma.StringNullableWithAggregatesFilter<"OrgMember"> | string | null
   botDisplayName?: Prisma.StringNullableWithAggregatesFilter<"OrgMember"> | string | null
   botAvatarS3Key?: Prisma.StringNullableWithAggregatesFilter<"OrgMember"> | string | null
+  emailSummaryOnReady?: Prisma.BoolWithAggregatesFilter<"OrgMember"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"OrgMember"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"OrgMember"> | Date | string
 }
@@ -313,6 +325,7 @@ export type OrgMemberCreateInput = {
   expoPushToken?: string | null
   botDisplayName?: string | null
   botAvatarS3Key?: string | null
+  emailSummaryOnReady?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutMembersInput
@@ -329,6 +342,7 @@ export type OrgMemberUncheckedCreateInput = {
   expoPushToken?: string | null
   botDisplayName?: string | null
   botAvatarS3Key?: string | null
+  emailSummaryOnReady?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   webPushSubs?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutOrgMemberInput
@@ -343,6 +357,7 @@ export type OrgMemberUpdateInput = {
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botDisplayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botAvatarS3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailSummaryOnReady?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutMembersNestedInput
@@ -359,6 +374,7 @@ export type OrgMemberUncheckedUpdateInput = {
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botDisplayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botAvatarS3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailSummaryOnReady?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   webPushSubs?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutOrgMemberNestedInput
@@ -374,6 +390,7 @@ export type OrgMemberCreateManyInput = {
   expoPushToken?: string | null
   botDisplayName?: string | null
   botAvatarS3Key?: string | null
+  emailSummaryOnReady?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -387,6 +404,7 @@ export type OrgMemberUpdateManyMutationInput = {
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botDisplayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botAvatarS3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailSummaryOnReady?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -401,6 +419,7 @@ export type OrgMemberUncheckedUpdateManyInput = {
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botDisplayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botAvatarS3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailSummaryOnReady?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -430,6 +449,7 @@ export type OrgMemberCountOrderByAggregateInput = {
   expoPushToken?: Prisma.SortOrder
   botDisplayName?: Prisma.SortOrder
   botAvatarS3Key?: Prisma.SortOrder
+  emailSummaryOnReady?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -444,6 +464,7 @@ export type OrgMemberMaxOrderByAggregateInput = {
   expoPushToken?: Prisma.SortOrder
   botDisplayName?: Prisma.SortOrder
   botAvatarS3Key?: Prisma.SortOrder
+  emailSummaryOnReady?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -458,6 +479,7 @@ export type OrgMemberMinOrderByAggregateInput = {
   expoPushToken?: Prisma.SortOrder
   botDisplayName?: Prisma.SortOrder
   botAvatarS3Key?: Prisma.SortOrder
+  emailSummaryOnReady?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -536,6 +558,7 @@ export type OrgMemberCreateWithoutOrgInput = {
   expoPushToken?: string | null
   botDisplayName?: string | null
   botAvatarS3Key?: string | null
+  emailSummaryOnReady?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   webPushSubs?: Prisma.WebPushSubscriptionCreateNestedManyWithoutOrgMemberInput
@@ -550,6 +573,7 @@ export type OrgMemberUncheckedCreateWithoutOrgInput = {
   expoPushToken?: string | null
   botDisplayName?: string | null
   botAvatarS3Key?: string | null
+  emailSummaryOnReady?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   webPushSubs?: Prisma.WebPushSubscriptionUncheckedCreateNestedManyWithoutOrgMemberInput
@@ -594,6 +618,7 @@ export type OrgMemberScalarWhereInput = {
   expoPushToken?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   botDisplayName?: Prisma.StringNullableFilter<"OrgMember"> | string | null
   botAvatarS3Key?: Prisma.StringNullableFilter<"OrgMember"> | string | null
+  emailSummaryOnReady?: Prisma.BoolFilter<"OrgMember"> | boolean
   createdAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"OrgMember"> | Date | string
 }
@@ -607,6 +632,7 @@ export type OrgMemberCreateWithoutWebPushSubsInput = {
   expoPushToken?: string | null
   botDisplayName?: string | null
   botAvatarS3Key?: string | null
+  emailSummaryOnReady?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutMembersInput
@@ -622,6 +648,7 @@ export type OrgMemberUncheckedCreateWithoutWebPushSubsInput = {
   expoPushToken?: string | null
   botDisplayName?: string | null
   botAvatarS3Key?: string | null
+  emailSummaryOnReady?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -651,6 +678,7 @@ export type OrgMemberUpdateWithoutWebPushSubsInput = {
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botDisplayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botAvatarS3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailSummaryOnReady?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutMembersNestedInput
@@ -666,6 +694,7 @@ export type OrgMemberUncheckedUpdateWithoutWebPushSubsInput = {
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botDisplayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botAvatarS3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailSummaryOnReady?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -679,6 +708,7 @@ export type OrgMemberCreateManyOrgInput = {
   expoPushToken?: string | null
   botDisplayName?: string | null
   botAvatarS3Key?: string | null
+  emailSummaryOnReady?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -692,6 +722,7 @@ export type OrgMemberUpdateWithoutOrgInput = {
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botDisplayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botAvatarS3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailSummaryOnReady?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   webPushSubs?: Prisma.WebPushSubscriptionUpdateManyWithoutOrgMemberNestedInput
@@ -706,6 +737,7 @@ export type OrgMemberUncheckedUpdateWithoutOrgInput = {
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botDisplayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botAvatarS3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailSummaryOnReady?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   webPushSubs?: Prisma.WebPushSubscriptionUncheckedUpdateManyWithoutOrgMemberNestedInput
@@ -720,6 +752,7 @@ export type OrgMemberUncheckedUpdateManyWithoutOrgInput = {
   expoPushToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botDisplayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   botAvatarS3Key?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailSummaryOnReady?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -765,6 +798,7 @@ export type OrgMemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   expoPushToken?: boolean
   botDisplayName?: boolean
   botAvatarS3Key?: boolean
+  emailSummaryOnReady?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -782,6 +816,7 @@ export type OrgMemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   expoPushToken?: boolean
   botDisplayName?: boolean
   botAvatarS3Key?: boolean
+  emailSummaryOnReady?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -797,6 +832,7 @@ export type OrgMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   expoPushToken?: boolean
   botDisplayName?: boolean
   botAvatarS3Key?: boolean
+  emailSummaryOnReady?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -812,11 +848,12 @@ export type OrgMemberSelectScalar = {
   expoPushToken?: boolean
   botDisplayName?: boolean
   botAvatarS3Key?: boolean
+  emailSummaryOnReady?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type OrgMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "userId" | "role" | "googleRefreshToken" | "microsoftRefreshToken" | "expoPushToken" | "botDisplayName" | "botAvatarS3Key" | "createdAt" | "updatedAt", ExtArgs["result"]["orgMember"]>
+export type OrgMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "userId" | "role" | "googleRefreshToken" | "microsoftRefreshToken" | "expoPushToken" | "botDisplayName" | "botAvatarS3Key" | "emailSummaryOnReady" | "createdAt" | "updatedAt", ExtArgs["result"]["orgMember"]>
 export type OrgMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   webPushSubs?: boolean | Prisma.OrgMember$webPushSubsArgs<ExtArgs>
@@ -845,6 +882,7 @@ export type $OrgMemberPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     expoPushToken: string | null
     botDisplayName: string | null
     botAvatarS3Key: string | null
+    emailSummaryOnReady: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["orgMember"]>
@@ -1281,6 +1319,7 @@ export interface OrgMemberFieldRefs {
   readonly expoPushToken: Prisma.FieldRef<"OrgMember", 'String'>
   readonly botDisplayName: Prisma.FieldRef<"OrgMember", 'String'>
   readonly botAvatarS3Key: Prisma.FieldRef<"OrgMember", 'String'>
+  readonly emailSummaryOnReady: Prisma.FieldRef<"OrgMember", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"OrgMember", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"OrgMember", 'DateTime'>
 }

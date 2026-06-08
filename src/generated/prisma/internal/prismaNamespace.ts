@@ -2214,6 +2214,7 @@ export const OrgMemberScalarFieldEnum = {
   expoPushToken: 'expoPushToken',
   botDisplayName: 'botDisplayName',
   botAvatarS3Key: 'botAvatarS3Key',
+  emailSummaryOnReady: 'emailSummaryOnReady',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2247,6 +2248,7 @@ export const RecordingScalarFieldEnum = {
   personalNotes: 'personalNotes',
   importPlatform: 'importPlatform',
   importedAt: 'importedAt',
+  summaryEmailSentAt: 'summaryEmailSentAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

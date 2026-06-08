@@ -170,8 +170,9 @@ model OrgMember {
   // each user's iPhone (and mirrored Apple Watch) gets its own ping when
   // their own recordings finish summarization.
   expoPushToken      String?
-  botDisplayName     String?    // overrides Organization.botDisplayName for this member's bot
-  botAvatarS3Key     String?    // S3 key of rendered 1280×720 camera JPEG
+  botDisplayName       String?    // overrides Organization.botDisplayName for this member's bot
+  botAvatarS3Key       String?    // S3 key of rendered 1280×720 camera JPEG
+  emailSummaryOnReady  Boolean    @default(true)   // per-user toggle — send summary email when recording is ready
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
 
@@ -217,6 +218,7 @@ model Recording {
   personalNotes    String?
   importPlatform   String?
   importedAt       DateTime?
+  summaryEmailSentAt DateTime?  // idempotency guard — set when post-meeting summary email is sent
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
