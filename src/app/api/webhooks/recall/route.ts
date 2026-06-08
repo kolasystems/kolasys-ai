@@ -39,12 +39,23 @@ export async function POST(request: Request) {
     console.error('[recall] RECALLAI_WEBHOOK_SECRET not set')
     return new Response('Webhook secret not configured', { status: 500 })
   }
+  const svixId = request.headers.get('svix-id') ?? request.headers.get('webhook-id') ?? ''
+  const svixTimestamp = request.headers.get('svix-timestamp') ?? request.headers.get('webhook-timestamp') ?? ''
+  const svixSignature = request.headers.get('svix-signature') ?? request.headers.get('webhook-signature') ?? ''
+
+  console.log('[recall] svix headers:', {
+    id: svixId ? svixId.slice(0, 20) + '…' : '(missing)',
+    timestamp: svixTimestamp || '(missing)',
+    signature: svixSignature ? svixSignature.slice(0, 20) + '…' : '(missing)',
+    bodyLen: rawBody.length,
+  })
+
   const wh = new Webhook(secret)
   try {
     wh.verify(rawBody, {
-      'svix-id': request.headers.get('svix-id') ?? '',
-      'svix-timestamp': request.headers.get('svix-timestamp') ?? '',
-      'svix-signature': request.headers.get('svix-signature') ?? '',
+      'svix-id': svixId,
+      'svix-timestamp': svixTimestamp,
+      'svix-signature': svixSignature,
     })
   } catch (err) {
     console.error('[recall] signature FAILED:', err)
