@@ -25,15 +25,14 @@ import { type SummarizationJobData } from '@/lib/queues'
 import { JobStatus, Priority, RecordingStatus } from '@/generated/prisma/client'
 import { postToSlack } from '@/services/integrations/slack.service'
 import { createNotionPage } from '@/services/integrations/notion.service'
-import { resend, FROM_EMAIL } from '@/lib/email'
 import { captureServerEvent } from '@/lib/posthog'
+import { sendSummaryEmail } from '@/services/summary-email.service'
 import { sendExpoPush } from '@/services/push.service'
 import { sendWebPushToMember } from '@/lib/web-push'
 import { extractKnowledge } from '@/services/knowledge.service'
 import { detectAndAssignSeries } from '@/services/series-detection.service'
 import { KnowledgeEntityType } from '@/generated/prisma/client'
 import { findBestTemplate } from '@/services/template-matcher.service'
-import { clerkClient } from '@clerk/nextjs/server'
 
 // ─── Priority mapping ────────────────────────────────────────────────────────
 // Claude returns string literals; map to the Prisma enum.
@@ -472,86 +471,15 @@ async function processSummarization(job: Job<SummarizationJobData>) {
     action_item_count: rawActionItems.length,
   })
 
-  // ── 11. Send post-meeting email — gated by Organization.postMeetingEmail ──
+  // ── 11. Send post-meeting summary email ──────────────────────────────────
+  // Delegated to summary-email.service: idempotency (summaryEmailSentAt),
+  // org toggle (postMeetingEmail), per-user toggle (emailSummaryOnReady),
+  // Clerk email resolution, transcript + summary attachments.
+  // Best-effort — never blocks or fails the job.
   try {
-    const orgPrefs = await db.organization.findUnique({
-      where: { id: recording.orgId },
-      select: { postMeetingEmail: true },
-    })
-    const shouldEmail = orgPrefs?.postMeetingEmail !== false // default true
-
-    if (!shouldEmail) {
-      console.log(`[summarization] Post-meeting email SKIPPED (org pref off) for ${recordingId}`)
-    } else {
-      const client = await clerkClient()
-      const clerkUser = await client.users.getUser(recording.userId)
-      const email = clerkUser.emailAddresses.find(
-        (e) => e.id === clerkUser.primaryEmailAddressId
-      )?.emailAddress
-
-      if (email && summaryResult.summary) {
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.kolasys.ai'
-        const recordingUrl = `${appUrl}/dashboard/recordings/${recordingId}`
-
-        // Escape user-provided strings so we can safely interpolate into HTML.
-        const esc = (s: string) =>
-          s.replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-
-        const actionItemsHtml = rawActionItems.length > 0
-          ? `
-        <h2 style="color: #1e293b; font-size: 16px; margin-bottom: 12px;">
-          Action Items (${rawActionItems.length})
-        </h2>
-        <div style="background: #f8fafc; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
-          ${rawActionItems.slice(0, 5).map((a) =>
-            `<p style="margin: 4px 0; color: #475569;">• ${esc(a.title)}</p>`
-          ).join('')}
-          ${rawActionItems.length > 5
-            ? `<p style="color: #94a3b8; margin: 8px 0 0; font-size: 13px;">+ ${rawActionItems.length - 5} more action items</p>`
-            : ''}
-        </div>
-          `
-          : ''
-
-        const html = `
-<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; border-radius: 12px; margin-bottom: 24px;">
-    <h1 style="color: white; margin: 0; font-size: 20px;">📝 Meeting Notes Ready</h1>
-    <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">${esc(recording.title)}</p>
-  </div>
-
-  <h2 style="color: #1e293b; font-size: 16px; margin-bottom: 12px;">Summary</h2>
-  <p style="color: #475569; line-height: 1.6; margin-bottom: 24px;">${esc(summaryResult.summary)}</p>
-
-  ${actionItemsHtml}
-
-  <a href="${recordingUrl}"
-     style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;">
-    View Full Notes →
-  </a>
-
-  <p style="color: #94a3b8; font-size: 12px; margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
-    Kolasys AI · AI-powered meeting intelligence
-  </p>
-</div>
-        `.trim()
-
-        await resend.emails.send({
-          from: FROM_EMAIL,
-          to: email,
-          subject: `Meeting notes ready: ${recording.title}`,
-          html,
-        })
-
-        console.log(`[summarization] Post-meeting email sent to ${email} for ${recordingId}`)
-      }
-    }
+    await sendSummaryEmail(recordingId)
   } catch (emailErr) {
-    // Email is non-fatal — recording is already marked READY
-    console.error(`[summarization] Failed to send post-meeting email:`, emailErr)
+    console.error(`[summarization] Summary email failed (non-fatal):`, emailErr)
     Sentry.captureException(emailErr, {
       tags: { worker: 'summarization', phase: 'email' },
       extra: { recordingId },
