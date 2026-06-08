@@ -58,7 +58,8 @@ export async function POST(request: Request) {
       'svix-signature': svixSignature,
     })
   } catch (err) {
-    console.error('[recall] signature FAILED:', err)
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error(`[recall] signature FAILED: ${msg} | id=${svixId.slice(0, 16)} ts=${svixTimestamp} sigLen=${svixSignature.length} bodyLen=${rawBody.length}`)
     return new Response('Invalid signature', { status: 400 })
   }
 
