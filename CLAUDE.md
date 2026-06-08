@@ -144,8 +144,10 @@ src/
 │       ├── billing.router.ts         getSubscription / createCheckoutSession / createPortalSession
 │       └── soundbites.router.ts      Soundbites list / create / delete
 ├── workers/
-│   ├── transcription.worker.ts       Upstash Redis queue consumer
-│   └── summarization.worker.ts       Steps 5–8.6: summary, AI-title (8.4), push (8.5), knowledge (8.6)
+│   ├── transcription.worker.ts       Upstash Redis queue consumer + bot-ingestion consumer (runs together)
+│   ├── summarization.worker.ts       Steps 5–8.6: summary, AI-title (8.4), push (8.5), knowledge (8.6)
+│   ├── calendar-bot.worker.ts        Poll-based calendar bot deployer (setInterval, not queue)
+│   └── bot-poller.worker.ts          Safety net — polls Recall.ai every 2 min, enqueues stuck MEETING_BOT recordings
 ├── services/
 │   ├── push.service.ts               sendExpoPush() — Expo Push API, no SDK
 │   └── summarization.service.ts      summarizeTranscript / generateAiMeetingTitle / formatTitleWithDate
@@ -351,7 +353,7 @@ Do NOT confuse these two systems.
 
 ## Workers
 
-Both run on Railway `glorious-serenity` (us-west2) 24/7. Heartbeat every 60s.
+All four workers run on Railway `glorious-serenity` (us-east1) 24/7.
 
 ### transcription.worker.ts
 - Consumes from Upstash Redis queue
@@ -394,6 +396,30 @@ Both run on Railway `glorious-serenity` (us-west2) 24/7. Heartbeat every 60s.
 **Railway env vars:** `NEXT_PUBLIC_APP_URL=https://app.kolasys.ai`  
 **Local env:** `NEXT_PUBLIC_APP_URL=http://localhost:3000`  
 Never mix — workers call tRPC API to update recording status.
+
+### bot-poller.worker.ts (2026-06-08)
+Safety net for the Recall.ai webhook pipeline. **Webhooks are an optimization, not the critical path.**
+
+- Polls `https://us-west-2.recall.ai/api/v1/bot/?created_at_after=...&limit=100` every 2 minutes
+- Filters bots whose last `status_changes` entry is `done` or `call_ended`
+- Queries DB for recordings with `botId IN doneBotIds AND status=PROCESSING AND s3Key=null`
+- Age check (> 5 min) done in **JavaScript, not SQL** — Neon HTTP adapter has a timezone offset
+  bug that makes Prisma `DateTime: { lt: ... }` comparisons unreliable
+- Enqueues matching recordings to `botIngestionQueue` (consumed by `transcription.worker.ts`)
+- Heartbeat: `[bot-poller] alive — N polls completed` every 30 polls (~1 hour)
+
+**Railway deployment:**
+| Setting | Value |
+|---|---|
+| Service name | `bot-poller-worker` |
+| Repo | `kolasys-ai` (GitHub-connected, reads railway.toml) |
+| Start command | `npx tsx src/workers/bot-poller.worker.ts` (set in railway.toml) |
+| Env | `DATABASE_URL`, `REDIS_URL`, `RECALLAI_API_KEY`, `SENTRY_DSN`, `NEXT_PUBLIC_APP_URL` |
+
+**Known issue: Neon HTTP DateTime comparison bug**
+`createdAt: { lt: new Date(...) }` in Prisma returns 0 rows even when records are clearly older.
+Manifests as `+createdAt lt cutoff: 0 results` while the same filter passes in JavaScript.
+Always apply date/age filters in JS after fetching rather than in the Prisma where clause.
 
 ---
 
@@ -1165,3 +1191,31 @@ Per-user bot name + avatar. Schema additions on `OrgMember`:
 `public/bot-camera.jpg` — 1280×720 JPEG, 54KB. Radial gradient background, circular logo with glass orb, "Kolasys Notetaker" text.
 `public/bot-bg.jpg` — background-only version (no logo) used by `bot-avatar.service.ts` as compositing base.
 Both generated with ImageMagick 7 (`magick` command, not `convert`).
+
+---
+
+## Session 2026-06-08 — Bot poller safety net
+
+### Commit history
+
+| Hash | Description |
+|---|---|
+| `e6dee77` | feat: bot-poller worker — safety net for stuck Recall.ai recordings |
+| `a5448a8` | chore: add bot-poller-worker to railway.toml |
+
+### Bot pipeline reliability
+
+**Before**: Recall.ai webhook → `botIngestionQueue`. If webhook fails (e.g. `webhook_url: null`), recording stays at PROCESSING forever.
+
+**After**: bot-poller-worker on Railway polls every 2 min and catches any missed webhooks. Recovery latency ≤ 2 minutes.
+
+### Railway deployment gotchas (2026-06-08)
+
+- `railway add --service <name>` creates an empty service (no GitHub connection)
+- `railway up` with an empty service triggers a full Next.js build (Nixpacks auto-detects) — WRONG for workers
+- Fix: use `serviceConnect` GraphQL mutation to attach GitHub repo, then `serviceInstanceDeploy` to trigger a GitHub-backed deploy that reads `railway.toml` correctly
+- `railway.toml` startCommand is only respected for GitHub-connected deploys, NOT for `railway up` CLI uploads
+
+### Neon HTTP DateTime bug (affects all Prisma queries with date filters)
+
+`createdAt: { lt: new Date(...) }` returns 0 rows for records that are clearly older when tested in JavaScript. Root cause: Neon HTTP adapter stores/compares timestamps with a timezone offset inconsistency. **Always do age/date filtering in JavaScript** after the Prisma fetch, never in the Prisma `where` clause.
