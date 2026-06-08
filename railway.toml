@@ -28,3 +28,13 @@ builder = "NIXPACKS"
 [services.deploy]
 startCommand = "npx tsx src/workers/summarization.worker.ts"
 restartPolicyType = "always"
+
+[[services]]
+name = "bot-poller-worker"
+
+[services.build]
+builder = "NIXPACKS"
+
+[services.deploy]
+startCommand = "npx tsx src/workers/bot-poller.worker.ts"
+restartPolicyType = "always"
