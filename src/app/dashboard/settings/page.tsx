@@ -14,6 +14,7 @@ import { AutoRecordMeetingsToggle } from '@/components/auto-record-meetings-togg
 import { SsoSettings } from '@/components/sso-settings'
 import { ApiKeysSection } from '@/components/api-keys-section'
 import { BotIdentitySection } from '@/components/bot-identity-section'
+import { EmailSummaryOnReadyToggle } from '@/components/email-summary-on-ready-toggle'
 import { getSignedDownloadUrl } from '@/lib/storage'
 
 export const metadata = { title: 'Settings — Kolasys AI' }
@@ -52,7 +53,7 @@ export default async function SettingsPage() {
   const memberBotSettings = org
     ? await db.orgMember.findFirst({
         where: { orgId: org.id, userId },
-        select: { botDisplayName: true, botAvatarS3Key: true },
+        select: { botDisplayName: true, botAvatarS3Key: true, emailSummaryOnReady: true },
       })
     : null
 
@@ -111,9 +112,14 @@ export default async function SettingsPage() {
           initialDeleteAfterTranscription={org?.deleteAudioAfterTranscription ?? false}
         />
 
-        {/* Post-meeting email */}
+        {/* Post-meeting email (org-wide) */}
         <PostMeetingEmailToggle
           initialPostMeetingEmail={org?.postMeetingEmail ?? true}
+        />
+
+        {/* Personal meeting notes email (per-user) */}
+        <EmailSummaryOnReadyToggle
+          initialEnabled={memberBotSettings?.emailSummaryOnReady ?? true}
         />
 
         {/* Daily digest */}

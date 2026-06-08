@@ -57,7 +57,7 @@ export const settingsRouter = router({
   getMemberBotSettings: orgProcedure.query(async ({ ctx }) => {
     const member = await ctx.db.orgMember.findFirst({
       where: { orgId: ctx.orgId, userId: ctx.userId },
-      select: { botDisplayName: true, botAvatarS3Key: true },
+      select: { botDisplayName: true, botAvatarS3Key: true, emailSummaryOnReady: true },
     })
     const avatarUrl = member?.botAvatarS3Key
       ? await getSignedDownloadUrl(member.botAvatarS3Key, 3600).catch(() => null)
@@ -65,6 +65,7 @@ export const settingsRouter = router({
     return {
       botDisplayName: member?.botDisplayName ?? null,
       botAvatarUrl: avatarUrl,
+      emailSummaryOnReady: member?.emailSummaryOnReady ?? true,
     }
   }),
 
@@ -95,6 +96,24 @@ export const settingsRouter = router({
       }
 
       return { ok: true }
+    }),
+
+  // ── Toggle per-user summary email ────────────────────────────────────────
+  updateEmailSummaryOnReady: orgProcedure
+    .input(z.object({ enabled: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      const member = await ctx.db.orgMember.findFirst({
+        where: { orgId: ctx.orgId, userId: ctx.userId },
+        select: { id: true },
+      })
+      if (!member) throw new TRPCError({ code: 'NOT_FOUND' })
+
+      await ctx.db.orgMember.update({
+        where: { id: member.id },
+        data: { emailSummaryOnReady: input.enabled },
+      })
+
+      return { ok: true, emailSummaryOnReady: input.enabled }
     }),
 
   // ── Register the Expo push token from the mobile app ─────────────────────
