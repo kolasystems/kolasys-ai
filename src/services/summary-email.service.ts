@@ -10,10 +10,8 @@
 import * as Sentry from '@sentry/nextjs'
 import { clerkClient } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { resend } from '@/lib/email'
+import { resend, FROM_EMAIL } from '@/lib/email'
 import { buildSummaryEmailHtml } from './summary-email.template'
-
-const FROM = process.env.RESEND_FROM_EMAIL ?? 'Kolasys AI <notes@kolasys.ai>'
 
 export async function sendSummaryEmail(recordingId: string): Promise<void> {
   // ── 0. Guard: key not yet on Railway ─────────────────────────────────────
@@ -120,7 +118,7 @@ export async function sendSummaryEmail(recordingId: string): Promise<void> {
 
   // ── 9. Send ───────────────────────────────────────────────────────────────
   const { error } = await resend.emails.send({
-    from: FROM,
+    from: FROM_EMAIL,
     to: toEmail,
     subject: `Meeting notes ready: ${recording.title}`,
     html,
