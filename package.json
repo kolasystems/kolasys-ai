@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "worker:bot-poller": "tsx src/workers/bot-poller.worker.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.67",
