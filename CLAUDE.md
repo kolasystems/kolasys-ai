@@ -6,7 +6,7 @@
 **Production:** https://app.kolasys.ai  
 **tRPC API:** `https://app.kolasys.ai/api/trpc`  
 **Mobile repo:** `~/Desktop/kolasys-ai-mobile` · `github.com/kolasystems/kolasys-ai-mobile`  
-**Last updated:** 2026-06-06
+**Last updated:** 2026-06-08
 
 ---
 
@@ -964,6 +964,12 @@ send is independently non-fatal — failures log but never fail the job.
 | `e15db07` | feat: importPlatform in recordings.list, memberId in getOrgSettings, lastMeetingId in premeet brief |
 | `871ce9c` | fix: DELETE /api/v1/calendar 500 (updateMany → findFirst+update) + /settings/calendar redirect |
 | `a4ed298` | docs: Neon HTTP limitation warning in src/lib/db.ts |
+| `e6b0538` | feat: post-meeting summary email — service, template, wired into summarization worker |
+| `1e27407` | fix: use verified FROM_EMAIL sender + correct recordings deep link |
+| `3f65b81` | feat: email summary toggle (web) — emailSummaryOnReady per-user setting |
+| `5ff08cf` | chore: add summary-email backfill script |
+| `bcf2849` | fix: backfill script — wrap in async main() for CJS compat |
+| `12b4909` | feat: add Open Items & Unresolved Questions section to summary prompt |
 
 ---
 
@@ -1219,3 +1225,54 @@ Both generated with ImageMagick 7 (`magick` command, not `convert`).
 ### Neon HTTP DateTime bug (affects all Prisma queries with date filters)
 
 `createdAt: { lt: new Date(...) }` returns 0 rows for records that are clearly older when tested in JavaScript. Root cause: Neon HTTP adapter stores/compares timestamps with a timezone offset inconsistency. **Always do age/date filtering in JavaScript** after the Prisma fetch, never in the Prisma `where` clause.
+
+---
+
+## Post-meeting summary email (2026-06-08)
+
+Sends one email per recording once notes are ready. Replaces the old inline "step 11" in the summarization worker.
+
+### Architecture
+
+- **Trigger**: `summarization.worker.ts` step 11 → `sendSummaryEmail(recordingId)` in `src/services/summary-email.service.ts`
+- **Template**: `src/services/summary-email.template.ts` — assembles `Note.summary` + ordered `NoteSection` rows (rendered via `marked`) + up to 10 action items; attaches `transcript.txt` + `summary.txt`
+- **Sender**: `FROM_EMAIL` from `@/lib/email` (`RESEND_FROM_EMAIL` env var, defaults to `onboarding@resend.dev`). Verified domain = `send.kolasys.ai`; set `RESEND_FROM_EMAIL=Kolasys AI <notes@send.kolasys.ai>` on Railway
+
+### Gates & idempotency
+
+- Sends only if `Organization.postMeetingEmail !== false` **AND** `OrgMember.emailSummaryOnReady !== false`
+- Idempotent via `Recording.summaryEmailSentAt` — set after a successful send; service skips if non-null (JS check, not Neon DateTime filter)
+
+### tRPC / Settings
+
+- `settings.getMemberBotSettings` returns `emailSummaryOnReady`
+- `settings.updateEmailSummaryOnReady({ enabled })` — `findFirst + update` on `OrgMember`
+- Web toggle: `/dashboard/settings` → **Personal meeting notes email** (between Post-meeting email and Daily digest)
+
+### Railway env vars (summarization-worker — Vercel does NOT propagate)
+
+| Var | Value |
+|---|---|
+| `RESEND_API_KEY` | Resend API key |
+| `RESEND_FROM_EMAIL` | `Kolasys AI <notes@send.kolasys.ai>` |
+| `CLERK_SECRET_KEY` | **`sk_live_…` only** — `sk_test_` causes "Not Found" for all live-user lookups |
+
+### Open Items section
+
+`DEFAULT_SECTIONS` in `src/services/summarization.service.ts` includes **"Open Items & Unresolved Questions"** at index 4 (between Action Items and Next Steps). Prompt instructs Claude to omit it from the JSON entirely when there are none — no empty heading persisted or emailed.
+
+### Backfill script
+
+```bash
+railway run --service summarization-worker \
+  npx tsx scripts/send-summary-email-backfill.ts <id> [<id> ...]
+```
+
+Honours all guards and idempotency — safe to re-run; already-sent recordings are skipped.
+
+### Gotchas (2026-06-08)
+
+- **`sk_test_` Clerk key on Railway** → `users.getUser()` returns "Not Found" for every live user. Symptom: backfill exits 1, all IDs fail with "Not Found". Fix: `railway variables set CLERK_SECRET_KEY=sk_live_… --service summarization-worker`
+- **Unverified sender domain** → email delivered only to the Resend account owner. Requires a verified domain (`send.kolasys.ai`) to reach any other address.
+- **`send.kolasys.ai` is new** → expect spam-foldering until domain reputation warms.
+- **Security TODO**: rotate `RESEND_API_KEY` and the live `CLERK_SECRET_KEY` — both were visible during setup.
