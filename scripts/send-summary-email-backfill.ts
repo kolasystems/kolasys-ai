@@ -17,29 +17,27 @@ if (ids.length === 0) {
   process.exit(1)
 }
 
-console.log(`Backfill: ${ids.length} recording(s)`)
+async function main() {
+  console.log(`Backfill: ${ids.length} recording(s)`)
 
-let sent = 0
-let skipped = 0
-let failed = 0
+  let sent = 0
+  let failed = 0
 
-for (const id of ids) {
-  try {
-    await sendSummaryEmail(id)
-    // The service logs "[summary-email] Sent to …" on success and
-    // "[summary-email] Already sent …" / "[summary-email] … skipping" on skip.
-    // We just count outcomes here.
-    sent++
-    console.log(`  ✓ ${id}`)
-  } catch (err) {
-    failed++
-    console.error(`  ✗ ${id}:`, err instanceof Error ? err.message : String(err))
+  for (const id of ids) {
+    try {
+      await sendSummaryEmail(id)
+      // The service logs "[summary-email] Sent to …" on success and
+      // "[summary-email] Already sent …" / "[summary-email] … skipping" on skip.
+      sent++
+      console.log(`  ✓ ${id}`)
+    } catch (err) {
+      failed++
+      console.error(`  ✗ ${id}:`, err instanceof Error ? err.message : String(err))
+    }
   }
+
+  console.log(`\nDone. attempted=${ids.length} ok=${sent} failed=${failed}`)
+  process.exit(failed > 0 ? 1 : 0)
 }
 
-// The service logs its own skip reasons inline; we capture the count by
-// comparing expected vs actual sends. For a precise sent/skipped breakdown
-// the service would need to return a status — for a one-off backfill, the
-// inline logs are sufficient.
-console.log(`\nDone. attempted=${ids.length} ok=${sent} failed=${failed}`)
-process.exit(failed > 0 ? 1 : 0)
+void main()
