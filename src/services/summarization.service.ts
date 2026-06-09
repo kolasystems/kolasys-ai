@@ -50,6 +50,11 @@ const DEFAULT_SECTIONS: SectionDefinition[] = [
       'List action items as bullet points in the format: "- [Owner] Task description". If no clear owner, use "TBD".',
   },
   {
+    title: 'Open Items & Unresolved Questions',
+    prompt:
+      'List any decisions that were discussed but not concluded, items raised without a clear owner or resolution, and explicit follow-ups that still need further discussion. Use bullet points. If there are none, omit this section from the JSON output entirely — do not include an empty heading.',
+  },
+  {
     title: 'Next Steps',
     prompt:
       'Briefly describe agreed next steps or follow-up meetings.',
