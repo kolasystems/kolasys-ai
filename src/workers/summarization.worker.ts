@@ -21,8 +21,9 @@ import {
   extractActionItems,
   type SectionDefinition,
 } from '@/services/summarization.service'
-import { type SummarizationJobData } from '@/lib/queues'
-import { JobStatus, Priority, RecordingStatus } from '@/generated/prisma/client'
+import { type SummarizationJobData, webhookDeliveryQueue } from '@/lib/queues'
+import { JobStatus, Priority, RecordingStatus, WebhookDeliveryStatus } from '@/generated/prisma/client'
+import { webhookDeliveryWorker } from './webhook-delivery.worker'
 import { postToSlack } from '@/services/integrations/slack.service'
 import { createNotionPage } from '@/services/integrations/notion.service'
 import { captureServerEvent } from '@/lib/posthog'
@@ -110,7 +111,7 @@ async function processSummarization(job: Job<SummarizationJobData>) {
   // ── 3. Fetch recording (for title, orgId, userId, createdAt) ──────────────
   const recording = await db.recording.findUnique({
     where: { id: recordingId },
-    select: { id: true, title: true, orgId: true, userId: true, createdAt: true },
+    select: { id: true, title: true, orgId: true, userId: true, createdAt: true, source: true, duration: true, webhookSentAt: true },
   })
 
   if (!recording) {
@@ -485,6 +486,84 @@ async function processSummarization(job: Job<SummarizationJobData>) {
       extra: { recordingId },
     })
   }
+
+  // ── 12. Enqueue outbound webhook deliveries ───────────────────────────────
+  // Idempotency: webhookSentAt is stamped after all jobs are enqueued. A worker
+  // restart before the stamp re-enqueues, which could cause duplicate deliveries
+  // to customer endpoints — acceptable for v1 (idempotent receivers recommended).
+  // CRITICAL: this step only enqueues jobs. The actual HTTP POST is done by
+  // webhookDeliveryWorker so a slow/dead endpoint never blocks the pipeline.
+  // Non-fatal — logs and swallows, exactly like Step 11.
+  try {
+    if (recording.webhookSentAt == null) {
+      const endpoints = await db.webhookEndpoint.findMany({
+        where: { orgId: recording.orgId, enabled: true },
+        select: { id: true },
+      })
+
+      if (endpoints.length > 0) {
+        // Build the payload once — every delivery for this recording shares
+        // the same signed body so signatures can't diverge between endpoints.
+        const payload = {
+          event: 'recording.ready',
+          timestamp: new Date().toISOString(),
+          data: {
+            recordingId,
+            orgId: recording.orgId,
+            title: recording.title, // possibly updated by step 8.4 AI-title
+            status: 'READY' as const,
+            source: recording.source,
+            durationSeconds: recording.duration ?? null,
+            createdAt: recording.createdAt.toISOString(),
+            summary: summaryResult.summary ?? null,
+            actionItemCount: rawActionItems.length,
+          },
+        }
+        const body = JSON.stringify(payload)
+
+        // Sequential creates — Neon HTTP adapter: no createMany (uses transactions).
+        for (const endpoint of endpoints) {
+          const delivery = await db.webhookDelivery.create({
+            data: {
+              endpointId: endpoint.id,
+              recordingId,
+              event: 'recording.ready',
+              status: WebhookDeliveryStatus.PENDING,
+              attempts: 0,
+            },
+            select: { id: true },
+          })
+          await webhookDeliveryQueue.add('deliver', {
+            deliveryId: delivery.id,
+            endpointId: endpoint.id,
+            body,
+          })
+        }
+
+        // Stamp idempotency — findFirst + update (Neon HTTP: no updateMany).
+        const rec = await db.recording.findFirst({
+          where: { id: recordingId },
+          select: { id: true },
+        })
+        if (rec) {
+          await db.recording.update({
+            where: { id: rec.id },
+            data: { webhookSentAt: new Date() },
+          })
+        }
+
+        console.log(
+          `[summarization] Enqueued ${endpoints.length} webhook delivery job(s) for ${recordingId}`,
+        )
+      }
+    }
+  } catch (webhookErr) {
+    console.error(`[summarization] Webhook fan-out failed (non-fatal):`, webhookErr)
+    Sentry.captureException(webhookErr, {
+      tags: { worker: 'summarization', phase: 'webhooks' },
+      extra: { recordingId },
+    })
+  }
 }
 
 // ─── Failure handler ─────────────────────────────────────────────────────────
@@ -590,6 +669,7 @@ async function shutdown(signal: string) {
   clearInterval(heartbeatInterval)
   try {
     await worker.close()
+    await webhookDeliveryWorker.close()
   } catch (err) {
     console.error('[summarization] Error during worker.close():', err)
     Sentry.captureException(err, { tags: { worker: 'summarization', phase: 'shutdown' } })

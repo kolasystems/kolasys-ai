@@ -73,7 +73,9 @@ export const ModelName = {
   AdminAuditLog: 'AdminAuditLog',
   Soundbite: 'Soundbite',
   SharedInvite: 'SharedInvite',
-  WebPushSubscription: 'WebPushSubscription'
+  WebPushSubscription: 'WebPushSubscription',
+  WebhookEndpoint: 'WebhookEndpoint',
+  WebhookDelivery: 'WebhookDelivery'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -174,6 +176,7 @@ export const RecordingScalarFieldEnum = {
   importPlatform: 'importPlatform',
   importedAt: 'importedAt',
   summaryEmailSentAt: 'summaryEmailSentAt',
+  webhookSentAt: 'webhookSentAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -453,6 +456,36 @@ export const WebPushSubscriptionScalarFieldEnum = {
 } as const
 
 export type WebPushSubscriptionScalarFieldEnum = (typeof WebPushSubscriptionScalarFieldEnum)[keyof typeof WebPushSubscriptionScalarFieldEnum]
+
+
+export const WebhookEndpointScalarFieldEnum = {
+  id: 'id',
+  orgId: 'orgId',
+  url: 'url',
+  secret: 'secret',
+  enabled: 'enabled',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WebhookEndpointScalarFieldEnum = (typeof WebhookEndpointScalarFieldEnum)[keyof typeof WebhookEndpointScalarFieldEnum]
+
+
+export const WebhookDeliveryScalarFieldEnum = {
+  id: 'id',
+  endpointId: 'endpointId',
+  recordingId: 'recordingId',
+  event: 'event',
+  status: 'status',
+  responseCode: 'responseCode',
+  attempts: 'attempts',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  deliveredAt: 'deliveredAt'
+} as const
+
+export type WebhookDeliveryScalarFieldEnum = (typeof WebhookDeliveryScalarFieldEnum)[keyof typeof WebhookDeliveryScalarFieldEnum]
 
 
 export const SortOrder = {

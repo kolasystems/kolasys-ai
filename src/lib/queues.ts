@@ -37,6 +37,15 @@ export const calendarBotQueue = new Queue('calendar-bot', {
   defaultJobOptions,
 })
 
+// Outbound webhook delivery — one job per (recording, endpoint) pair.
+// Enqueued by the summarization worker (Step 12) after recording reaches READY.
+// Consumed by the webhook-delivery worker co-hosted on the summarization-worker
+// Railway service.
+export const webhookDeliveryQueue = new Queue('webhook-delivery', {
+  connection: bullmqConnection,
+  defaultJobOptions,
+})
+
 export type TranscriptionQuality = 'standard' | 'high'
 
 export type TranscriptionJobData = {
@@ -55,4 +64,10 @@ export type SummarizationJobData = {
 
 export type BotIngestionJobData = {
   botId: string
+}
+
+export type WebhookDeliveryJobData = {
+  deliveryId: string
+  endpointId: string
+  body: string // the exact JSON string that was signed; must be POSTed byte-for-byte
 }

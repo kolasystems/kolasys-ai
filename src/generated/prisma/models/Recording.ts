@@ -62,6 +62,7 @@ export type RecordingMinAggregateOutputType = {
   importPlatform: string | null
   importedAt: Date | null
   summaryEmailSentAt: Date | null
+  webhookSentAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -92,6 +93,7 @@ export type RecordingMaxAggregateOutputType = {
   importPlatform: string | null
   importedAt: Date | null
   summaryEmailSentAt: Date | null
+  webhookSentAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -123,6 +125,7 @@ export type RecordingCountAggregateOutputType = {
   importPlatform: number
   importedAt: number
   summaryEmailSentAt: number
+  webhookSentAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -165,6 +168,7 @@ export type RecordingMinAggregateInputType = {
   importPlatform?: true
   importedAt?: true
   summaryEmailSentAt?: true
+  webhookSentAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -195,6 +199,7 @@ export type RecordingMaxAggregateInputType = {
   importPlatform?: true
   importedAt?: true
   summaryEmailSentAt?: true
+  webhookSentAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -226,6 +231,7 @@ export type RecordingCountAggregateInputType = {
   importPlatform?: true
   importedAt?: true
   summaryEmailSentAt?: true
+  webhookSentAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -344,6 +350,7 @@ export type RecordingGroupByOutputType = {
   importPlatform: string | null
   importedAt: Date | null
   summaryEmailSentAt: Date | null
+  webhookSentAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: RecordingCountAggregateOutputType | null
@@ -398,6 +405,7 @@ export type RecordingWhereInput = {
   importPlatform?: Prisma.StringNullableFilter<"Recording"> | string | null
   importedAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
   summaryEmailSentAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
+  webhookSentAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   org?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -438,6 +446,7 @@ export type RecordingOrderByWithRelationInput = {
   importPlatform?: Prisma.SortOrderInput | Prisma.SortOrder
   importedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   summaryEmailSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  webhookSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   org?: Prisma.OrganizationOrderByWithRelationInput
@@ -481,6 +490,7 @@ export type RecordingWhereUniqueInput = Prisma.AtLeast<{
   importPlatform?: Prisma.StringNullableFilter<"Recording"> | string | null
   importedAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
   summaryEmailSentAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
+  webhookSentAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   org?: Prisma.XOR<Prisma.OrganizationScalarRelationFilter, Prisma.OrganizationWhereInput>
@@ -521,6 +531,7 @@ export type RecordingOrderByWithAggregationInput = {
   importPlatform?: Prisma.SortOrderInput | Prisma.SortOrder
   importedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   summaryEmailSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  webhookSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.RecordingCountOrderByAggregateInput
@@ -560,6 +571,7 @@ export type RecordingScalarWhereWithAggregatesInput = {
   importPlatform?: Prisma.StringNullableWithAggregatesFilter<"Recording"> | string | null
   importedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Recording"> | Date | string | null
   summaryEmailSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Recording"> | Date | string | null
+  webhookSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Recording"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Recording"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Recording"> | Date | string
 }
@@ -590,6 +602,7 @@ export type RecordingCreateInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -630,6 +643,7 @@ export type RecordingUncheckedCreateInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -668,6 +682,7 @@ export type RecordingUpdateInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -708,6 +723,7 @@ export type RecordingUncheckedUpdateInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -747,6 +763,7 @@ export type RecordingCreateManyInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -777,6 +794,7 @@ export type RecordingUpdateManyMutationInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -808,6 +826,7 @@ export type RecordingUncheckedUpdateManyInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -849,6 +868,7 @@ export type RecordingCountOrderByAggregateInput = {
   importPlatform?: Prisma.SortOrder
   importedAt?: Prisma.SortOrder
   summaryEmailSentAt?: Prisma.SortOrder
+  webhookSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -884,6 +904,7 @@ export type RecordingMaxOrderByAggregateInput = {
   importPlatform?: Prisma.SortOrder
   importedAt?: Prisma.SortOrder
   summaryEmailSentAt?: Prisma.SortOrder
+  webhookSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -914,6 +935,7 @@ export type RecordingMinOrderByAggregateInput = {
   importPlatform?: Prisma.SortOrder
   importedAt?: Prisma.SortOrder
   summaryEmailSentAt?: Prisma.SortOrder
+  webhookSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1120,6 +1142,7 @@ export type RecordingCreateWithoutOrgInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptCreateNestedOneWithoutRecordingInput
@@ -1158,6 +1181,7 @@ export type RecordingUncheckedCreateWithoutOrgInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -1226,6 +1250,7 @@ export type RecordingScalarWhereInput = {
   importPlatform?: Prisma.StringNullableFilter<"Recording"> | string | null
   importedAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
   summaryEmailSentAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
+  webhookSentAt?: Prisma.DateTimeNullableFilter<"Recording"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Recording"> | Date | string
 }
@@ -1256,6 +1281,7 @@ export type RecordingCreateWithoutSeriesMembershipsInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1295,6 +1321,7 @@ export type RecordingUncheckedCreateWithoutSeriesMembershipsInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -1348,6 +1375,7 @@ export type RecordingUpdateWithoutSeriesMembershipsInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1387,6 +1415,7 @@ export type RecordingUncheckedUpdateWithoutSeriesMembershipsInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -1424,6 +1453,7 @@ export type RecordingCreateWithoutTranscriptInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1463,6 +1493,7 @@ export type RecordingUncheckedCreateWithoutTranscriptInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   notes?: Prisma.NoteUncheckedCreateNestedManyWithoutRecordingInput
@@ -1516,6 +1547,7 @@ export type RecordingUpdateWithoutTranscriptInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1555,6 +1587,7 @@ export type RecordingUncheckedUpdateWithoutTranscriptInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notes?: Prisma.NoteUncheckedUpdateManyWithoutRecordingNestedInput
@@ -1592,6 +1625,7 @@ export type RecordingCreateWithoutSpeakerLabelsInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1631,6 +1665,7 @@ export type RecordingUncheckedCreateWithoutSpeakerLabelsInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -1684,6 +1719,7 @@ export type RecordingUpdateWithoutSpeakerLabelsInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1723,6 +1759,7 @@ export type RecordingUncheckedUpdateWithoutSpeakerLabelsInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -1760,6 +1797,7 @@ export type RecordingCreateWithoutNotesInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1799,6 +1837,7 @@ export type RecordingUncheckedCreateWithoutNotesInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -1852,6 +1891,7 @@ export type RecordingUpdateWithoutNotesInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -1891,6 +1931,7 @@ export type RecordingUncheckedUpdateWithoutNotesInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -1928,6 +1969,7 @@ export type RecordingCreateWithoutJobsInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -1967,6 +2009,7 @@ export type RecordingUncheckedCreateWithoutJobsInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -2020,6 +2063,7 @@ export type RecordingUpdateWithoutJobsInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -2059,6 +2103,7 @@ export type RecordingUncheckedUpdateWithoutJobsInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -2096,6 +2141,7 @@ export type RecordingCreateWithoutKnowledgeLinksInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -2135,6 +2181,7 @@ export type RecordingUncheckedCreateWithoutKnowledgeLinksInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -2188,6 +2235,7 @@ export type RecordingUpdateWithoutKnowledgeLinksInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -2227,6 +2275,7 @@ export type RecordingUncheckedUpdateWithoutKnowledgeLinksInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -2264,6 +2313,7 @@ export type RecordingCreateWithoutSoundbitesInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -2303,6 +2353,7 @@ export type RecordingUncheckedCreateWithoutSoundbitesInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -2356,6 +2407,7 @@ export type RecordingUpdateWithoutSoundbitesInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -2395,6 +2447,7 @@ export type RecordingUncheckedUpdateWithoutSoundbitesInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -2432,6 +2485,7 @@ export type RecordingCreateWithoutShareInvitesInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   org: Prisma.OrganizationCreateNestedOneWithoutRecordingsInput
@@ -2471,6 +2525,7 @@ export type RecordingUncheckedCreateWithoutShareInvitesInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   transcript?: Prisma.TranscriptUncheckedCreateNestedOneWithoutRecordingInput
@@ -2524,6 +2579,7 @@ export type RecordingUpdateWithoutShareInvitesInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   org?: Prisma.OrganizationUpdateOneRequiredWithoutRecordingsNestedInput
@@ -2563,6 +2619,7 @@ export type RecordingUncheckedUpdateWithoutShareInvitesInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -2600,6 +2657,7 @@ export type RecordingCreateManyOrgInput = {
   importPlatform?: string | null
   importedAt?: Date | string | null
   summaryEmailSentAt?: Date | string | null
+  webhookSentAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -2630,6 +2688,7 @@ export type RecordingUpdateWithoutOrgInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUpdateOneWithoutRecordingNestedInput
@@ -2668,6 +2727,7 @@ export type RecordingUncheckedUpdateWithoutOrgInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transcript?: Prisma.TranscriptUncheckedUpdateOneWithoutRecordingNestedInput
@@ -2706,6 +2766,7 @@ export type RecordingUncheckedUpdateManyWithoutOrgInput = {
   importPlatform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   summaryEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  webhookSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2822,6 +2883,7 @@ export type RecordingSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   importPlatform?: boolean
   importedAt?: boolean
   summaryEmailSentAt?: boolean
+  webhookSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -2863,6 +2925,7 @@ export type RecordingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   importPlatform?: boolean
   importedAt?: boolean
   summaryEmailSentAt?: boolean
+  webhookSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -2895,6 +2958,7 @@ export type RecordingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   importPlatform?: boolean
   importedAt?: boolean
   summaryEmailSentAt?: boolean
+  webhookSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
@@ -2927,11 +2991,12 @@ export type RecordingSelectScalar = {
   importPlatform?: boolean
   importedAt?: boolean
   summaryEmailSentAt?: boolean
+  webhookSentAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RecordingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "userId" | "title" | "description" | "source" | "status" | "platform" | "meetingUrl" | "botId" | "s3Key" | "s3Bucket" | "duration" | "fileSize" | "mimeType" | "scheduledAt" | "startedAt" | "endedAt" | "isPublic" | "publicSlug" | "sharePermissions" | "shareExpiresAt" | "personalNotes" | "importPlatform" | "importedAt" | "summaryEmailSentAt" | "createdAt" | "updatedAt", ExtArgs["result"]["recording"]>
+export type RecordingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "orgId" | "userId" | "title" | "description" | "source" | "status" | "platform" | "meetingUrl" | "botId" | "s3Key" | "s3Bucket" | "duration" | "fileSize" | "mimeType" | "scheduledAt" | "startedAt" | "endedAt" | "isPublic" | "publicSlug" | "sharePermissions" | "shareExpiresAt" | "personalNotes" | "importPlatform" | "importedAt" | "summaryEmailSentAt" | "webhookSentAt" | "createdAt" | "updatedAt", ExtArgs["result"]["recording"]>
 export type RecordingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   org?: boolean | Prisma.OrganizationDefaultArgs<ExtArgs>
   transcript?: boolean | Prisma.Recording$transcriptArgs<ExtArgs>
@@ -2991,6 +3056,7 @@ export type $RecordingPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     importPlatform: string | null
     importedAt: Date | null
     summaryEmailSentAt: Date | null
+    webhookSentAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["recording"]>
@@ -3451,6 +3517,7 @@ export interface RecordingFieldRefs {
   readonly importPlatform: Prisma.FieldRef<"Recording", 'String'>
   readonly importedAt: Prisma.FieldRef<"Recording", 'DateTime'>
   readonly summaryEmailSentAt: Prisma.FieldRef<"Recording", 'DateTime'>
+  readonly webhookSentAt: Prisma.FieldRef<"Recording", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Recording", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Recording", 'DateTime'>
 }

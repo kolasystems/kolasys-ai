@@ -132,3 +132,13 @@ export type SharedInvite = Prisma.SharedInviteModel
  * 
  */
 export type WebPushSubscription = Prisma.WebPushSubscriptionModel
+/**
+ * Model WebhookEndpoint
+ * 
+ */
+export type WebhookEndpoint = Prisma.WebhookEndpointModel
+/**
+ * Model WebhookDelivery
+ * 
+ */
+export type WebhookDelivery = Prisma.WebhookDeliveryModel

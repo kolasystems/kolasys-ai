@@ -13,6 +13,7 @@ import { BotDisplayNameInput } from '@/components/bot-display-name-input'
 import { AutoRecordMeetingsToggle } from '@/components/auto-record-meetings-toggle'
 import { SsoSettings } from '@/components/sso-settings'
 import { ApiKeysSection } from '@/components/api-keys-section'
+import { WebhooksSection } from '@/components/webhooks-section'
 import { BotIdentitySection } from '@/components/bot-identity-section'
 import { EmailSummaryOnReadyToggle } from '@/components/email-summary-on-ready-toggle'
 import { getSignedDownloadUrl } from '@/lib/storage'
@@ -177,6 +178,9 @@ export default async function SettingsPage() {
 
         {/* API Keys — live */}
         <ApiKeysSection />
+
+        {/* Webhooks — live */}
+        <WebhooksSection />
 
         {/* Billing — live */}
         <Link

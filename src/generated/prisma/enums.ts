@@ -110,6 +110,15 @@ export const KnowledgeEntityType = {
 export type KnowledgeEntityType = (typeof KnowledgeEntityType)[keyof typeof KnowledgeEntityType]
 
 
+export const WebhookDeliveryStatus = {
+  PENDING: 'PENDING',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED'
+} as const
+
+export type WebhookDeliveryStatus = (typeof WebhookDeliveryStatus)[keyof typeof WebhookDeliveryStatus]
+
+
 export const AdminRole = {
   SUPER_ADMIN: 'SUPER_ADMIN',
   ADMIN: 'ADMIN',

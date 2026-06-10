@@ -15,6 +15,7 @@ import { apiKeysRouter } from './routers/apikeys.router'
 import { billingRouter } from './routers/billing.router'
 import { soundbitesRouter } from './routers/soundbites.router'
 import { seriesRouter } from './routers/series.router'
+import { webhooksRouter } from './routers/webhooks.router'
 
 export const appRouter = router({
   recordings: recordingsRouter,
@@ -30,6 +31,7 @@ export const appRouter = router({
   billing: billingRouter,
   soundbites: soundbitesRouter,
   series: seriesRouter,
+  webhooks: webhooksRouter,
 })
 
 export type AppRouter = typeof appRouter

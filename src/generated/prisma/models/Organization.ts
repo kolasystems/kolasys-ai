@@ -435,6 +435,7 @@ export type OrganizationWhereInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityListRelationFilter
   soundbites?: Prisma.SoundbiteListRelationFilter
   meetingSeries?: Prisma.MeetingSeriesListRelationFilter
+  webhookEndpoints?: Prisma.WebhookEndpointListRelationFilter
 }
 
 export type OrganizationOrderByWithRelationInput = {
@@ -476,6 +477,7 @@ export type OrganizationOrderByWithRelationInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityOrderByRelationAggregateInput
   soundbites?: Prisma.SoundbiteOrderByRelationAggregateInput
   meetingSeries?: Prisma.MeetingSeriesOrderByRelationAggregateInput
+  webhookEndpoints?: Prisma.WebhookEndpointOrderByRelationAggregateInput
 }
 
 export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -520,6 +522,7 @@ export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
   knowledgeEntities?: Prisma.KnowledgeEntityListRelationFilter
   soundbites?: Prisma.SoundbiteListRelationFilter
   meetingSeries?: Prisma.MeetingSeriesListRelationFilter
+  webhookEndpoints?: Prisma.WebhookEndpointListRelationFilter
 }, "id" | "slug" | "clerkOrgId">
 
 export type OrganizationOrderByWithAggregationInput = {
@@ -637,6 +640,7 @@ export type OrganizationCreateInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityCreateNestedManyWithoutOrgInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutOrgInput
   meetingSeries?: Prisma.MeetingSeriesCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUncheckedCreateInput = {
@@ -678,6 +682,7 @@ export type OrganizationUncheckedCreateInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUncheckedCreateNestedManyWithoutOrgInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutOrgInput
   meetingSeries?: Prisma.MeetingSeriesUncheckedCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUpdateInput = {
@@ -719,6 +724,7 @@ export type OrganizationUpdateInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUpdateManyWithoutOrgNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutOrgNestedInput
   meetingSeries?: Prisma.MeetingSeriesUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationUncheckedUpdateInput = {
@@ -760,6 +766,7 @@ export type OrganizationUncheckedUpdateInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUncheckedUpdateManyWithoutOrgNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutOrgNestedInput
   meetingSeries?: Prisma.MeetingSeriesUncheckedUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationCreateManyInput = {
@@ -1126,6 +1133,20 @@ export type OrganizationUpdateOneRequiredWithoutSoundbitesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutSoundbitesInput, Prisma.OrganizationUpdateWithoutSoundbitesInput>, Prisma.OrganizationUncheckedUpdateWithoutSoundbitesInput>
 }
 
+export type OrganizationCreateNestedOneWithoutWebhookEndpointsInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutWebhookEndpointsInput, Prisma.OrganizationUncheckedCreateWithoutWebhookEndpointsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutWebhookEndpointsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+}
+
+export type OrganizationUpdateOneRequiredWithoutWebhookEndpointsNestedInput = {
+  create?: Prisma.XOR<Prisma.OrganizationCreateWithoutWebhookEndpointsInput, Prisma.OrganizationUncheckedCreateWithoutWebhookEndpointsInput>
+  connectOrCreate?: Prisma.OrganizationCreateOrConnectWithoutWebhookEndpointsInput
+  upsert?: Prisma.OrganizationUpsertWithoutWebhookEndpointsInput
+  connect?: Prisma.OrganizationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrganizationUpdateToOneWithWhereWithoutWebhookEndpointsInput, Prisma.OrganizationUpdateWithoutWebhookEndpointsInput>, Prisma.OrganizationUncheckedUpdateWithoutWebhookEndpointsInput>
+}
+
 export type OrganizationCreateWithoutMembersInput = {
   id?: string
   name: string
@@ -1164,6 +1185,7 @@ export type OrganizationCreateWithoutMembersInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityCreateNestedManyWithoutOrgInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutOrgInput
   meetingSeries?: Prisma.MeetingSeriesCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUncheckedCreateWithoutMembersInput = {
@@ -1204,6 +1226,7 @@ export type OrganizationUncheckedCreateWithoutMembersInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUncheckedCreateNestedManyWithoutOrgInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutOrgInput
   meetingSeries?: Prisma.MeetingSeriesUncheckedCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationCreateOrConnectWithoutMembersInput = {
@@ -1260,6 +1283,7 @@ export type OrganizationUpdateWithoutMembersInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUpdateManyWithoutOrgNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutOrgNestedInput
   meetingSeries?: Prisma.MeetingSeriesUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutMembersInput = {
@@ -1300,6 +1324,7 @@ export type OrganizationUncheckedUpdateWithoutMembersInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUncheckedUpdateManyWithoutOrgNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutOrgNestedInput
   meetingSeries?: Prisma.MeetingSeriesUncheckedUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationCreateWithoutRecordingsInput = {
@@ -1340,6 +1365,7 @@ export type OrganizationCreateWithoutRecordingsInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityCreateNestedManyWithoutOrgInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutOrgInput
   meetingSeries?: Prisma.MeetingSeriesCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUncheckedCreateWithoutRecordingsInput = {
@@ -1380,6 +1406,7 @@ export type OrganizationUncheckedCreateWithoutRecordingsInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUncheckedCreateNestedManyWithoutOrgInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutOrgInput
   meetingSeries?: Prisma.MeetingSeriesUncheckedCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationCreateOrConnectWithoutRecordingsInput = {
@@ -1436,6 +1463,7 @@ export type OrganizationUpdateWithoutRecordingsInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUpdateManyWithoutOrgNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutOrgNestedInput
   meetingSeries?: Prisma.MeetingSeriesUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutRecordingsInput = {
@@ -1476,6 +1504,7 @@ export type OrganizationUncheckedUpdateWithoutRecordingsInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUncheckedUpdateManyWithoutOrgNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutOrgNestedInput
   meetingSeries?: Prisma.MeetingSeriesUncheckedUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationCreateWithoutMeetingSeriesInput = {
@@ -1516,6 +1545,7 @@ export type OrganizationCreateWithoutMeetingSeriesInput = {
   templates?: Prisma.NoteTemplateCreateNestedManyWithoutOrgInput
   knowledgeEntities?: Prisma.KnowledgeEntityCreateNestedManyWithoutOrgInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUncheckedCreateWithoutMeetingSeriesInput = {
@@ -1556,6 +1586,7 @@ export type OrganizationUncheckedCreateWithoutMeetingSeriesInput = {
   templates?: Prisma.NoteTemplateUncheckedCreateNestedManyWithoutOrgInput
   knowledgeEntities?: Prisma.KnowledgeEntityUncheckedCreateNestedManyWithoutOrgInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationCreateOrConnectWithoutMeetingSeriesInput = {
@@ -1612,6 +1643,7 @@ export type OrganizationUpdateWithoutMeetingSeriesInput = {
   templates?: Prisma.NoteTemplateUpdateManyWithoutOrgNestedInput
   knowledgeEntities?: Prisma.KnowledgeEntityUpdateManyWithoutOrgNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutMeetingSeriesInput = {
@@ -1652,6 +1684,7 @@ export type OrganizationUncheckedUpdateWithoutMeetingSeriesInput = {
   templates?: Prisma.NoteTemplateUncheckedUpdateManyWithoutOrgNestedInput
   knowledgeEntities?: Prisma.KnowledgeEntityUncheckedUpdateManyWithoutOrgNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationCreateWithoutTemplatesInput = {
@@ -1692,6 +1725,7 @@ export type OrganizationCreateWithoutTemplatesInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityCreateNestedManyWithoutOrgInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutOrgInput
   meetingSeries?: Prisma.MeetingSeriesCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUncheckedCreateWithoutTemplatesInput = {
@@ -1732,6 +1766,7 @@ export type OrganizationUncheckedCreateWithoutTemplatesInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUncheckedCreateNestedManyWithoutOrgInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutOrgInput
   meetingSeries?: Prisma.MeetingSeriesUncheckedCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationCreateOrConnectWithoutTemplatesInput = {
@@ -1788,6 +1823,7 @@ export type OrganizationUpdateWithoutTemplatesInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUpdateManyWithoutOrgNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutOrgNestedInput
   meetingSeries?: Prisma.MeetingSeriesUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
@@ -1828,6 +1864,7 @@ export type OrganizationUncheckedUpdateWithoutTemplatesInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUncheckedUpdateManyWithoutOrgNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutOrgNestedInput
   meetingSeries?: Prisma.MeetingSeriesUncheckedUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationCreateWithoutApiKeysInput = {
@@ -1868,6 +1905,7 @@ export type OrganizationCreateWithoutApiKeysInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityCreateNestedManyWithoutOrgInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutOrgInput
   meetingSeries?: Prisma.MeetingSeriesCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUncheckedCreateWithoutApiKeysInput = {
@@ -1908,6 +1946,7 @@ export type OrganizationUncheckedCreateWithoutApiKeysInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUncheckedCreateNestedManyWithoutOrgInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutOrgInput
   meetingSeries?: Prisma.MeetingSeriesUncheckedCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationCreateOrConnectWithoutApiKeysInput = {
@@ -1964,6 +2003,7 @@ export type OrganizationUpdateWithoutApiKeysInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUpdateManyWithoutOrgNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutOrgNestedInput
   meetingSeries?: Prisma.MeetingSeriesUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
@@ -2004,6 +2044,7 @@ export type OrganizationUncheckedUpdateWithoutApiKeysInput = {
   knowledgeEntities?: Prisma.KnowledgeEntityUncheckedUpdateManyWithoutOrgNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutOrgNestedInput
   meetingSeries?: Prisma.MeetingSeriesUncheckedUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationCreateWithoutKnowledgeEntitiesInput = {
@@ -2044,6 +2085,7 @@ export type OrganizationCreateWithoutKnowledgeEntitiesInput = {
   templates?: Prisma.NoteTemplateCreateNestedManyWithoutOrgInput
   soundbites?: Prisma.SoundbiteCreateNestedManyWithoutOrgInput
   meetingSeries?: Prisma.MeetingSeriesCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUncheckedCreateWithoutKnowledgeEntitiesInput = {
@@ -2084,6 +2126,7 @@ export type OrganizationUncheckedCreateWithoutKnowledgeEntitiesInput = {
   templates?: Prisma.NoteTemplateUncheckedCreateNestedManyWithoutOrgInput
   soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutOrgInput
   meetingSeries?: Prisma.MeetingSeriesUncheckedCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationCreateOrConnectWithoutKnowledgeEntitiesInput = {
@@ -2140,6 +2183,7 @@ export type OrganizationUpdateWithoutKnowledgeEntitiesInput = {
   templates?: Prisma.NoteTemplateUpdateManyWithoutOrgNestedInput
   soundbites?: Prisma.SoundbiteUpdateManyWithoutOrgNestedInput
   meetingSeries?: Prisma.MeetingSeriesUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutKnowledgeEntitiesInput = {
@@ -2180,6 +2224,7 @@ export type OrganizationUncheckedUpdateWithoutKnowledgeEntitiesInput = {
   templates?: Prisma.NoteTemplateUncheckedUpdateManyWithoutOrgNestedInput
   soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutOrgNestedInput
   meetingSeries?: Prisma.MeetingSeriesUncheckedUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationCreateWithoutSoundbitesInput = {
@@ -2220,6 +2265,7 @@ export type OrganizationCreateWithoutSoundbitesInput = {
   templates?: Prisma.NoteTemplateCreateNestedManyWithoutOrgInput
   knowledgeEntities?: Prisma.KnowledgeEntityCreateNestedManyWithoutOrgInput
   meetingSeries?: Prisma.MeetingSeriesCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationUncheckedCreateWithoutSoundbitesInput = {
@@ -2260,6 +2306,7 @@ export type OrganizationUncheckedCreateWithoutSoundbitesInput = {
   templates?: Prisma.NoteTemplateUncheckedCreateNestedManyWithoutOrgInput
   knowledgeEntities?: Prisma.KnowledgeEntityUncheckedCreateNestedManyWithoutOrgInput
   meetingSeries?: Prisma.MeetingSeriesUncheckedCreateNestedManyWithoutOrgInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutOrgInput
 }
 
 export type OrganizationCreateOrConnectWithoutSoundbitesInput = {
@@ -2316,6 +2363,7 @@ export type OrganizationUpdateWithoutSoundbitesInput = {
   templates?: Prisma.NoteTemplateUpdateManyWithoutOrgNestedInput
   knowledgeEntities?: Prisma.KnowledgeEntityUpdateManyWithoutOrgNestedInput
   meetingSeries?: Prisma.MeetingSeriesUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutOrgNestedInput
 }
 
 export type OrganizationUncheckedUpdateWithoutSoundbitesInput = {
@@ -2356,6 +2404,187 @@ export type OrganizationUncheckedUpdateWithoutSoundbitesInput = {
   templates?: Prisma.NoteTemplateUncheckedUpdateManyWithoutOrgNestedInput
   knowledgeEntities?: Prisma.KnowledgeEntityUncheckedUpdateManyWithoutOrgNestedInput
   meetingSeries?: Prisma.MeetingSeriesUncheckedUpdateManyWithoutOrgNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutOrgNestedInput
+}
+
+export type OrganizationCreateWithoutWebhookEndpointsInput = {
+  id?: string
+  name: string
+  slug: string
+  plan?: $Enums.Plan
+  clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
+  dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
+  trialStartedAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  notes?: string | null
+  maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.OrgMemberCreateNestedManyWithoutOrgInput
+  recordings?: Prisma.RecordingCreateNestedManyWithoutOrgInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutOrgInput
+  templates?: Prisma.NoteTemplateCreateNestedManyWithoutOrgInput
+  knowledgeEntities?: Prisma.KnowledgeEntityCreateNestedManyWithoutOrgInput
+  soundbites?: Prisma.SoundbiteCreateNestedManyWithoutOrgInput
+  meetingSeries?: Prisma.MeetingSeriesCreateNestedManyWithoutOrgInput
+}
+
+export type OrganizationUncheckedCreateWithoutWebhookEndpointsInput = {
+  id?: string
+  name: string
+  slug: string
+  plan?: $Enums.Plan
+  clerkOrgId?: string | null
+  slackWebhookUrl?: string | null
+  notionApiKey?: string | null
+  notionDatabaseId?: string | null
+  deleteAudioAfterTranscription?: boolean
+  postMeetingEmail?: boolean
+  dailyDigest?: boolean
+  defaultTranscriptionLanguage?: string
+  botDisplayName?: string
+  ssoEnabled?: boolean
+  ssoDomain?: string | null
+  samlMetadataUrl?: string | null
+  trialStartedAt?: Date | string | null
+  trialEndsAt?: Date | string | null
+  notes?: string | null
+  maxRecordingsPerMonth?: number
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  suspended?: boolean
+  suspendedReason?: string | null
+  autoRecordMeetings?: boolean
+  lastCalendarBotRun?: Date | string | null
+  internalJargon?: string | null
+  companyDescription?: string | null
+  autoDeleteTranscriptsDays?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.OrgMemberUncheckedCreateNestedManyWithoutOrgInput
+  recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutOrgInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutOrgInput
+  templates?: Prisma.NoteTemplateUncheckedCreateNestedManyWithoutOrgInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUncheckedCreateNestedManyWithoutOrgInput
+  soundbites?: Prisma.SoundbiteUncheckedCreateNestedManyWithoutOrgInput
+  meetingSeries?: Prisma.MeetingSeriesUncheckedCreateNestedManyWithoutOrgInput
+}
+
+export type OrganizationCreateOrConnectWithoutWebhookEndpointsInput = {
+  where: Prisma.OrganizationWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutWebhookEndpointsInput, Prisma.OrganizationUncheckedCreateWithoutWebhookEndpointsInput>
+}
+
+export type OrganizationUpsertWithoutWebhookEndpointsInput = {
+  update: Prisma.XOR<Prisma.OrganizationUpdateWithoutWebhookEndpointsInput, Prisma.OrganizationUncheckedUpdateWithoutWebhookEndpointsInput>
+  create: Prisma.XOR<Prisma.OrganizationCreateWithoutWebhookEndpointsInput, Prisma.OrganizationUncheckedCreateWithoutWebhookEndpointsInput>
+  where?: Prisma.OrganizationWhereInput
+}
+
+export type OrganizationUpdateToOneWithWhereWithoutWebhookEndpointsInput = {
+  where?: Prisma.OrganizationWhereInput
+  data: Prisma.XOR<Prisma.OrganizationUpdateWithoutWebhookEndpointsInput, Prisma.OrganizationUncheckedUpdateWithoutWebhookEndpointsInput>
+}
+
+export type OrganizationUpdateWithoutWebhookEndpointsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.OrgMemberUpdateManyWithoutOrgNestedInput
+  recordings?: Prisma.RecordingUpdateManyWithoutOrgNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutOrgNestedInput
+  templates?: Prisma.NoteTemplateUpdateManyWithoutOrgNestedInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUpdateManyWithoutOrgNestedInput
+  soundbites?: Prisma.SoundbiteUpdateManyWithoutOrgNestedInput
+  meetingSeries?: Prisma.MeetingSeriesUpdateManyWithoutOrgNestedInput
+}
+
+export type OrganizationUncheckedUpdateWithoutWebhookEndpointsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  clerkOrgId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notionDatabaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deleteAudioAfterTranscription?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  postMeetingEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dailyDigest?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  defaultTranscriptionLanguage?: Prisma.StringFieldUpdateOperationsInput | string
+  botDisplayName?: Prisma.StringFieldUpdateOperationsInput | string
+  ssoEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ssoDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  samlMetadataUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trialStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  maxRecordingsPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  suspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  suspendedReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoRecordMeetings?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  lastCalendarBotRun?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  internalJargon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoDeleteTranscriptsDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.OrgMemberUncheckedUpdateManyWithoutOrgNestedInput
+  recordings?: Prisma.RecordingUncheckedUpdateManyWithoutOrgNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutOrgNestedInput
+  templates?: Prisma.NoteTemplateUncheckedUpdateManyWithoutOrgNestedInput
+  knowledgeEntities?: Prisma.KnowledgeEntityUncheckedUpdateManyWithoutOrgNestedInput
+  soundbites?: Prisma.SoundbiteUncheckedUpdateManyWithoutOrgNestedInput
+  meetingSeries?: Prisma.MeetingSeriesUncheckedUpdateManyWithoutOrgNestedInput
 }
 
 
@@ -2371,6 +2600,7 @@ export type OrganizationCountOutputType = {
   knowledgeEntities: number
   soundbites: number
   meetingSeries: number
+  webhookEndpoints: number
 }
 
 export type OrganizationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2381,6 +2611,7 @@ export type OrganizationCountOutputTypeSelect<ExtArgs extends runtime.Types.Exte
   knowledgeEntities?: boolean | OrganizationCountOutputTypeCountKnowledgeEntitiesArgs
   soundbites?: boolean | OrganizationCountOutputTypeCountSoundbitesArgs
   meetingSeries?: boolean | OrganizationCountOutputTypeCountMeetingSeriesArgs
+  webhookEndpoints?: boolean | OrganizationCountOutputTypeCountWebhookEndpointsArgs
 }
 
 /**
@@ -2442,6 +2673,13 @@ export type OrganizationCountOutputTypeCountMeetingSeriesArgs<ExtArgs extends ru
   where?: Prisma.MeetingSeriesWhereInput
 }
 
+/**
+ * OrganizationCountOutputType without action
+ */
+export type OrganizationCountOutputTypeCountWebhookEndpointsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WebhookEndpointWhereInput
+}
+
 
 export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2482,6 +2720,7 @@ export type OrganizationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   knowledgeEntities?: boolean | Prisma.Organization$knowledgeEntitiesArgs<ExtArgs>
   soundbites?: boolean | Prisma.Organization$soundbitesArgs<ExtArgs>
   meetingSeries?: boolean | Prisma.Organization$meetingSeriesArgs<ExtArgs>
+  webhookEndpoints?: boolean | Prisma.Organization$webhookEndpointsArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["organization"]>
 
@@ -2596,6 +2835,7 @@ export type OrganizationInclude<ExtArgs extends runtime.Types.Extensions.Interna
   knowledgeEntities?: boolean | Prisma.Organization$knowledgeEntitiesArgs<ExtArgs>
   soundbites?: boolean | Prisma.Organization$soundbitesArgs<ExtArgs>
   meetingSeries?: boolean | Prisma.Organization$meetingSeriesArgs<ExtArgs>
+  webhookEndpoints?: boolean | Prisma.Organization$webhookEndpointsArgs<ExtArgs>
   _count?: boolean | Prisma.OrganizationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2611,6 +2851,7 @@ export type $OrganizationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     knowledgeEntities: Prisma.$KnowledgeEntityPayload<ExtArgs>[]
     soundbites: Prisma.$SoundbitePayload<ExtArgs>[]
     meetingSeries: Prisma.$MeetingSeriesPayload<ExtArgs>[]
+    webhookEndpoints: Prisma.$WebhookEndpointPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3045,6 +3286,7 @@ export interface Prisma__OrganizationClient<T, Null = never, ExtArgs extends run
   knowledgeEntities<T extends Prisma.Organization$knowledgeEntitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$knowledgeEntitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$KnowledgeEntityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   soundbites<T extends Prisma.Organization$soundbitesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$soundbitesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SoundbitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   meetingSeries<T extends Prisma.Organization$meetingSeriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$meetingSeriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MeetingSeriesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  webhookEndpoints<T extends Prisma.Organization$webhookEndpointsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Organization$webhookEndpointsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3663,6 +3905,30 @@ export type Organization$meetingSeriesArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.MeetingSeriesScalarFieldEnum | Prisma.MeetingSeriesScalarFieldEnum[]
+}
+
+/**
+ * Organization.webhookEndpoints
+ */
+export type Organization$webhookEndpointsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WebhookEndpoint
+   */
+  select?: Prisma.WebhookEndpointSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WebhookEndpoint
+   */
+  omit?: Prisma.WebhookEndpointOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WebhookEndpointInclude<ExtArgs> | null
+  where?: Prisma.WebhookEndpointWhereInput
+  orderBy?: Prisma.WebhookEndpointOrderByWithRelationInput | Prisma.WebhookEndpointOrderByWithRelationInput[]
+  cursor?: Prisma.WebhookEndpointWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WebhookEndpointScalarFieldEnum | Prisma.WebhookEndpointScalarFieldEnum[]
 }
 
 /**

@@ -83,6 +83,12 @@ enum KnowledgeEntityType {
   PROJECT
 }
 
+enum WebhookDeliveryStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
 // ─── Models ───────────────────────────────────────────────────────────────────
 
 model Organization {
@@ -157,6 +163,7 @@ model Organization {
   knowledgeEntities KnowledgeEntity[]
   soundbites       Soundbite[]
   meetingSeries    MeetingSeries[]
+  webhookEndpoints WebhookEndpoint[]
 }
 
 model OrgMember {
@@ -219,6 +226,7 @@ model Recording {
   importPlatform   String?
   importedAt       DateTime?
   summaryEmailSentAt DateTime?  // idempotency guard — set when post-meeting summary email is sent
+  webhookSentAt      DateTime?  // idempotency stamp for recording.ready webhook fan-out; mirrors summaryEmailSentAt
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
@@ -604,4 +612,44 @@ model WebPushSubscription {
   orgMember OrgMember @relation(fields: [orgMemberId], references: [id], onDelete: Cascade)
 
   @@index([orgMemberId])
+}
+
+// ── Outbound webhooks ──────────────────────────────────────────────────────────
+// WebhookEndpoint: a customer-registered URL that receives signed POST payloads
+// for events (e.g. recording.ready). Secret is stored plaintext — callers HMAC
+// sign payloads with it; customers verify on their end.
+// WebhookDelivery: append-only audit row per attempt. Idempotency on Recording
+// is via Recording.webhookSentAt (JS null-check, not a Prisma DateTime filter).
+
+model WebhookEndpoint {
+  id          String   @id @default(cuid())
+  orgId       String
+  url         String
+  secret      String
+  enabled     Boolean  @default(true)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  org        Organization      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  deliveries WebhookDelivery[]
+
+  @@index([orgId, enabled])
+}
+
+model WebhookDelivery {
+  id           String                @id @default(cuid())
+  endpointId   String
+  recordingId  String?
+  event        String
+  status       WebhookDeliveryStatus @default(PENDING)
+  responseCode Int?
+  attempts     Int                   @default(0)
+  lastError    String?
+  createdAt    DateTime              @default(now())
+  deliveredAt  DateTime?
+
+  endpoint WebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@index([endpointId, createdAt])
 }
