@@ -6,7 +6,7 @@
 **Production:** https://app.kolasys.ai  
 **tRPC API:** `https://app.kolasys.ai/api/trpc`  
 **Mobile repo:** `~/Desktop/kolasys-ai-mobile` · `github.com/kolasystems/kolasys-ai-mobile`  
-**Last updated:** 2026-06-08
+**Last updated:** 2026-06-10
 
 ---
 
@@ -142,12 +142,14 @@ src/
 │       ├── knowledge.router.ts
 │       ├── templates.router.ts
 │       ├── billing.router.ts         getSubscription / createCheckoutSession / createPortalSession
-│       └── soundbites.router.ts      Soundbites list / create / delete
+│       ├── soundbites.router.ts      Soundbites list / create / delete
+│       └── webhooks.router.ts        Webhook endpoint CRUD + rotateSecret (OWNER/ADMIN only)
 ├── workers/
 │   ├── transcription.worker.ts       Upstash Redis queue consumer + bot-ingestion consumer (runs together)
 │   ├── summarization.worker.ts       Steps 5–8.6: summary, AI-title (8.4), push (8.5), knowledge (8.6)
 │   ├── calendar-bot.worker.ts        Poll-based calendar bot deployer (setInterval, not queue)
-│   └── bot-poller.worker.ts          Safety net — polls Recall.ai every 2 min, enqueues stuck MEETING_BOT recordings
+│   ├── bot-poller.worker.ts          Safety net — polls Recall.ai every 2 min, enqueues stuck MEETING_BOT recordings
+│   └── webhook-delivery.worker.ts    BullMQ consumer for outbound webhook POSTs; co-hosted in summarization-worker process
 ├── services/
 │   ├── push.service.ts               sendExpoPush() — Expo Push API, no SDK
 │   └── summarization.service.ts      summarizeTranscript / generateAiMeetingTitle / formatTitleWithDate
@@ -156,6 +158,7 @@ src/
 │   ├── api-auth.ts                   Bearer token auth for /api/v1/ routes (skips suspended orgs)
 │   ├── stripe.ts                     Lazy Stripe SDK + checkout/portal helpers + planForPriceId
 │   ├── web-push.ts                   sendWebPush / sendWebPushToMember (auto-prunes 404/410)
+│   ├── webhook-signing.ts            signWebhookPayload — HMAC-SHA256, Stripe-compatible header scheme
 │   ├── speaker-substitute.ts         applySpeakerLabels — render-time SPEAKER_N → name
 │   └── trpc.ts                       tRPC context + middleware
 ├── components/
@@ -168,6 +171,7 @@ src/
 │   ├── trial-banner.tsx              Sticky banner in dashboard layout
 │   ├── web-push-registrar.tsx        Registers /sw.js + subscribes to push on mount
 │   ├── api-keys-section.tsx          API Keys UI in Settings
+│   ├── webhooks-section.tsx          Webhook endpoint management UI in Settings
 │   ├── audio-retention-toggle.tsx
 │   ├── post-meeting-email-toggle.tsx
 │   ├── daily-digest-toggle.tsx
@@ -273,6 +277,24 @@ templates.list               GET    — org + global templates
                                     Fields: id, name, description, prompt (NOT promptText),
                                     category, structure, autoApplyRules, isDefault, isGlobal, orgId
                                     No usageCount field.
+```
+
+### webhooks.router.ts
+```
+webhooks.list                GET    — returns endpoints for org; never exposes raw secret
+                                    Fields: id, url, enabled, description, createdAt, secretHint
+                                    secretHint = "whsec_…" + last 4 chars
+webhooks.create              POST   { url: string (URL), description?: string (max 200) }
+                                    Auth: OWNER or ADMIN only (MEMBER → FORBIDDEN)
+                                    Returns: { id, url, enabled, description, createdAt, secret }
+                                    secret returned ONCE — never shown again (same pattern as apiKeys)
+webhooks.update              POST   { id, enabled?: boolean, url?: string, description?: string }
+                                    Auth: OWNER or ADMIN only
+webhooks.delete              POST   { id }
+                                    Auth: OWNER or ADMIN only
+webhooks.rotateSecret        POST   { id }
+                                    Auth: OWNER or ADMIN only
+                                    Returns: { id, secret } — new secret returned ONCE
 ```
 
 ---
@@ -392,6 +414,11 @@ All four workers run on Railway `glorious-serenity` (us-east1) 24/7.
 - Sends Expo push via `src/services/push.service.ts` (`sendExpoPush()`)
 - Push payload: `{ title: recordingTitle, body: 3 bullet points, data: { recordingId }, sound: 'default' }`
 - Push failure never fails the job (wrapped in try/catch)
+- Step 11: sends post-meeting summary email via `sendSummaryEmail(recordingId)`
+- Step 12: webhook fan-out — enqueues one `webhook-delivery` BullMQ job per enabled endpoint.
+  **Does NOT make the HTTP POST itself** — all POSTs happen in `webhook-delivery.worker.ts`.
+  Idempotent via `Recording.webhookSentAt` JS null-check. Non-fatal (wrapped in try/catch).
+- Co-hosts `webhookDeliveryWorker` in the same process (imported at top-level → starts on import)
 
 **Railway env vars:** `NEXT_PUBLIC_APP_URL=https://app.kolasys.ai`  
 **Local env:** `NEXT_PUBLIC_APP_URL=http://localhost:3000`  
@@ -439,6 +466,7 @@ Current sections in `src/app/dashboard/settings/page.tsx`:
 | Default language | `DefaultLanguageSelector` | 16 languages + auto-detect |
 | AI Skills & Templates | link | → /dashboard/settings/templates |
 | API Keys | `ApiKeysSection` | Live — generate/revoke, show once |
+| Webhooks | `WebhooksSection` | Live — endpoint list, add, enable/disable toggle, rotate secret (reveal once), delete (inline confirm) |
 | Billing | link | → `/dashboard/billing` (live) |
 
 ---
@@ -970,6 +998,7 @@ send is independently non-fatal — failures log but never fail the job.
 | `5ff08cf` | chore: add summary-email backfill script |
 | `bcf2849` | fix: backfill script — wrap in async main() for CJS compat |
 | `12b4909` | feat: add Open Items & Unresolved Questions section to summary prompt |
+| `ce34f3a` | feat: outbound webhooks — schema, tRPC router, delivery worker, settings UI |
 
 ---
 
@@ -1276,3 +1305,119 @@ Honours all guards and idempotency — safe to re-run; already-sent recordings a
 - **Unverified sender domain** → email delivered only to the Resend account owner. Requires a verified domain (`send.kolasys.ai`) to reach any other address.
 - **`send.kolasys.ai` is new** → expect spam-foldering until domain reputation warms.
 - **Security TODO**: rotate `RESEND_API_KEY` and the live `CLERK_SECRET_KEY` — both were visible during setup.
+
+---
+
+## Outbound webhooks (2026-06-10)
+
+Sends a signed `recording.ready` HTTP POST to customer-configured endpoints each time a meeting finishes processing.
+
+### Architecture
+
+```
+summarization worker (Step 12)
+  → creates WebhookDelivery row (PENDING)
+  → enqueues to webhookDeliveryQueue (BullMQ)
+      ↓
+webhook-delivery.worker.ts (co-hosted in summarization-worker process)
+  → POSTs to customer URL with X-Kolasys-Signature header
+  → 3 attempts, exponential backoff (5s), 10s timeout per attempt
+  → marks WebhookDelivery SUCCESS or FAILED
+```
+
+Step 12 **never** makes the HTTP POST itself. A slow or dead customer endpoint cannot block or fail the summarization pipeline.
+
+### Signing scheme
+
+Mirrors Stripe's HMAC-SHA256 approach:
+```
+signed_payload = "${timestampSec}.${rawBodyString}"
+hmac           = HMAC-SHA256(key=endpoint.secret, data=signed_payload) → hex
+header         = "t=${timestampSec},v1=${hmac}"
+```
+Header name: `X-Kolasys-Signature`. Signing util: `src/lib/webhook-signing.ts`.
+
+### Event payload — `recording.ready`
+
+```json
+{
+  "event": "recording.ready",
+  "timestamp": "<ISO-8601>",
+  "data": {
+    "recordingId": "...",
+    "orgId": "...",
+    "title": "Jun 10 — Q3 planning",
+    "status": "READY",
+    "source": "UPLOAD | MEETING_BOT | IMPORT",
+    "durationSeconds": 1842,
+    "createdAt": "<ISO-8601>",
+    "summary": "<markdown string or null>",
+    "actionItemCount": 5
+  }
+}
+```
+
+### Schema
+
+```prisma
+enum WebhookDeliveryStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model WebhookEndpoint {
+  id          String   @id @default(cuid())
+  orgId       String
+  url         String
+  secret      String   // whsec_ prefix + 48 random hex chars; stored plaintext
+  enabled     Boolean  @default(true)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([orgId, enabled])
+}
+
+model WebhookDelivery {
+  id           String                @id @default(cuid())
+  endpointId   String
+  recordingId  String?
+  event        String
+  status       WebhookDeliveryStatus @default(PENDING)
+  responseCode Int?
+  attempts     Int                   @default(0)
+  lastError    String?
+  createdAt    DateTime              @default(now())
+  deliveredAt  DateTime?
+  @@index([endpointId, createdAt])
+}
+```
+
+New field on `Recording`: `webhookSentAt DateTime?` — idempotency stamp; fan-out is skipped if non-null (JS null-check, same pattern as `summaryEmailSentAt`).
+
+### Security: secret exposure rules
+
+- `webhooks.create` and `webhooks.rotateSecret` return the raw `secret` **once** in the response.
+- `webhooks.list` returns only `secretHint = "whsec_…" + last 4 chars`. Never returns the raw secret.
+- UI shows the amber "Copy now — won't be shown again" reveal-once modal for both flows.
+
+### Role gate
+
+`webhooks.create`, `update`, `delete`, `rotateSecret` require `MemberRole.OWNER` or `MemberRole.ADMIN`. `MemberRole.MEMBER` gets `FORBIDDEN`. `webhooks.list` is accessible to all org members.
+
+### Files
+
+| File | Purpose |
+|---|---|
+| `src/server/routers/webhooks.router.ts` | tRPC router — 5 procedures |
+| `src/lib/webhook-signing.ts` | `signWebhookPayload()` |
+| `src/lib/queues.ts` | `webhookDeliveryQueue` + `WebhookDeliveryJobData` type |
+| `src/workers/webhook-delivery.worker.ts` | BullMQ delivery worker (co-hosted) |
+| `src/components/webhooks-section.tsx` | Settings UI |
+
+### Gotchas
+
+- **MEMBER role blocks mutations** — `webhooks.create` throws FORBIDDEN for `MemberRole.MEMBER`. Ensure the calling user's `OrgMember.role` is `OWNER` or `ADMIN`.
+- **Delivery worker co-hosting** — `webhook-delivery.worker.ts` is imported at the top of `summarization.worker.ts`; importing it starts the BullMQ Worker. If you ever split it out to its own Railway service, remove the import from `summarization.worker.ts` and add a new `railway.toml` entry.
+- **Body must be POSTed byte-for-byte** — `webhook-delivery.worker.ts` receives the exact JSON string that was signed at enqueue time and must send those exact bytes. Do not re-serialize on the delivery side.
+- **No Railway env vars needed** — delivery worker uses the same `DATABASE_URL` and `REDIS_URL` already on `summarization-worker`.
