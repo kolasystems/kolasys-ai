@@ -35,14 +35,23 @@ function initialOf(title: string): string {
 export default async function DashboardPage() {
   const [{ orgId }, user] = await Promise.all([auth(), currentUser()])
 
+  // Resolve the internal DB org id from the Clerk org id.
+  // orgProcedure does this for tRPC routes; the dashboard page hits the DB
+  // directly so it must do the same translation. orgId from auth() is the
+  // Clerk org id (e.g. org_xxx), NOT the internal cuid stored on recordings.
+  const org = orgId
+    ? await db.organization.findFirst({ where: { clerkOrgId: orgId }, select: { id: true } })
+    : null
+  const dbOrgId = org?.id ?? null
+
   // Stats — cheap home-page counts. Contacts ≈ distinct SpeakerLabel.displayName
   // for the org (the exact aggregation lives on /contacts).
   const [recordingCount, actionItemCount, distinctLabels] = await Promise.all([
-    orgId ? db.recording.count({ where: { orgId } }) : 0,
-    orgId ? db.actionItem.count({ where: { orgId, status: 'OPEN' } }) : 0,
-    orgId
+    dbOrgId ? db.recording.count({ where: { orgId: dbOrgId } }) : 0,
+    dbOrgId ? db.actionItem.count({ where: { orgId: dbOrgId, status: 'OPEN' } }) : 0,
+    dbOrgId
       ? db.speakerLabel.findMany({
-          where: { recording: { orgId } },
+          where: { recording: { orgId: dbOrgId } },
           distinct: ['displayName'],
           select: { displayName: true },
         })
@@ -50,9 +59,9 @@ export default async function DashboardPage() {
   ])
   const contactCount = distinctLabels.length
 
-  const recentRecordings = orgId
+  const recentRecordings = dbOrgId
     ? await db.recording.findMany({
-        where: { orgId },
+        where: { orgId: dbOrgId },
         orderBy: { createdAt: 'desc' },
         take: 5,
         select: {
@@ -64,10 +73,10 @@ export default async function DashboardPage() {
       })
     : []
 
-  const stuckRecordings = orgId
+  const stuckRecordings = dbOrgId
     ? await db.recording.findMany({
         where: {
-          orgId,
+          orgId: dbOrgId,
           status: { in: ['PENDING', 'PROCESSING', 'TRANSCRIBING', 'SUMMARIZING'] },
           createdAt: { lt: new Date(Date.now() - STUCK_THRESHOLD_MS) },
         },
