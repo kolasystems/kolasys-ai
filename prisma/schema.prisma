@@ -447,12 +447,17 @@ model ApiKey {
   // Last 4 chars of the raw key, displayed in the UI as `kol_…XXXX` so
   // users can identify which key they're looking at without revealing it.
   keyPreview String       @default("")
-  lastUsedAt DateTime?
+  lastUsedAt      DateTime?
   // When non-null, the key has been revoked and authentication must reject
   // it. Soft-delete instead of hard-delete so audit trails survive.
-  revokedAt  DateTime?
-  expiresAt  DateTime?
-  createdAt  DateTime     @default(now())
+  revokedAt       DateTime?
+  expiresAt       DateTime?
+  // Clerk user ID of the member who minted this key. Absent for keys created
+  // before 2026-06-11 (schema was added then). Gates org-settings writes in
+  // PATCH /api/v1/organization — keys without a linked user cannot write org
+  // settings (safe default; regenerate the key to gain access).
+  createdByUserId String?
+  createdAt       DateTime @default(now())
 
   org Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
 

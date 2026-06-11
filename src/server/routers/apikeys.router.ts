@@ -55,6 +55,7 @@ export const apiKeysRouter = router({
           name: input.name,
           keyHash,
           keyPreview,
+          createdByUserId: ctx.userId,
         },
         select: {
           id: true,

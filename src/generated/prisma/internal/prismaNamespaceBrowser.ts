@@ -350,6 +350,7 @@ export const ApiKeyScalarFieldEnum = {
   lastUsedAt: 'lastUsedAt',
   revokedAt: 'revokedAt',
   expiresAt: 'expiresAt',
+  createdByUserId: 'createdByUserId',
   createdAt: 'createdAt'
 } as const
 

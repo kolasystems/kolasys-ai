@@ -52,7 +52,7 @@ async function verifyKolApiKey(raw: string): Promise<ApiKeyAuth | null> {
 
   const key = await db.apiKey.findFirst({
     where: { keyHash, revokedAt: null },
-    select: { id: true, orgId: true },
+    select: { id: true, orgId: true, createdByUserId: true },
   })
   if (!key) return null
 
@@ -75,7 +75,13 @@ async function verifyKolApiKey(raw: string): Promise<ApiKeyAuth | null> {
       console.error('[api-auth] failed to update lastUsedAt:', err)
     })
 
-  return { orgId: key.orgId, keyId: key.id }
+  return {
+    orgId: key.orgId,
+    keyId: key.id,
+    // Expose the creating user so callers can look up their role. Absent for
+    // keys minted before 2026-06-11 (createdByUserId was added then).
+    userId: key.createdByUserId ?? undefined,
+  }
 }
 
 // ── Clerk session-JWT verification ────────────────────────────────────────
@@ -91,6 +97,27 @@ async function verifyClerkSession(token: string): Promise<ApiKeyAuth | null> {
 
   if (!verified?.sub) return null
 
+  // Clerk JWTs include `org_id` when the user has an active org session.
+  // Use it to resolve the specific org rather than falling back to a bare
+  // userId lookup, which would pick an arbitrary OrgMember row for users
+  // who belong to multiple orgs (multi-org calendar / settings bugs).
+  const orgIdClaim = (verified as Record<string, unknown>).org_id as string | undefined
+
+  if (orgIdClaim) {
+    const org = await db.organization.findFirst({
+      where: { clerkOrgId: orgIdClaim },
+      select: { id: true, suspended: true },
+    })
+    if (!org || org.suspended) return null
+    const memberCheck = await db.orgMember.findFirst({
+      where: { orgId: org.id, userId: verified.sub },
+      select: { id: true },
+    })
+    if (!memberCheck) return null
+    return { orgId: org.id, keyId: `clerk:${verified.sub}`, userId: verified.sub }
+  }
+
+  // Fallback: no org_id claim (single-org users, older Clerk JWT templates).
   const member = await db.orgMember.findFirst({
     where: { userId: verified.sub },
     include: { org: true },
